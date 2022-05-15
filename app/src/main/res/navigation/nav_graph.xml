@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/StartFragment">
+
+    <fragment
+        android:id="@+id/StartFragment"
+        android:name="com.databits.androidscouting.MainFragment"
+        android:label="@string/main_title"
+        tools:layout="@layout/fragment_main">
+
+        <action
+            android:id="@+id/action_StartFragment_to_crowdScoutFragment"
+            app:destination="@id/crowdScoutFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_pitScoutFragment"
+            app:destination="@id/pitScoutFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_masterScoutFragment"
+            app:destination="@id/masterScoutFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_driveTeamFragment"
+            app:destination="@id/driveTeamFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/SettingsFragment"
+        android:name="com.databits.androidscouting.SettingsFragment"
+        android:label="@string/settings_fragment_label"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_SettingsFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/ScannerFragment"
+        android:name="com.databits.androidscouting.ScannerFragment"
+        android:label="Scanner Fragment"
+        tools:layout="@layout/fragment_scanner">
+        <action
+            android:id="@+id/action_ScannerFragment_to_masterScoutFragment"
+            app:destination="@id/masterScoutFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/crowdScoutFragment"
+        android:name="com.databits.androidscouting.CrowdScoutFragment"
+        android:label="fragment_crowd_scout"
+        tools:layout="@layout/fragment_crowd_scout" >
+        <action
+            android:id="@+id/action_crowdScoutFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+        <action
+            android:id="@+id/action_crowdScoutFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pitScoutFragment"
+        android:name="com.databits.androidscouting.PitScoutFragment"
+        android:label="fragment_pit_scout"
+        tools:layout="@layout/fragment_pit_scout" >
+        <action
+            android:id="@+id/action_pitScoutFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+        <action
+            android:id="@+id/action_pitScoutFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/masterScoutFragment"
+        android:name="com.databits.androidscouting.MasterScoutFragment"
+        android:label="fragment_master_scout"
+        tools:layout="@layout/fragment_master_scout" >
+        <action
+            android:id="@+id/action_masterScoutFragment_to_ScannerFragment"
+            app:destination="@id/ScannerFragment" />
+        <action
+            android:id="@+id/action_masterScoutFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+        <action
+            android:id="@+id/action_masterScoutFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/driveTeamFragment"
+        android:name="com.databits.androidscouting.DriveTeamFragment"
+        android:label="fragment_drive_team"
+        tools:layout="@layout/fragment_drive_team" >
+        <action
+            android:id="@+id/action_driveTeamFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+    </fragment>
+</navigation>
