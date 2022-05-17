@@ -33,6 +33,9 @@ public class CrowdScoutFragment extends Fragment {
 
         NavController controller = NavHostFragment.findNavController(CrowdScoutFragment.this);
 
+        binding.buttonQr.setOnClickListener(view1 -> controller
+                .navigate(R.id.action_crowdScoutFragment_to_QRFragment));
+
         binding.buttonBack.setOnClickListener(view1 -> controller
                 .navigate(R.id.action_crowdScoutFragment_to_StartFragment));
     }

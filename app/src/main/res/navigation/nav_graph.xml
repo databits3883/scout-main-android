@@ -56,6 +56,9 @@
         <action
             android:id="@+id/action_crowdScoutFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
+        <action
+            android:id="@+id/action_crowdScoutFragment_to_QRFragment"
+            app:destination="@id/QRFragment" />
     </fragment>
     <fragment
         android:id="@+id/pitScoutFragment"
@@ -92,5 +95,14 @@
         <action
             android:id="@+id/action_driveTeamFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/QRFragment"
+        android:name="com.databits.androidscouting.QRFragment"
+        android:label="fragment_q_r"
+        tools:layout="@layout/fragment_q_r" >
+        <action
+            android:id="@+id/action_QRFragment_to_crowdScoutFragment"
+            app:destination="@id/crowdScoutFragment" />
     </fragment>
 </navigation>

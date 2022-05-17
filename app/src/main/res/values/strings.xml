@@ -16,4 +16,5 @@
     <string name="action_main">Main Menu</string>
     <string name="scouting_select_text">Select your strategy position</string>
     <string name="main_title">Welcome to the Scouting app</string>
+    <string name="back_to_main">Back to main page</string>
 </resources>
