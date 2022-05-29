@@ -26,6 +26,9 @@
         <action
             android:id="@+id/action_StartFragment_to_driveTeamFragment"
             app:destination="@id/driveTeamFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_demoFragment"
+            app:destination="@id/demoFragment" />
     </fragment>
     <fragment
         android:id="@+id/SettingsFragment"
@@ -104,5 +107,14 @@
         <action
             android:id="@+id/action_QRFragment_to_crowdScoutFragment"
             app:destination="@id/crowdScoutFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/demoFragment"
+        android:name="com.databits.androidscouting.DemoFragment"
+        android:label="fragment_demo"
+        tools:layout="@layout/fragment_demo" >
+        <action
+            android:id="@+id/action_demoFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
     </fragment>
 </navigation>

@@ -41,6 +41,18 @@
         app:layout_constraintTop_toTopOf="@+id/guideline_h_30_percent" />
 
     <Button
+        android:id="@+id/button_demo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@android:color/holo_blue_dark"
+        android:text="Demo Mode"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_v_75_percent"
+        app:layout_constraintStart_toStartOf="@+id/guideline_v_25_percent"
+        app:layout_constraintTop_toBottomOf="@+id/button_drive_team" />
+
+    <Button
         android:id="@+id/button_pit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

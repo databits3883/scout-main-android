@@ -40,6 +40,8 @@ public class MainFragment extends Fragment {
                 .navigate(R.id.action_StartFragment_to_pitScoutFragment));
         binding.buttonDriveTeam.setOnClickListener(view1 -> controller
                 .navigate(R.id.action_StartFragment_to_driveTeamFragment));
+        binding.buttonDemo.setOnClickListener(view1 -> controller
+                .navigate(R.id.action_StartFragment_to_demoFragment));
     }
 
     @Override
