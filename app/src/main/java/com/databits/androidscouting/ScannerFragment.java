@@ -1,5 +1,6 @@
 package com.databits.androidscouting;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,6 +34,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
+
+@RuntimePermissions
 public class ScannerFragment extends Fragment {
 
     private static final String TAG = "MLKit Barcode";
@@ -66,10 +71,19 @@ public class ScannerFragment extends Fragment {
         binding.buttonBack.setOnClickListener(view1 -> controller
                 .navigate(R.id.action_ScannerFragment_to_masterScoutFragment));
         previewView = binding.getRoot().findViewById(R.id.previewView);
+        ScannerFragmentPermissionsDispatcher.setupCameraWithPermissionCheck(this);
         setupCamera();
     }
 
-    private void setupCamera() {
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        ScannerFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @NeedsPermission(Manifest.permission.CAMERA)
+    public void setupCamera() {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(requireContext());
 
