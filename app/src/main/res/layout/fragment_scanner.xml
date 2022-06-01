@@ -4,8 +4,105 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingsFragment"
-    android:background="@color/teal_200">
+    tools:context=".SettingsFragment">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/blue1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/editbox_background"
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:text="@string/team_placeholder"
+        android:padding="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/blue2"
+        app:layout_constraintEnd_toStartOf="@+id/blue2"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/blue2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/editbox_background"
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:padding="5dp"
+        android:text="@string/team_placeholder"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/red2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <TextView
+        android:id="@+id/blue3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/editbox_background"
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:text="@string/team_placeholder"
+        android:padding="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/blue2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/blue2" />
+
+    <TextView
+        android:id="@+id/red1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/editbox_background"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:text="@string/team_placeholder"
+        android:padding="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/red2"
+        app:layout_constraintEnd_toStartOf="@+id/red2"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/red2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/editbox_background"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:padding="5dp"
+        android:text="@string/team_placeholder"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/red3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/editbox_background"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:text="@string/team_placeholder"
+        android:padding="5dp"
+        android:textColor="@android:color/white"
+        android:textSize="36sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/red2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/red2" />
 
     <Button
         android:id="@+id/button_back"
@@ -16,12 +113,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.camera.view.PreviewView
-        android:id="@+id/previewView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/button_back"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".15" />
 </androidx.constraintlayout.widget.ConstraintLayout>
