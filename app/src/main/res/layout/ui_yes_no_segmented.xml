@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
+        android:id="@+id/buttonGroup_yes_no"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:elevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:sbg_divider="@color/green_900"
+        app:sbg_dividerPadding="10dp"
+        app:sbg_dividerWidth="1dp"
+        app:sbg_position="1"
+        app:sbg_radius="2dp"
+        app:sbg_ripple="true"
+        app:sbg_selectedBackground="@color/green_900"
+        app:sbg_selectionAnimationDuration="250"
+        app:sbg_selectionAnimationInterpolator="fastOutSlowIn">
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="@string/yes"
+            app:sb_textColor="@color/black" />
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="@string/no"
+            app:sb_textColor="@color/black" />
+    </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
