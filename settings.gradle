@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Android scouting"
 include ':app'
-include ':library'

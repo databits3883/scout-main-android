@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultMap>
+  <entry>
+    <key>isRedteam</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>isMaster</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>map_brush_size</key>
+    <value>12</value>
+  </entry>
+
+  <entry>
+    <key>match_backup</key>
+    <value>0</value>
+  </entry>
+
+  <entry>
+    <key>pit_team_list_size</key>
+    <value>0</value>
+  </entry>
+
+  <entry>
+    <key>team_number</key>
+    <value>0</value>
+  </entry>
+
+  <entry>
+    <key>team_match_list_size</key>
+    <value>0</value>
+  </entry>
+
+  <entry>
+    <key>manual_team_override_toggle</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>manual_team_override_value</key>
+    <value>0</value>
+  </entry>
+
+  <entry>
+    <key>local_match</key>
+    <value>0</value>
+  </entry>
+
+  <entry>
+    <key>upload_line_count</key>
+    <value>0</value>
+  </entry>
+</defaultMap>

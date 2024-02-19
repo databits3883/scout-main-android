@@ -1,0 +1,322 @@
+{
+  "mCell": [
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "TeamSelect",
+        "cellUnit": 0,
+        "helpText": "Select the team you are scouting"
+      },
+      "mType": "TeamSelect"
+    },
+    {
+      "mCellId": 1,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 0,
+        "helpText": "Have they had a lot of practice driving?"
+      },
+      "mTitle": "Driving Practice",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 2,
+      "mParam": {
+        "cellDefault": 0,
+        "cellEntryLabels": [
+          "Swerve",
+          "Mechanum",
+          "Tank",
+          "Other"
+        ],
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 4,
+        "cellType": "List",
+        "cellUnit": 0,
+        "helpText": "What type of drive train does the robot have?"
+      },
+      "mTitle": "DriveTrain",
+      "mType": "List"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellEntryLabels": [
+          "Omni",
+          "Traction",
+          "Colson",
+          "Mechanum",
+          "Other"
+        ],
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 5,
+        "cellType": "List",
+        "cellUnit": 0,
+        "helpText": "What type of wheels does the robot use?"
+      },
+      "mTitle": "Wheel Type",
+      "mType": "List"
+    },
+    {
+      "mCellId": 5,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Floor",
+          "Feeder",
+          "Both"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Where does the robot pick up cones?"
+      },
+      "mTitle": "Pickup cone location",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 6,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Floor",
+          "Feeder",
+          "Both"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Where does the robot pick up cubes?"
+      },
+      "mTitle": "Pickup cube location",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 7,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "High",
+          "Mid",
+          "Low"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Where does the robot place cones?"
+      },
+      "mTitle": "Cone Placement",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 8,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "High",
+          "Mid",
+          "Low"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Where does the robot place cubes?"
+      },
+      "mTitle": "Cube placement",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 9,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Any",
+          "Wall",
+          "Mid",
+          "Center"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Where does the robot start?"
+      },
+      "mTitle": "Starting location",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 10,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Intending",
+          "Capable"
+        ],
+        "cellSegments": 2,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Can the robot play defense?"
+      },
+      "mTitle": "Playing Defense",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 11,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Balanced",
+          "Dock"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Can the robot balance in auto?"
+      },
+      "mTitle": "Balance Auto",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 12,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Balanced",
+          "Dock"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Can the robot balance in teleop?"
+      },
+      "mTitle": "Balance Teleop",
+      "mType": "Segment"
+    },
+
+    {
+      "mCellId": 14,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "How many years of driving experience do their drivers have?"
+      },
+      "mTitle": "Driving Experience (Years)",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 4,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTextHint": "What can they do",
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "What can their auto programs do?"
+      },
+      "mTitle": "Auto Program?",
+      "mType": "Text"
+    },
+    {
+      "mCellId": 13,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTextHint": "General game plan",
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "What is the general game plan for teleop?"
+      },
+      "mTitle": "Plan in Teleop",
+      "mType": "Text"
+    },
+    {
+      "mCellId": 14,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTextHint": "Inches",
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "Please insert a number in this field"
+      },
+      "mTitle": "Robot Width",
+      "mType": "Text"
+    }
+  ]
+}

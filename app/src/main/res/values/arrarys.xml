@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <array name="positions">
+    <item>Driver</item>
+    <item>Blue 1</item>
+    <item>Blue 2</item>
+    <item>Blue 3</item>
+    <item>Red 1</item>
+    <item>Red 2</item>
+    <item>Red 3</item>
+  </array>
+  <array name="student_names">
+    <item>Alex Wan</item>
+    <item>Andrew Choi</item>
+    <item>Arjun Senthilvel</item>
+    <item>Blake Anderson</item>
+    <item>Blue Spies</item>
+    <item>Cami Grinde</item>
+    <item>Carter Kloestra</item>
+    <item>Clifton Floyd</item>
+    <item>Connor Wahlstrom</item>
+    <item>Corrie Mattison</item>
+    <item>Dylan Moya</item>
+    <item>Eli Kloetstra</item>
+    <item>Ethan Chung</item>
+    <item>Eva Vokac</item>
+    <item>George Vokac</item>
+    <item>Grace Winter</item>
+    <item>Henry Decker</item>
+    <item>Jack Toenjes</item>
+    <item>Jacob Erikson</item>
+    <item>Joey Capistrant</item>
+    <item>Joesph Spielbauer</item>
+    <item>Kaleb Girma</item>
+    <item>Liam Peters</item>
+    <item>Logan Curtis</item>
+    <item>Mateo Olson</item>
+    <item>Max Duthie</item>
+    <item>Nathan Wan</item>
+    <item>Nikhil Iyer</item>
+    <item>Osman Mohamed</item>
+    <item>Owen Spores</item>
+    <item>Rylan Chung</item>
+    <item>Sam Henning</item>
+    <item>Seth Schardt</item>
+    <item>Tony Baston</item>
+    <item>Wren LaValle</item>
+  </array>
+
+  <string-array name="team_list">
+    <item>1816</item>
+    <item>2052</item>
+    <item>2177</item>
+    <item>2181</item>
+    <item>2207</item>
+    <item>2225</item>
+    <item>2450</item>
+    <item>2470</item>
+    <item>2491</item>
+    <item>2498</item>
+    <item>2500</item>
+    <item>2502</item>
+    <item>2508</item>
+    <item>2509</item>
+    <item>2513</item>
+    <item>2515</item>
+    <item>2518</item>
+    <item>2549</item>
+    <item>2606</item>
+    <item>2823</item>
+    <item>2846</item>
+    <item>2855</item>
+    <item>2879</item>
+    <item>3007</item>
+    <item>3018</item>
+    <item>3026</item>
+    <item>3038</item>
+    <item>3082</item>
+    <item>3202</item>
+    <item>3206</item>
+    <item>3278</item>
+    <item>3407</item>
+    <item>3454</item>
+    <item>3610</item>
+    <item>3630</item>
+    <item>3871</item>
+    <item>4198</item>
+    <item>4215</item>
+    <item>4225</item>
+    <item>4277</item>
+    <item>4536</item>
+    <item>4549</item>
+    <item>4632</item>
+    <item>4663</item>
+    <item>4664</item>
+    <item>5271</item>
+    <item>5278</item>
+    <item>5434</item>
+    <item>5913</item>
+    <item>5996</item>
+    <item>6709</item>
+    <item>7019</item>
+    <item>7068</item>
+    <item>7235</item>
+    <item>7258</item>
+    <item>7849</item>
+    <item>7850</item>
+    <item>8234</item>
+    <item>8255</item>
+    <item>8787</item>
+    <item>9157</item>
+  </string-array>
+</resources>

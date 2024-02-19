@@ -1,0 +1,114 @@
+{
+  "mCell": [
+    {
+      "mCellId": 1,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Nothing",
+          "Docked",
+          "Engaged"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "During autonomous\nDock = Fully Supported by the Charge Station but not level\nEngaged = Fully Supported by the Charge Station and level"
+      },
+      "mTitle": "Balanced in Auto?",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 0,
+        "helpText": "Did they leave the community (Taped zone) during autonomous?"
+      },
+      "mTitle": "Auto Mobility?",
+      "mType": "YesNo"
+    }
+  ]
+}^{
+  "mCell": [
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 0,
+        "helpText": "During the match did it seem like they were purposely blocking or hitting other robots"
+      },
+      "mTitle": "Playing Defense?",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 1,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Nothing",
+          "Parked",
+          "Docked",
+          "Engaged"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "During the end of the match\nParked = In Zone\nDock = Fully Supported by the Charge Station but not level\nEngaged = Fully Supported by the Charge Station and level"
+      },
+      "mTitle": "Balanced?",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 2,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 0,
+        "helpText": "Did the robot get disabled or stop moving during the match?"
+      },
+      "mTitle": "Did the robot break?",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "Any extra information you would like to share about the match/robot"
+      },
+      "mTitle": "Comments?",
+      "mType": "Text"
+    }
+  ]
+}

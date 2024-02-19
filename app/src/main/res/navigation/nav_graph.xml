@@ -7,114 +7,201 @@
 
     <fragment
         android:id="@+id/StartFragment"
-        android:name="com.databits.androidscouting.MainFragment"
+        android:name="com.databits.androidscouting.fragment.Main"
         android:label="@string/main_title"
         tools:layout="@layout/fragment_main">
 
         <action
             android:id="@+id/action_StartFragment_to_crowdScoutFragment"
-            app:destination="@id/crowdScoutFragment" />
+            app:destination="@id/crowdScoutFragment"
+            app:popUpTo="@id/crowdScoutFragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_StartFragment_to_pitScoutFragment"
-            app:destination="@id/pitScoutFragment" />
+            app:destination="@id/pitScoutFragment"
+            app:popUpTo="@id/pitScoutFragment"
+            app:popUpToInclusive="true"/>
         <action
-            android:id="@+id/action_StartFragment_to_masterScoutFragment"
-            app:destination="@id/masterScoutFragment" />
+            android:id="@+id/action_StartFragment_to_dynamicFragment"
+            app:destination="@id/dynamicFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_provisionFragment"
+            app:destination="@id/provisionFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_DrawingMapFragment"
+            app:destination="@id/DrawingMapFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_ScannerFragment"
+            app:destination="@id/ScannerFragment"
+            app:popUpTo="@id/ScannerFragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_StartFragment_to_SettingsFragment"
             app:destination="@id/SettingsFragment" />
         <action
-            android:id="@+id/action_StartFragment_to_driveTeamFragment"
-            app:destination="@id/driveTeamFragment" />
-        <action
-            android:id="@+id/action_StartFragment_to_demoFragment"
-            app:destination="@id/demoFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/SettingsFragment"
-        android:name="com.databits.androidscouting.SettingsFragment"
-        android:label="@string/settings_fragment_label"
-        tools:layout="@layout/fragment_settings">
-        <action
-            android:id="@+id/action_SettingsFragment_to_StartFragment"
-            app:destination="@id/StartFragment" />
+            android:id="@+id/action_StartFragment_to_SettingsFileHandlerFragment"
+            app:destination="@id/SettingsFileHandlerFragment" />
     </fragment>
     <fragment
         android:id="@+id/ScannerFragment"
-        android:name="com.databits.androidscouting.ScannerFragment"
+        android:name="com.databits.androidscouting.fragment.Scanner"
         android:label="Scanner Fragment"
         tools:layout="@layout/fragment_scanner">
         <action
-            android:id="@+id/action_ScannerFragment_to_masterScoutFragment"
-            app:destination="@id/masterScoutFragment" />
+            android:id="@+id/action_ScannerFragment_to_provisionFragment"
+            app:destination="@id/provisionFragment" />
+        <action
+            android:id="@+id/action_ScannerFragment_to_crowdScoutFragment"
+            app:destination="@id/crowdScoutFragment" />
+        <action
+            android:id="@+id/action_ScannerFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+        <action
+            android:id="@+id/action_ScannerFragment_to_pitScoutFragment"
+            app:destination="@id/pitScoutFragment" />
     </fragment>
     <fragment
         android:id="@+id/crowdScoutFragment"
-        android:name="com.databits.androidscouting.CrowdScoutFragment"
+        android:name="com.databits.androidscouting.fragment.Crowd"
         android:label="fragment_crowd_scout"
         tools:layout="@layout/fragment_crowd_scout" >
-        <action
-            android:id="@+id/action_crowdScoutFragment_to_SettingsFragment"
-            app:destination="@id/SettingsFragment" />
         <action
             android:id="@+id/action_crowdScoutFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
         <action
             android:id="@+id/action_crowdScoutFragment_to_QRFragment"
-            app:destination="@id/QRFragment" />
+            app:destination="@id/QRFragment" >
+        <argument
+            android:name="qrData"
+            app:argType="string"
+            android:defaultValue="ERROR" />
+        </action>
+        <action
+            android:id="@+id/action_crowdScoutFragment_to_ScannerFragment"
+            app:destination="@id/ScannerFragment" />
     </fragment>
     <fragment
         android:id="@+id/pitScoutFragment"
-        android:name="com.databits.androidscouting.PitScoutFragment"
+        android:name="com.databits.androidscouting.fragment.Pit"
         android:label="fragment_pit_scout"
-        tools:layout="@layout/fragment_pit_scout" >
-        <action
-            android:id="@+id/action_pitScoutFragment_to_SettingsFragment"
-            app:destination="@id/SettingsFragment" />
+        tools:layout="@layout/fragment_dynamic" >
         <action
             android:id="@+id/action_pitScoutFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/masterScoutFragment"
-        android:name="com.databits.androidscouting.MasterScoutFragment"
-        android:label="fragment_master_scout"
-        tools:layout="@layout/fragment_master_scout" >
         <action
-            android:id="@+id/action_masterScoutFragment_to_ScannerFragment"
+            android:id="@+id/action_pitScoutFragment_to_QRFragment"
+            app:destination="@id/QRFragment" />
+        <action
+            android:id="@+id/action_pitScoutFragment_to_ScannerFragment"
             app:destination="@id/ScannerFragment" />
-        <action
-            android:id="@+id/action_masterScoutFragment_to_SettingsFragment"
-            app:destination="@id/SettingsFragment" />
-        <action
-            android:id="@+id/action_masterScoutFragment_to_StartFragment"
-            app:destination="@id/StartFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/driveTeamFragment"
-        android:name="com.databits.androidscouting.DriveTeamFragment"
-        android:label="fragment_drive_team"
-        tools:layout="@layout/fragment_drive_team" >
-        <action
-            android:id="@+id/action_driveTeamFragment_to_StartFragment"
-            app:destination="@id/StartFragment" />
     </fragment>
     <fragment
         android:id="@+id/QRFragment"
-        android:name="com.databits.androidscouting.QRFragment"
+        android:name="com.databits.androidscouting.fragment.QR"
         android:label="fragment_q_r"
         tools:layout="@layout/fragment_q_r" >
         <action
             android:id="@+id/action_QRFragment_to_crowdScoutFragment"
             app:destination="@id/crowdScoutFragment" />
+        <argument
+            android:name="qrData"
+            app:argType="string"
+            android:defaultValue="ERROR" />
+        <action
+            android:id="@+id/action_QRFragment_to_pitScoutFragment"
+            app:destination="@id/pitScoutFragment" />
+        <action
+            android:id="@+id/action_QRFragment_to_dynamicFragment"
+            app:destination="@id/dynamicFragment" />
     </fragment>
     <fragment
-        android:id="@+id/demoFragment"
-        android:name="com.databits.androidscouting.DemoFragment"
-        android:label="fragment_demo"
-        tools:layout="@layout/fragment_demo" >
+        android:id="@+id/provisionFragment"
+        android:name="com.databits.androidscouting.fragment.Provision"
+        android:label="fragment_provision"
+        tools:layout="@layout/fragment_provision">
         <action
-            android:id="@+id/action_demoFragment_to_StartFragment"
+            android:id="@+id/action_provisionFragment_to_ScannerFragment"
+            app:destination="@id/ScannerFragment" />
+        <action
+            android:id="@+id/action_provisionFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/dynamicFragment"
+        android:name="com.databits.androidscouting.fragment.Dynamic"
+        android:label="fragment_dynamic"
+        tools:layout="@layout/fragment_pit_scout" >
+        <action
+            android:id="@+id/action_dynamicFragment_to_QRFragment"
+            app:destination="@id/QRFragment" />
+        <action
+            android:id="@+id/action_dynamicFragment_to_SettingsTestingFragment"
+            app:destination="@id/SettingsTestingFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/DrawingMapFragment"
+        android:name="com.databits.androidscouting.fragment.Drawing"
+        android:label="fragment_drawing_map"
+        tools:layout="@layout/fragment_drawing_map" >
+        <action
+            android:id="@+id/action_DrawingMapFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SettingsFragment"
+        android:name="com.databits.androidscouting.fragment.settings.Dashboard"
+        android:label="fragment_settings_dashboard"
+        tools:layout="@layout/fragment_settings_dashboard" >
+        <action
+            android:id="@+id/action_SettingsFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+        <action
+            android:id="@+id/action_SettingsFragment_to_SettingsFileHandlerFragment"
+            app:destination="@id/SettingsFileHandlerFragment" />
+        <action
+            android:id="@+id/action_SettingsFragment_to_SettingsTestingFragment"
+            app:destination="@id/SettingsTestingFragment" />
+        <action
+            android:id="@+id/action_SettingsFragment_to_SettingsManualConfigFragment"
+            app:destination="@id/SettingsManualConfigFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SettingsFileHandlerFragment"
+        android:name="com.databits.androidscouting.fragment.settings.FileHandler"
+        android:label="fragment_settings_filehandler"
+        tools:layout="@layout/fragment_settings_filehandler" >
+        <action
+            android:id="@+id/action_SettingsFileHandlerFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+        <argument
+            android:name="zipData"
+            app:argType="string"
+            android:defaultValue="ERROR" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SettingsTestingFragment"
+        android:name="com.databits.androidscouting.fragment.settings.Testing"
+        android:label="fragment_settings_testing"
+        tools:layout="@layout/fragment_settings_testing" >
+        <action
+            android:id="@+id/action_SettingsTestingFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+        <action
+            android:id="@+id/action_SettingsTestingFragment_to_dynamicFragment"
+            app:destination="@id/dynamicFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SettingsManualConfigFragment"
+        android:name="com.databits.androidscouting.fragment.settings.ManualConfig"
+        android:label="fragment_settings_manualconfig"
+        tools:layout="@layout/fragment_settings_manualconfig" >
+        <action
+            android:id="@+id/action_SettingsManualConfigFragment_to_SettingsFragment"
+            app:destination="@id/SettingsFragment" />
+    </fragment>
+
 </navigation>

@@ -4,30 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainFragment">
-
-    <TextView
-        android:id="@+id/textview_scouting_select"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/scouting_select_text"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_h_30_percent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline_h_25_percent" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_title"
-        android:textAlignment="center"
-        android:textSize="34sp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline_h_25_percent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline_h_5_percent" />
+    tools:context=".fragment.Main"
+    >
 
     <Button
         android:id="@+id/button_crowd"
@@ -38,19 +16,8 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline_v_50_percent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/guideline_h_30_percent" />
-
-    <Button
-        android:id="@+id/button_demo"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@android:color/holo_blue_dark"
-        android:text="Demo Mode"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toStartOf="@+id/guideline_v_75_percent"
-        app:layout_constraintStart_toStartOf="@+id/guideline_v_25_percent"
-        app:layout_constraintTop_toBottomOf="@+id/button_drive_team" />
+        app:layout_constraintTop_toTopOf="@+id/guideline_h_30_percent"
+        />
 
     <Button
         android:id="@+id/button_pit"
@@ -61,71 +28,168 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline_v_50_percent"
-        app:layout_constraintTop_toTopOf="@+id/guideline_h_30_percent" />
+        app:layout_constraintTop_toTopOf="@+id/guideline_h_30_percent"
+        />
 
     <Button
-        android:id="@+id/button_master"
+        android:id="@+id/button_scanner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Master"
+        android:layout_marginTop="16dp"
+        android:text="Scanner"
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline_v_50_percent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_crowd" />
+        app:layout_constraintTop_toBottomOf="@+id/button_crowd"
+        />
 
     <Button
-        android:id="@+id/button_drive_team"
+        android:id="@+id/button_drawing_map"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:text="Drive Team"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_purple"
+        android:text="Drawing"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_v_50_percent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_role"
+        />
+
+    <Button
+        android:id="@+id/button_settings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_orange_dark"
+        android:text="Settings"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline_v_50_percent"
-        app:layout_constraintTop_toBottomOf="@+id/button_pit" />
+        app:layout_constraintTop_toBottomOf="@+id/button_role"
+        />
+
+    <Button
+        android:id="@+id/button_role"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#009688"
+        android:text="Provision"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.475"
+        app:layout_constraintStart_toStartOf="@+id/guideline_v_50_percent"
+        app:layout_constraintTop_toBottomOf="@+id/button_pit"
+        />
+
+    <Button
+        android:id="@+id/buttonGoogle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_purple"
+        android:text="Sign in to Google"
+        android:textColor="@color/text_color_inverted"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_drawing_map"
+        />
+
+    <Button
+        android:id="@+id/buttonTeams"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_blue_light"
+        android:text="Import Match/Team Info"
+        android:textColor="@color/text_color_inverted"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGoogle"
+        />
+
+    <Button
+        android:id="@+id/buttonBright"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Enable brightness control"
+        android:textColor="@color/text_color_inverted"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonTeams"
+        />
+
+    <Button
+        android:id="@+id/buttonPermissions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_orange_light"
+        android:text="Enable required permissions"
+        android:textColor="@color/text_color_inverted"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonBright"
+        />
+
+    <TextView
+        android:id="@+id/textview_scouting_select"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/scouting_select_text"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_h_30_percent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_h_5_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".05" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_h_25_percent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25" />
-
+        app:layout_constraintGuide_percent=".05"
+        />
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_h_30_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".3" />
-
+        app:layout_constraintGuide_percent=".1"
+        />
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_v_50_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".5" />
-
+        app:layout_constraintGuide_percent=".5"
+        />
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_v_25_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".25" />
-
+        app:layout_constraintGuide_percent=".25"
+        />
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline_v_75_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".75" />
+        app:layout_constraintGuide_percent=".75"
+        />
+    <Button
+        android:id="@+id/team_saved_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Load Saved Match Info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonPermissions"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

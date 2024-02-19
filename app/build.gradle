@@ -1,14 +1,16 @@
 plugins {
     id 'com.android.application'
+    id 'androidx.navigation.safeargs'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.databits.androidscouting"
-        minSdk 25
-        targetSdk 32
+        minSdk 26
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
@@ -28,31 +30,78 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.databits.androidscouting'
 }
 
 dependencies {
-
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.navigation:navigation-fragment:2.3.5'
-    implementation 'androidx.navigation:navigation-ui:2.3.5'
+    // Don't update to 1.6+ until dependency issues are resolved
+    // Backwards support for modern Android features on older devices
+    //noinspection GradleDependency
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.navigation:navigation-fragment:2.5.3'
+    implementation 'androidx.navigation:navigation-ui:2.5.3'
+    implementation 'androidx.core:core-ktx:1.9.0'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation project(":library")
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    def camerax_version = "1.0.2"
+    implementation 'com.github.deadman96385:AwesomeQRCode:1.3.0'
+    implementation 'com.google.zxing:core:3.4.1'
+
+//    def camerax_version = "1.0.2"
+    def camerax_version = "1.2.0-rc01"
     implementation "androidx.camera:camera-core:${camerax_version}"
-    implementation "androidx.camera:camera-lifecycle:${camerax_version}"
     implementation "androidx.camera:camera-camera2:${camerax_version}"
+    implementation "androidx.camera:camera-lifecycle:${camerax_version}"
+    implementation "androidx.camera:camera-view:${camerax_version}"
 
-    implementation "androidx.camera:camera-view:1.0.0-alpha32"
+//    implementation "androidx.camera:camera-view:1.0.0-alpha32"
     implementation "com.google.mlkit:barcode-scanning:17.0.2"
 
-    implementation "com.github.permissions-dispatcher:permissionsdispatcher:4.9.2"
-    annotationProcessor "com.github.permissions-dispatcher:permissionsdispatcher-processor:4.9.2"
+    implementation 'androidx.camera:camera-mlkit-vision:1.2.0-beta02'
 
     implementation 'com.github.piphagor:SegmentedButton:3.2.0'
 
+    // Json Parser/Writer
+    implementation("com.squareup.moshi:moshi:1.14.0")
+
+    // Segmented Button UI
+    implementation 'com.github.piphagor:SegmentedButton:3.2.0'
+
+    // Number picker UI
+    implementation 'com.github.travijuu:numberpicker:1.0.7'
+
+    // Cross application value storage
+    implementation 'com.github.deadman96385:PowerPreference:2.2.0'
+
+    implementation('com.google.api-client:google-api-client-android:1.25.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.google.guava'
+    }
+
+    implementation('com.google.android.gms:play-services-auth:20.4.1') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.google.guava'
+    }
+
+    implementation('com.google.apis:google-api-services-sheets:v4-rev571-1.25.0') {
+        exclude group: 'org.apache.httpcomponents'
+        exclude group: 'com.google.guava'
+    }
+
+    implementation group: 'com.opencsv', name: 'opencsv', version: '3.3'
+
+    // Drawing for map
+    implementation 'com.github.Miihir79:DrawingCanvas:1.1.2'
+    implementation 'com.github.deadman96385:Android-ColorPicker:1.0'
+
+    // Popup text for help system
+    implementation "com.github.skydoves:balloon:1.5.2"
+
+    // File system access helper
+    implementation "com.anggrayudi:storage:1.5.4"
+
+    implementation "net.lingala.zip4j:zip4j:2.11.5"
 }

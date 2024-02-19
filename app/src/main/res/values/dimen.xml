@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<dimen name="sbg_dividerPadding">10dp</dimen>
+<dimen name="sbg_dividerWidth">1dp</dimen>
+  <dimen name="color_picker_view_size">200dp</dimen>
+</resources>

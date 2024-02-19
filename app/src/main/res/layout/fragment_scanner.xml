@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:numberpicker="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".SettingsFragment">
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/testButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Debug"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
@@ -13,110 +23,85 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <TextView
-        android:id="@+id/blue1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:text="@string/team_placeholder"
-        android:padding="5dp"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/blue2"
-        app:layout_constraintEnd_toStartOf="@+id/blue2"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
+    </androidx.camera.view.PreviewView>
 
     <TextView
-        android:id="@+id/blue2"
+        android:id="@+id/match_selector_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:padding="5dp"
-        android:text="@string/team_placeholder"
+        android:layout_marginBottom="8dp"
+        android:text="Match Selector"
+        android:textSize="32sp"
         android:textColor="@android:color/white"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toTopOf="@+id/red2"
+        app:layout_constraintBottom_toTopOf="@+id/ui_inside_number_picker"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.9" />
+        />
 
-    <TextView
-        android:id="@+id/blue3"
+    <com.travijuu.numberpicker.library.NumberPicker
+        android:id="@+id/ui_inside_number_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:text="@string/team_placeholder"
-        android:padding="5dp"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/blue2"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_upload"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/blue2" />
+        app:layout_constraintStart_toStartOf="parent"
+        numberpicker:custom_layout="@layout/ui_number_picker_scanner" />
 
-    <TextView
-        android:id="@+id/red1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:text="@string/team_placeholder"
-        android:padding="5dp"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/red2"
-        app:layout_constraintEnd_toStartOf="@+id/red2"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/red2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/editbox_background"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:padding="5dp"
-        android:text="@string/team_placeholder"
-        android:textColor="@android:color/white"
-        android:textSize="36sp"
+    <include
+        layout="@layout/ui_teams_display"
+        android:id="@+id/team_list_display"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/guideline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        />
 
     <TextView
-        android:id="@+id/red3"
+        android:id="@+id/scanPrompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:background="@android:drawable/editbox_background"
-        android:backgroundTint="@android:color/holo_red_light"
-        android:text="@string/team_placeholder"
-        android:padding="5dp"
+        android:backgroundTint="@android:color/holo_green_light"
+        android:text=""
+        android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="36sp"
-        app:layout_constraintBaseline_toBaselineOf="@+id/red2"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/red2" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
 
     <Button
         android:id="@+id/button_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Back to master scouter"
+        android:text="@string/back"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <Button
+        android:id="@+id/button_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Upload"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/button_back"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent=".15" />
+        app:layout_constraintGuide_percent=".17" />
 </androidx.constraintlayout.widget.ConstraintLayout>

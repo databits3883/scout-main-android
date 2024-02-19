@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultMap>
+  <entry>
+    <key>auto_load_crowd_layout_toggle</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>auto_load_pit_layout_toggle</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>crowd_position</key>
+    <value>1</value>
+  </entry>
+
+  <entry>
+    <key>device_role</key>
+    <value>crowd</value>
+  </entry>
+
+  <entry>
+    <key>force_upload_toggle</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>google_account_name</key>
+    <value>null</value>
+  </entry>
+
+  <entry>
+    <key>grid_toggle</key>
+    <value>true</value>
+  </entry>
+
+  <entry>
+    <key>current_match</key>
+    <value>1</value>
+  </entry>
+
+  <entry>
+    <key>reorder_cells_toggle</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>role_locked_toggle</key>
+    <value>false</value>
+  </entry>
+
+  <entry>
+    <key>current_scouter</key>
+    <value>Test Bot</value>
+  </entry>
+
+  <entry>
+    <key>table_mode</key>
+    <value>3</value>
+  </entry>
+
+  <entry>
+    <key>upload_unique_toggle</key>
+    <value>true</value>
+  </entry>
+</defaultMap>

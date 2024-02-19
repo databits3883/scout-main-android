@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <item
+      android:id="@+id/action_qr"
+      android:title="Generate QR Code"
+      app:showAsAction="always" />
+
+  <item
+      android:id="@+id/actions_change_scouter"
+      android:title="Change Scouter"
+      app:showAsAction="never"/>
+
+  <item
+      android:id="@+id/action_change_match"
+      android:title="Change Match"
+      app:showAsAction="never"/>
+
+  <item
+      android:id="@+id/action_team_entry"
+      android:title="Override Team Number"
+      app:showAsAction="never"/>
+
+  <item
+      android:id="@+id/action_reconfigure"
+      android:title="Reconfigure device"
+      app:showAsAction="never"/>
+
+  <item
+      android:id="@+id/action_debug"
+      android:title="Debug Menu"
+      app:showAsAction="never"/>
+
+  <item
+    android:id="@+id/action_reset"
+    android:title="Unlock View"
+    app:showAsAction="never"/>
+</menu>
