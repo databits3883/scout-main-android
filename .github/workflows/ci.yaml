@@ -1,0 +1,70 @@
+# Name of workflow
+name: Build and Upload to Github
+
+on: 
+  push:
+    branches: 
+      - main
+      - develop
+  pull_request:
+    branches: 
+      - main
+      - develop
+    types:
+      - opened
+      - synchronize
+      - closed
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+          check-latest: false
+
+      # Github Runners have this by default, only for local testing
+      - name: Setup Android SDK
+        if: ${{ env.ACT }}
+        uses: amyu/setup-android@v2
+        with:
+          cache-disabled: true
+          sdk-version: 34
+
+      - name: Set execution flag for gradlew
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: bash ./gradlew assembleDebug --stacktrace --no-daemon
+
+      # Don't run this step if running ACT
+      - name: Bump version and push tag
+        if: ${{ !env.ACT }}
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_branches: main
+          pre_release_branches: develop
+          default_bump: patch
+          tag_prefix:
+
+      # Don't run this step if running ACT
+      - name: Upload debug APK to a GitHub release
+        if: ${{ !env.ACT }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          generate_release_notes: true
+          files: app/build/outputs/apk/debug/app-debug.apk
+          name: Automated Release
+          fail_on_unmatched_files: true
+          prerelease: true
