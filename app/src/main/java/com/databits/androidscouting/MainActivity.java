@@ -6,6 +6,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -70,7 +71,12 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
     public boolean checkConnection() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("android.new.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(new ConnectionReceiver(), intentFilter);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(new ConnectionReceiver(), intentFilter, RECEIVER_EXPORTED);
+        }else {
+            registerReceiver(new ConnectionReceiver(), intentFilter);
+        }
 
         ConnectionReceiver.Listener = this;
 
