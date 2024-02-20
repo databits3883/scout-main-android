@@ -118,4 +118,6 @@
   <string name="brightbar_deactivated_title">Click to enable Brightness?</string>
   <string name="next_match">Next Match</string>
   <string name="next_team">Next Team</string>
+  <string name="select_team_title">Select Team</string>
+  <string name="TeamSelectType">TeamSelect</string>
 </resources>

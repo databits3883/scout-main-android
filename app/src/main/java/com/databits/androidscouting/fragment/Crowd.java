@@ -83,7 +83,7 @@ public class Crowd extends Fragment {
                         .setPositiveButton("Yes", (dialog, Identify) -> {
                             Bundle bundle = controller.saveState();
                             if (bundle != null) {
-                                String qrData = scoutUtils.saveData(requireView(),true);
+                                String qrData = scoutUtils.saveData(requireView(),false);
                                 bundle.putString("qrData", qrData);
                                 bundle.putBoolean("mode", false);
                             }
@@ -265,13 +265,13 @@ public class Crowd extends Fragment {
         mRecyclerViewBot = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view_bot);
 
         //Sorts the tables based on saved Table Status
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.BOTH);
+        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
         scoutUtils.tableSorter(table_status, requireView(), mRecyclerViewTop, mRecyclerViewBot);
         scoutUtils.setupTables(requireView());
 
         File layoutLoc = new File(requireContext().getFilesDir(), fileName);
         if (fileUtils.fileExists(layoutLoc.toString())) {
-            scoutUtils.layoutMaker(ScoutUtils.BOTH, fileUtils.readFile(layoutLoc),
+            scoutUtils.layoutMaker(table_status, fileUtils.readFile(layoutLoc),
                 requireView(), mRecyclerViewTop, mRecyclerViewBot);
         }
 
@@ -284,10 +284,10 @@ public class Crowd extends Fragment {
         binding.loadButton.setOnClickListener(v1 -> {
             String storedLayout = fileUtils.readTextFile(getResources().
                 openRawResource(R.raw.crowd_layout));
-            scoutUtils.layoutMaker(ScoutUtils.BOTH, storedLayout, requireView(),
+            scoutUtils.layoutMaker(table_status, storedLayout, requireView(),
                 mRecyclerViewTop, mRecyclerViewBot);
-            binding.loadButton.setVisibility(View.GONE);
-            binding.autoLoadCheckBox.setVisibility(View.GONE);
+            //binding.loadButton.setVisibility(View.GONE);
+            //binding.autoLoadCheckBox.setVisibility(View.GONE);
         });
 
         if (configPreference.getBoolean("role_locked_toggle")) {
@@ -329,9 +329,10 @@ public class Crowd extends Fragment {
     }
 
     public void createLayout(Uri uri) {
+        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
         File layoutFile = new File(
             Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri, fileName)));
-        scoutUtils.layoutMaker(ScoutUtils.BOTH,fileUtils.readFile(layoutFile), requireView(),
+        scoutUtils.layoutMaker(table_status,fileUtils.readFile(layoutFile), requireView(),
             mRecyclerViewTop, mRecyclerViewBot);
     }
 

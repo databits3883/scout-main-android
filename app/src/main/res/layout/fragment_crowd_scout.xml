@@ -17,7 +17,7 @@
         android:text="@string/import_layout"
         app:layout_constraintEnd_toStartOf="@+id/guideline8"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bot_left_table"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_view_top"
         />
 
     <Button
@@ -28,7 +28,7 @@
         android:text="@string/load_saved_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline8"
-        app:layout_constraintTop_toBottomOf="@+id/bot_right_table"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_view_top"
         />
 
     <Button
@@ -141,6 +141,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/center_table"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        android:gravity="center"
         />
 
     <androidx.recyclerview.widget.RecyclerView

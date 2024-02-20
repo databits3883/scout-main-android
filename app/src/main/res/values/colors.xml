@@ -14,4 +14,5 @@
     <color name="map_red">#FF0004</color>
     <color name="text_color">@color/black</color>
     <color name="text_color_inverted">@color/white</color>
+    <color name="picker_text_color">@color/black</color>
 </resources>

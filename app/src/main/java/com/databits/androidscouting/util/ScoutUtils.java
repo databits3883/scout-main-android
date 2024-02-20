@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.adapter.RecyclerAdapter;
+import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
 import com.databits.androidscouting.adapter.SimpleItemTouchHelperCallback;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellParam;
@@ -53,7 +53,7 @@ public class ScoutUtils {
   public static final int TELEOP = 2;
   public static final int BOTH = 3;
 
-  String[] cellTypes = {"YesNo", "Counter", "Segment", "List", "Text", "Title"};
+  String[] cellTypes = {"YesNo", "Counter","DoubleCounter", "Segment", "List", "Text"};
   String[] cellTitles = {"YesNo_title", "Counter_Title", "Segment_Title", "List_Title", "Textbox_title"};
   String[] topTitles = { "Left\nSide", "Autonomous\nCenter Side", "Right\nSide" };
   String[] botTitles = { "Left\nSide", "Teleop\nCenter Side", "Right\nSide" };
@@ -93,7 +93,7 @@ public class ScoutUtils {
     return tables;
   }
   public String exportCell(RecyclerView recyclerView) {
-    RecyclerAdapter recyclerAdapter = (RecyclerAdapter) recyclerView.getAdapter();
+    MultiviewTypeAdapter recyclerAdapter = (MultiviewTypeAdapter) recyclerView.getAdapter();
     StringBuilder finalString = new StringBuilder();
 
     if (recyclerAdapter != null) {
@@ -110,6 +110,12 @@ public class ScoutUtils {
           case "Counter":
             NumberPicker numberPicker = v.findViewById(R.id.number_counter_inside);
             finalString.append(numberPicker.getValue())/*.append(",")*/;
+            break;
+          case "DoubleCounter":
+            NumberPicker picker1 = v.findViewById(R.id.counterOne);
+            NumberPicker picker2 = v.findViewById(R.id.counterTwo);
+            finalString.append(picker1.getValue())/*.append(",")*/;
+            finalString.append(picker2.getValue())/*.append(",")*/;
             break;
           case "Segment":
             SegmentedButtonGroup multiSegment = v.findViewById(R.id.buttonGroup_segments);
@@ -219,7 +225,7 @@ public class ScoutUtils {
         constraintSet.connect(R.id.recycler_view_top, ConstraintSet.TOP, ConstraintSet.PARENT_ID,
             ConstraintSet.TOP, 0);
         constraintSet.setVisibility(R.id.recycler_view_bot, View.VISIBLE);
-        topParam.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        topParam.height = ViewGroup.LayoutParams.WRAP_CONTENT;
 
         for (int j = 0; j < 6; j++) {
           tables[j].setVisibility(View.GONE);
@@ -441,16 +447,16 @@ public class ScoutUtils {
   // import cells from json string
   public void import_cells(String optional_json, RecyclerView mRecyclerView) {
     Moshi moshi = new Moshi.Builder().build();
-    JsonAdapter<RecyclerAdapter> jsonAdapter = moshi.adapter(RecyclerAdapter.class);
-    RecyclerAdapter mRecyclerViewAdapter;
+    JsonAdapter<MultiviewTypeAdapter> jsonAdapter = moshi.adapter(MultiviewTypeAdapter.class);
+    MultiviewTypeAdapter mRecyclerViewAdapter;
     try {
-      RecyclerAdapter config = jsonAdapter.fromJson(optional_json);
-      mRecyclerViewAdapter = new RecyclerAdapter(Objects.requireNonNull(config).mCell);
+      MultiviewTypeAdapter config = jsonAdapter.fromJson(optional_json);
+      mRecyclerViewAdapter = new MultiviewTypeAdapter(Objects.requireNonNull(config).mCell);
       mRecyclerView.setAdapter(mRecyclerViewAdapter);
       //Log.d("Dynamic", "import: " + optional_json);
     } catch (IOException e) {
       Log.e("Dynamic", "Error parsing JSON", e);
-      mRecyclerViewAdapter = new RecyclerAdapter(Collections.emptyList());
+      mRecyclerViewAdapter = new MultiviewTypeAdapter(Collections.emptyList());
     }
     mRecyclerViewAdapter.notifyDataSetChanged();
     mRecyclerView.post(() -> {
@@ -488,7 +494,7 @@ public class ScoutUtils {
   }
 
   public void setupTitle(RecyclerView mRecyclerView) {
-    RecyclerAdapter recyclerAdapter = (RecyclerAdapter) mRecyclerView.getAdapter();
+    MultiviewTypeAdapter recyclerAdapter = (MultiviewTypeAdapter) mRecyclerView.getAdapter();
     matchInfo = new MatchInfo();
     teamInfo = new TeamInfo(context);
     if (recyclerAdapter != null) {
@@ -512,27 +518,27 @@ public class ScoutUtils {
     }
   }
 
-  private RecyclerAdapter makeAdapter() {
+  private MultiviewTypeAdapter makeAdapter() {
     Moshi moshi = new Moshi.Builder().build();
-    JsonAdapter<RecyclerAdapter> jsonAdapter = moshi.adapter(RecyclerAdapter.class);
+    JsonAdapter<MultiviewTypeAdapter> jsonAdapter = moshi.adapter(MultiviewTypeAdapter.class);
 
-    RecyclerAdapter myAdapter = new RecyclerAdapter(testCells(0));
+    MultiviewTypeAdapter myAdapter = new MultiviewTypeAdapter(testCells(0));
     String init = jsonAdapter.toJson(myAdapter);
 
-    RecyclerAdapter mRecyclerViewAdapter;
+    MultiviewTypeAdapter mRecyclerViewAdapter;
     try {
-      RecyclerAdapter config = jsonAdapter.fromJson(init);
-      mRecyclerViewAdapter = new RecyclerAdapter(Objects.requireNonNull(config).mCell);
+      MultiviewTypeAdapter config = jsonAdapter.fromJson(init);
+      mRecyclerViewAdapter = new MultiviewTypeAdapter(Objects.requireNonNull(config).mCell);
       //Log.d("Dynamic", "import: " + init);
     } catch (IOException e) {
       Log.e("Dynamic", "Error parsing JSON", e);
-      mRecyclerViewAdapter = new RecyclerAdapter(Collections.emptyList());
+      mRecyclerViewAdapter = new MultiviewTypeAdapter(Collections.emptyList());
     }
     return mRecyclerViewAdapter;
   }
 
   public RecyclerView makeRecyclerView(Context context, View v, int viewId) {
-    RecyclerAdapter mAdapter = makeAdapter();
+    MultiviewTypeAdapter mAdapter = makeAdapter();
     ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);;
     ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
 
@@ -588,14 +594,14 @@ public class ScoutUtils {
 
     Button importButton = v.findViewById(R.id.importButton);
     Button loadButton = v.findViewById(R.id.loadButton);
-    if (!import_json.equals("")) {
-      importButton.setVisibility(View.GONE);
-      loadButton.setVisibility(View.GONE);
-
-    } else {
-      importButton.setVisibility(View.VISIBLE);
-      loadButton.setVisibility(View.VISIBLE);
-    }
+    //if (!import_json.equals("")) {
+    //  importButton.setVisibility(View.GONE);
+    //  loadButton.setVisibility(View.GONE);
+    //
+    //} else {
+    //  importButton.setVisibility(View.VISIBLE);
+    //  loadButton.setVisibility(View.VISIBLE);
+    //}
   }
 
   public boolean allPermissionsGranted() {
