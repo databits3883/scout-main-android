@@ -35,7 +35,6 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     ItemTouchHelperAdapter {
 
     public List<Cell> mCell;
-    List<String> segmentLabels = new ArrayList<>();
     List<String> entryLabels = new ArrayList<>();
 
     public static class YesNoTypeViewHolder extends RecyclerView.ViewHolder {
@@ -303,18 +302,16 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         ((SegmentTypeViewHolder) holder).six
                     };
 
-                    //Maybe need -1
-                    for (int i = 0; i < segmentCount; i++) {
-                        segmentLabels.add(object.getSegmentLabels().get(i));
+
+                    int visibleSegmentCount = Math.min(object.getSegmentLabels().size(), segmentCount);
+
+                    for (int i = 0; i < visibleSegmentCount; i++) {
+                        segmentedButtons[i].setText(object.getSegmentLabels().get(i));
+                        segmentedButtons[i].setVisibility(View.VISIBLE);
                     }
 
-                    for (int i = 0; i < segmentLabels.size() & segmentCount > i; i++) {
-                        segmentedButtons[i].setText(segmentLabels.get(i));
-                    }
-
-                    for (int i = 0; i < segmentedButtons.length; i++) {
-                        segmentedButtons[i].setVisibility(i < segmentCount ? View.VISIBLE :
-                            View.GONE);
+                    for (int i = visibleSegmentCount; i < segmentedButtons.length; i++) {
+                        segmentedButtons[i].setVisibility(View.GONE);
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
