@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
 
     <Button
         android:id="@+id/decrement"
@@ -24,18 +25,18 @@
     <EditText
         android:id="@+id/display"
         android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_height="40dp"
         android:gravity="center"
         android:inputType="number"
-        android:padding="8dp"
         android:text="@string/one"
         android:textColor="@color/picker_text_color"
-        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="Autofill,LabelFor,TouchTargetSizeCheck" />
+        app:autoSizeTextType="uniform"
+        tools:ignore="Autofill,LabelFor,TouchTargetSizeCheck"
+        />
 
     <Button
         android:id="@+id/increment"
