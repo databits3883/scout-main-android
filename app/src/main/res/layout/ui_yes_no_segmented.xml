@@ -24,20 +24,20 @@
         app:sbg_selectionAnimationInterpolator="fastOutSlowIn">
 
         <com.addisonelliott.segmentedbutton.SegmentedButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:padding="8dp"
+            android:padding="5dp"
             app:autoSizeTextType="uniform"
             app:sb_selectedTextColor="@color/text_color_inverted"
             app:sb_text="@string/no"
             app:sb_textColor="@color/text_color" />
 
         <com.addisonelliott.segmentedbutton.SegmentedButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:padding="8dp"
+            android:padding="5dp"
             app:autoSizeTextType="uniform"
             app:sb_selectedTextColor="@color/text_color_inverted"
             app:sb_text="@string/yes"
