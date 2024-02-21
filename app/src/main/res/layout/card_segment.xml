@@ -31,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/SegmentType"
+            android:textColor="@color/black"
             android:textSize="@dimen/cardview_title_size"
             app:layout_constraintBottom_toTopOf="@+id/segmentUI"
             app:layout_constraintEnd_toStartOf="@+id/help_button"
