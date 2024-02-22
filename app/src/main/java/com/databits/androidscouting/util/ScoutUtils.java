@@ -185,24 +185,20 @@ public class ScoutUtils {
 
   // Save the table and cell data to a string
   public String saveData(View v, boolean exportTable) {
-    String tableData;
     String cellData;
 
-    if (exportTable) {
-      tableData = exportTable(v);
-      int match = matchInfo.getMatch();
-      int team = 0;
-      if (teamInfo.teamsLoaded()) {
-        team = teamInfo.getTeam(match);
-      }
-      //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
-      cellData = match + "," + team + "," + teamInfo.getScouterName() + "," + exportCell(v.findViewById(R.id.recycler_view_top)).substring(1); /*+
-          exportCell(v.findViewById(R.id.recycler_view_bot));*/
-      return cellData + "," + tableData;
-    } else {
-      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) + "," + teamInfo.getScouterName();
-      return cellData;
+    int match = matchInfo.getMatch();
+    int team = 9999;
+    if (debugPreference.getBoolean("manual_team_override_toggle")) {
+      team = debugPreference.getInt("manual_team_override_value");
+    } else if (teamInfo.teamsLoaded()) {
+      team = teamInfo.getTeam(match);
     }
+
+    //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
+    cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view_top))
+        .substring(1) + "," + teamInfo.getScouterName();
+    return cellData;
   }
 
   public void tableSorter(int table_status, View v, RecyclerView mRecyclerViewTop,
