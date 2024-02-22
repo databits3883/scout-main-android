@@ -11,7 +11,8 @@
         "cellTotalEntries": 0,
         "cellType": "YesNo",
         "cellUnit": 0,
-        "helpText": "Did the robot leave the starting zone in auto"
+        "helpText": "Did the robot leave the starting zone in auto",
+        "cellCategory": "Auto"
       },
       "mTitle": "Moved in Auto",
       "mType": "YesNo"
@@ -25,12 +26,13 @@
         "cellSegments": 0,
         "cellTextHidden": false,
         "cellTotalEntries": 0,
-        "cellType": "TeamSelect",
+        "cellType": "YesNo",
         "cellUnit": 0,
-        "helpText": "Select the team your scouting"
+        "helpText": "Did something go wrong with the robot? If so leave a comment",
+        "cellCategory": "Endgame"
       },
-      "mTitle": "title",
-      "mType": "TeamSelect"
+      "mTitle": "Did the robot break",
+      "mType": "YesNo"
     },
     {
       "mCellId": 2,
@@ -43,7 +45,8 @@
         "cellTotalEntries": 0,
         "cellType": "DualCounter",
         "cellUnit": 1,
-        "helpText": "Did they score a note in the amp in auto"
+        "helpText": "Did they score a note in the amp in auto",
+        "cellCategory": "Auto"
       },
       "mTitle": "Auto Amp",
       "mType": "DualCounter"
@@ -59,7 +62,8 @@
         "cellTotalEntries": 0,
         "cellType": "DualCounter",
         "cellUnit": 1,
-        "helpText": "Did they score a note in the speaker in auto"
+        "helpText": "Did they score a note in the speaker in auto",
+        "cellCategory": "Auto"
       },
       "mTitle": "Auto Speaker",
       "mType": "DualCounter"
@@ -75,7 +79,8 @@
         "cellTotalEntries": 0,
         "cellType": "DualCounter",
         "cellUnit": 1,
-        "helpText": "Did they score a note in the amp in teleop"
+        "helpText": "Did they score a note in the amp in teleop",
+        "cellCategory": "Teleop"
       },
       "mTitle": "Teleop Amp",
       "mType": "DualCounter"
@@ -91,7 +96,8 @@
         "cellTotalEntries": 0,
         "cellType": "DualCounter",
         "cellUnit": 1,
-        "helpText": "Did they score a note in the speaker in auto"
+        "helpText": "Did they score a note in the speaker in auto",
+        "cellCategory": "Teleop"
       },
       "mTitle": "Teleop Speaker",
       "mType": "DualCounter"
@@ -100,36 +106,21 @@
       "mCellId": 6,
       "mParam": {
         "cellDefault": 0,
-        "cellMax": 3,
+        "cellMax": 4,
         "cellMin": 0,
         "cellSegments": 0,
         "cellTextHidden": false,
         "cellTotalEntries": 0,
         "cellType": "Counter",
         "cellUnit": 1,
-        "helpText": "Default"
+        "helpText": "Notes scored into the middle of the climbing area",
+        "cellCategory": "Endgame"
       },
       "mTitle": "Notes in Trap",
       "mType": "Counter"
     },
     {
       "mCellId": 7,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "YesNo",
-        "cellUnit": 0,
-        "helpText": "Did something go wrong with the robot? If so leave a comment"
-      },
-      "mTitle": "Did the robot break",
-      "mType": "YesNo"
-    },
-    {
-      "mCellId": 8,
       "mParam": {
         "cellDefault": 0,
         "cellMax": 0,
@@ -145,18 +136,75 @@
         "cellTotalEntries": 0,
         "cellType": "Segment",
         "cellUnit": 0,
-        "helpText": "Where was the robot postioned at the end of the game"
+        "helpText": "Where was the robot positioned at the end of the game",
+        "cellCategory": "Endgame"
       },
-      "mTitle": "End of game postion",
+      "mTitle": "End of game position",
       "mType": "Segment"
+    },
+    {
+      "mCellId": 8,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Ground",
+          "Feeder Station",
+          "Both"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Default",
+        "cellCategory": "Endgame"
+      },
+      "mTitle": "Note pickup location",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 9,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 0,
+        "helpText": "Did they block the other team or cause them to slow down",
+        "cellCategory": "Endgame"
+      },
+      "mTitle": "Did they play defense",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 10,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Out of area",
+          "Parked",
+          "Climbed"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "Be Specific, More info is always better",
+        "cellCategory": "Endgame"
+      },
+      "mTitle": "Comments",
+      "mType": "Text"
     }
-  ],
-  "segmentLabels": [
-    "Parked",
-    "Climbed",
-    "Spotlit",
-    "Out of area"
   ]
 }
 
-^{"entryLabels":[],"mCell":[],"segmentLabels":[]}
+^{"entryLabels":[],"mCell":[]}
