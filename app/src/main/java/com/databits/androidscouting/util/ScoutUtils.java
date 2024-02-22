@@ -111,10 +111,10 @@ public class ScoutUtils {
             NumberPicker numberPicker = v.findViewById(R.id.number_counter_inside);
             finalString.append(numberPicker.getValue())/*.append(",")*/;
             break;
-          case "DoubleCounter":
+          case "DualCounter":
             NumberPicker picker1 = v.findViewById(R.id.counterOne);
             NumberPicker picker2 = v.findViewById(R.id.counterTwo);
-            finalString.append(picker1.getValue())/*.append(",")*/;
+            finalString.append(picker1.getValue()).append(",");
             finalString.append(picker2.getValue())/*.append(",")*/;
             break;
           case "Segment":
