@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -41,11 +42,13 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView title;
         ImageButton help;
         SegmentedButtonGroup group;
+        LinearLayout categoryColor;
         public YesNoTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.yesno_title);
             this.group = itemView.findViewById(R.id.buttonGroup_yes_no);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -54,12 +57,14 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextInputLayout textInputLayout;
         TextInputEditText editText;
         ImageButton help;
+        LinearLayout categoryColor;
         public TextTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.textbox_title);
             this.textInputLayout = itemView.findViewById(R.id.textbox_text_layout);
             this.editText = itemView.findViewById(R.id.enteredText);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -67,11 +72,13 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView title;
         ImageButton help;
         NumberPicker currentPicker;
+        LinearLayout categoryColor;
         public CounterTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.counter_title);
             this.currentPicker = itemView.findViewById(R.id.number_counter_inside);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -79,12 +86,14 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView title;
         ImageButton help;
         NumberPicker counterOne, counterTwo;
+        LinearLayout categoryColor;
         public DualCounterTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.counter_title);
             this.counterOne = itemView.findViewById(R.id.counterOne);
             this.counterTwo = itemView.findViewById(R.id.counterTwo);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -93,6 +102,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         ImageButton help;
         SegmentedButton one,two,three,four,five,six;
         SegmentedButtonGroup group;
+        LinearLayout categoryColor;
 
         public SegmentTypeViewHolder(View itemView) {
             super(itemView);
@@ -105,6 +115,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             this.five = itemView.findViewById(R.id.button_five);
             this.six = itemView.findViewById(R.id.button_six);
             this.group = itemView.findViewById(R.id.buttonGroup_segments);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -112,11 +123,13 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView title;
         ImageButton help;
         Spinner spinner;
+        LinearLayout categoryColor;
         public ListTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.list_title);
             this.spinner = itemView.findViewById(R.id.spinner);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -124,11 +137,13 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView title;
         ImageButton help;
         Spinner spinner;
+        LinearLayout categoryColor;
         public TeamSelectTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.teamselect_title);
             this.spinner = itemView.findViewById(R.id.spinner);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
         }
     }
 
@@ -218,6 +233,20 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             .setTextColor(ContextCompat.getColor(mContext, R.color.white))
             .setBalloonAnimation(BalloonAnimation.FADE);
 
+        int categoryColor = 0;
+
+        switch (object.getCellCategory()){
+            case "Auto":
+                categoryColor = R.color.auto_category;
+                break;
+            case "Teleop":
+                categoryColor = R.color.teleop_category;
+                break;
+            case "Endgame":
+                categoryColor = R.color.endgame_category;
+                break;
+        }
+
         if (object != null) {
             switch (object.getType()) {
                 case "YesNo":
@@ -236,6 +265,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                                 HapticFeedbackConstants.LONG_PRESS);
                         }
                     });
+                    ((YesNoTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Text":
                     ((TextTypeViewHolder) holder).title.setText(title_text);
@@ -250,6 +281,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         .build();
                     ((TextTypeViewHolder) holder).help.setOnClickListener(view ->
                         textHelp.showAlignBottom(((TextTypeViewHolder) holder).help));
+                    ((TextTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Counter":
                     Balloon counterHelp = helpBuilder
@@ -263,6 +296,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((CounterTypeViewHolder) holder).currentPicker.setUnit(object.getUnit());
                     ((CounterTypeViewHolder) holder).currentPicker.setValue(object.getDefault());
                     ((CounterTypeViewHolder) holder).currentPicker.setFocusable(false);
+                    ((CounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "DualCounter":
                     Balloon dualCounterHelp = helpBuilder
@@ -282,6 +317,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((DualCounterTypeViewHolder) holder).counterTwo.setUnit(object.getUnit());
                     ((DualCounterTypeViewHolder) holder).counterTwo.setValue(object.getDefault());
                     ((DualCounterTypeViewHolder) holder).counterTwo.setFocusable(false);
+                    ((DualCounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Segment":
                     Balloon segmentHelp = helpBuilder
@@ -321,6 +358,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         ((SegmentTypeViewHolder) holder).group.performHapticFeedback(
                             HapticFeedbackConstants.LONG_PRESS);
                     }
+                    ((SegmentTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "List":
                     Balloon listHelp = helpBuilder
@@ -347,6 +386,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                             view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                         }
                     });
+                    ((ListTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "TeamSelect":
                     Balloon teamSelectHelp = helpBuilder
@@ -365,6 +406,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((TeamSelectTypeViewHolder) holder).spinner.setAdapter(
                         teamselectspinnerArrayAdapter);
                     ((TeamSelectTypeViewHolder) holder).spinner.setTag("TeamSpinner");
+                    ((TeamSelectTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
                     //((TeamSelectTypeViewHolder) holder).spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     //    @Override
                     //    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

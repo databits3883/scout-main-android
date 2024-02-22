@@ -15,6 +15,8 @@ public class CellParam {
     private boolean cellTextHidden;
     private String cellTextHint;
 
+    private String cellCategory;
+
     private String helpText;
 
     public CellParam(String cellType) {
@@ -112,4 +114,8 @@ public class CellParam {
     public  String getHelpText() {return helpText;}
 
     public void setHelpText(String helpText) {this.helpText = helpText;}
+
+    public  String getCellCategory() {return cellCategory;}
+
+    public void setCellCategory(String cellCategory) {this.cellCategory = cellCategory;}
 }

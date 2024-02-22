@@ -15,4 +15,7 @@
     <color name="text_color">@color/black</color>
     <color name="text_color_inverted">@color/white</color>
     <color name="picker_text_color">@color/black</color>
+    <color name="auto_category">#f2e875</color>
+    <color name="teleop_category">#ceafe3</color>
+    <color name="endgame_category">#9ed8e6</color>
 </resources>
