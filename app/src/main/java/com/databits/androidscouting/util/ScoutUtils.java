@@ -196,8 +196,8 @@ public class ScoutUtils {
         team = teamInfo.getTeam(match);
       }
       //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
-      cellData = match + "," + team + "," + teamInfo.getScouterName() + "," + exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) +
-          exportCell(v.findViewById(R.id.recycler_view_bot));
+      cellData = match + "," + team + "," + teamInfo.getScouterName() + "," + exportCell(v.findViewById(R.id.recycler_view_top)).substring(1); /*+
+          exportCell(v.findViewById(R.id.recycler_view_bot));*/
       return cellData + "," + tableData;
     } else {
       cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) + "," + teamInfo.getScouterName();
