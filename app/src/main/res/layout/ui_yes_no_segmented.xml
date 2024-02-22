@@ -7,7 +7,7 @@
     <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
         android:id="@+id/buttonGroup_yes_no"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:elevation="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,7 +21,8 @@
         app:sbg_ripple="true"
         app:sbg_selectedBackground="@color/accent_color"
         app:sbg_selectionAnimationDuration="250"
-        app:sbg_selectionAnimationInterpolator="fastOutSlowIn">
+        app:sbg_selectionAnimationInterpolator="fastOutSlowIn"
+        >
 
         <com.addisonelliott.segmentedbutton.SegmentedButton
             android:layout_width="7dp"
@@ -31,7 +32,8 @@
             app:autoSizeTextType="uniform"
             app:sb_selectedTextColor="@color/text_color_inverted"
             app:sb_text="@string/no"
-            app:sb_textColor="@color/text_color" />
+            app:sb_textColor="@color/text_color"
+            />
 
         <com.addisonelliott.segmentedbutton.SegmentedButton
             android:layout_width="7dp"
@@ -41,7 +43,8 @@
             app:autoSizeTextType="uniform"
             app:sb_selectedTextColor="@color/text_color_inverted"
             app:sb_text="@string/yes"
-            app:sb_textColor="@color/text_color" />
+            app:sb_textColor="@color/text_color"
+            />
     </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

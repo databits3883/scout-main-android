@@ -18,12 +18,11 @@
             android:id="@+id/help_button"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
             android:background="@drawable/help_icon_red"
+            app:layout_constraintBottom_toBottomOf="@+id/counter_title"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/counter_title"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
         <TextView
             android:id="@+id/counter_title"
@@ -32,11 +31,11 @@
             android:text="@string/CounterType"
             android:textColor="@color/black"
             android:textSize="@dimen/cardview_title_size"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/help_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.05" />
+            />
 
         <include
             android:id="@+id/counterUI"
