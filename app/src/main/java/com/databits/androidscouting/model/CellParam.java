@@ -17,6 +17,8 @@ public class CellParam {
 
     private String cellCategory;
 
+    private String helpTitle;
+    private String helpPictureSelector;
     private String helpText;
 
     public CellParam(String cellType) {
@@ -118,4 +120,14 @@ public class CellParam {
     public  String getCellCategory() {return cellCategory;}
 
     public void setCellCategory(String cellCategory) {this.cellCategory = cellCategory;}
+
+    public  String getHelpTitle() {return helpTitle;}
+
+    public void setHelpTitle(String HelpTitle) {this.helpTitle = HelpTitle;}
+
+    public  String getHelpPictureSelector() {return helpPictureSelector;}
+
+    public void setelpPictureSelector(String helpPictureSelector) {this.helpPictureSelector = helpPictureSelector;}
+
+
 }

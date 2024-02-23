@@ -1,6 +1,7 @@
 package com.databits.androidscouting.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
@@ -8,10 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButton;
@@ -220,7 +223,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         // Common Help balloon settings for all cells
         Balloon.Builder helpBuilder = new Balloon.Builder(mContext)
-            .setArrowSize(10)
+            .setArrowSize(15)
             .setArrowOrientation(ArrowOrientation.TOP)
             .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
             .setArrowPosition(0.5f)
@@ -229,9 +232,11 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             .setPadding(6)
             .setTextSize(20f)
             .setCornerRadius(4f)
-            .setAlpha(0.8f)
             .setTextColor(ContextCompat.getColor(mContext, R.color.white))
-            .setBalloonAnimation(BalloonAnimation.FADE);
+            .setBalloonAnimation(BalloonAnimation.CIRCULAR)
+            .setLayout(R.layout.help_bubble_layout)
+            .setDismissWhenClicked(true)
+            .setBackgroundColor(ContextCompat.getColor(mContext, R.color.white));
 
         int categoryColor = 0;
 
@@ -246,13 +251,45 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 categoryColor = R.color.endgame_category;
                 break;
         }
+        Drawable helpPicture = null;
+        switch (object.getHelpPictureSelector()){
+            case "Speaker":
+                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.speaker);
+                break;
+            case "Amp":
+                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.amp);
+                break;
+            case "Stage":
+                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.stage);
+                break;
+            case "Endgame":
+                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.endgame);
+                break;
+            case "Feeder":
+                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.feeder);
+                break;
+            case "Auto":
+                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.auto);
+                break;
+            case "None":
+                helpPicture = AppCompatResources.getDrawable(mContext,
+                    com.anggrayudi.storage.R.drawable.md_transparent);
+                break;
+        }
 
         if (object != null) {
             switch (object.getType()) {
                 case "YesNo":
                     Balloon yesnoHelp = helpBuilder
-                        .setText(object.getHelpText())
                         .build();
+
+                    TextView yesnoTitle = yesnoHelp.getContentView().findViewById(R.id.help_title);
+                    TextView yesnoContent = yesnoHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView yesnoImage = yesnoHelp.getContentView().findViewById(R.id.help_image);
+                    yesnoTitle.setText(object.getHelpTitle());
+                    yesnoContent.setText(object.getHelpText());
+                    yesnoImage.setImageDrawable(helpPicture);
+
                     ((YesNoTypeViewHolder) holder).title.setText(title_text);
                     ((YesNoTypeViewHolder) holder).help.setOnClickListener(view ->
                         yesnoHelp.showAlignBottom(((YesNoTypeViewHolder) holder).help));
@@ -269,6 +306,16 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Text":
+                    Balloon textHelp = helpBuilder
+                        .build();
+
+                    TextView textTitle = textHelp.getContentView().findViewById(R.id.help_title);
+                    TextView textContent = textHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView textImage = textHelp.getContentView().findViewById(R.id.help_image);
+                    textTitle.setText(object.getHelpTitle());
+                    textContent.setText(object.getHelpText());
+                    textImage.setImageDrawable(helpPicture);
+
                     ((TextTypeViewHolder) holder).title.setText(title_text);
                     ((TextTypeViewHolder) holder).editText.setSingleLine(true);
                     ((TextTypeViewHolder) holder).textInputLayout.setId(R.id.textbox_text_layout);
@@ -276,9 +323,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     if (!object.isTextHidden()) {
                         ((TextTypeViewHolder) holder).textInputLayout.setHint(object.getTextHint());
                     }
-                    Balloon textHelp = helpBuilder
-                        .setText(object.getHelpText())
-                        .build();
+
                     ((TextTypeViewHolder) holder).help.setOnClickListener(view ->
                         textHelp.showAlignBottom(((TextTypeViewHolder) holder).help));
                     ((TextTypeViewHolder) holder).categoryColor.setBackgroundColor(
@@ -286,8 +331,15 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     break;
                 case "Counter":
                     Balloon counterHelp = helpBuilder
-                        .setText(object.getHelpText())
                         .build();
+
+                    TextView counterTitle = counterHelp.getContentView().findViewById(R.id.help_title);
+                    TextView counterContent = counterHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView counterImage = counterHelp.getContentView().findViewById(R.id.help_image);
+                    counterTitle.setText(object.getHelpTitle());
+                    counterContent.setText(object.getHelpText());
+                    counterImage.setImageDrawable(helpPicture);
+
                     ((CounterTypeViewHolder) holder).title.setText(title_text);
                     ((CounterTypeViewHolder) holder).help.setOnClickListener(view ->
                         counterHelp.showAlignBottom(((CounterTypeViewHolder) holder).help));
@@ -301,8 +353,15 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     break;
                 case "DualCounter":
                     Balloon dualCounterHelp = helpBuilder
-                        .setText(object.getHelpText())
                         .build();
+
+                    TextView dualcounterTitle = dualCounterHelp.getContentView().findViewById(R.id.help_title);
+                    TextView dualcounterContent = dualCounterHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView dualcounterImage = dualCounterHelp.getContentView().findViewById(R.id.help_image);
+                    dualcounterTitle.setText(object.getHelpTitle());
+                    dualcounterContent.setText(object.getHelpText());
+                    dualcounterImage.setImageDrawable(helpPicture);
+
                     ((DualCounterTypeViewHolder) holder).title.setText(title_text);
                     ((DualCounterTypeViewHolder) holder).help.setOnClickListener(view ->
                         dualCounterHelp.showAlignBottom(((DualCounterTypeViewHolder) holder).help));
@@ -322,8 +381,15 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     break;
                 case "Segment":
                     Balloon segmentHelp = helpBuilder
-                        .setText(object.getHelpText())
                         .build();
+
+                    TextView segmentTitle = segmentHelp.getContentView().findViewById(R.id.help_title);
+                    TextView segmentContent = segmentHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView segmentImage = segmentHelp.getContentView().findViewById(R.id.help_image);
+                    segmentTitle.setText(object.getHelpTitle());
+                    segmentContent.setText(object.getHelpText());
+                    segmentImage.setImageDrawable(helpPicture);
+
                     ((SegmentTypeViewHolder) holder).title.setText(title_text);
                     ((SegmentTypeViewHolder) holder).help.setOnClickListener(view ->
                         segmentHelp.showAlignBottom(((SegmentTypeViewHolder) holder).help));
@@ -363,8 +429,15 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     break;
                 case "List":
                     Balloon listHelp = helpBuilder
-                        .setText(object.getHelpText())
                         .build();
+
+                    TextView listTitle = listHelp.getContentView().findViewById(R.id.help_title);
+                    TextView listContent = listHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView listImage = listHelp.getContentView().findViewById(R.id.help_image);
+                    listTitle.setText(object.getHelpTitle());
+                    listContent.setText(object.getHelpText());
+                    listImage.setImageDrawable(helpPicture);
+
                     ((ListTypeViewHolder) holder).title.setText(title_text);
                     ((ListTypeViewHolder) holder).help.setOnClickListener(view ->
                         listHelp.showAlignBottom(((ListTypeViewHolder) holder).help));
@@ -391,8 +464,15 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     break;
                 case "TeamSelect":
                     Balloon teamSelectHelp = helpBuilder
-                        .setText(object.getHelpText())
                         .build();
+
+                    TextView teamSelectTitle = teamSelectHelp.getContentView().findViewById(R.id.help_title);
+                    TextView teamSelectContent = teamSelectHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView teamSelectImage = teamSelectHelp.getContentView().findViewById(R.id.help_image);
+                    teamSelectTitle.setText(object.getHelpTitle());
+                    teamSelectContent.setText(object.getHelpText());
+                    teamSelectImage.setImageDrawable(helpPicture);
+
                     ((TeamSelectTypeViewHolder) holder).title.setText(R.string.select_team_title);
                     ((TeamSelectTypeViewHolder) holder).help.setOnClickListener(view ->
                         teamSelectHelp.showAlignBottom(((TeamSelectTypeViewHolder) holder)

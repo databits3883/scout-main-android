@@ -12,7 +12,9 @@
         "cellType": "YesNo",
         "cellUnit": 0,
         "helpText": "Did the robot leave the starting zone in auto",
-        "cellCategory": "Auto"
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": "Location of starting zone"
       },
       "mTitle": "Moved in Auto",
       "mType": "YesNo"
@@ -28,8 +30,10 @@
         "cellTotalEntries": 0,
         "cellType": "YesNo",
         "cellUnit": 0,
-        "helpText": "Did something go wrong with the robot? If so leave a comment",
-        "cellCategory": "Endgame"
+        "helpText": "You must leave a comment if you say yes to this, explaining what happened!",
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Did something go wrong with the robot?"
       },
       "mTitle": "Did the robot break",
       "mType": "YesNo"
@@ -46,7 +50,9 @@
         "cellType": "DualCounter",
         "cellUnit": 1,
         "helpText": "Did they score a note in the amp in auto",
-        "cellCategory": "Auto"
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Amp",
+        "helpTitle": "Amp Location"
       },
       "mTitle": "Auto Amp",
       "mType": "DualCounter"
@@ -63,7 +69,9 @@
         "cellType": "DualCounter",
         "cellUnit": 1,
         "helpText": "Did they score a note in the speaker in auto",
-        "cellCategory": "Auto"
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Speaker",
+        "helpTitle": "Speaker Location"
       },
       "mTitle": "Auto Speaker",
       "mType": "DualCounter"
@@ -80,7 +88,9 @@
         "cellType": "DualCounter",
         "cellUnit": 1,
         "helpText": "Did they score a note in the amp in teleop",
-        "cellCategory": "Teleop"
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Amp",
+        "helpTitle": "Amp Location"
       },
       "mTitle": "Teleop Amp",
       "mType": "DualCounter"
@@ -97,7 +107,9 @@
         "cellType": "DualCounter",
         "cellUnit": 1,
         "helpText": "Did they score a note in the speaker in auto",
-        "cellCategory": "Teleop"
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Speaker",
+        "helpTitle": "Speaker Location"
       },
       "mTitle": "Teleop Speaker",
       "mType": "DualCounter"
@@ -114,7 +126,9 @@
         "cellType": "Counter",
         "cellUnit": 1,
         "helpText": "Notes scored into the middle of the climbing area",
-        "cellCategory": "Endgame"
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "Stage",
+        "helpTitle": "Trap Location"
       },
       "mTitle": "Notes in Trap",
       "mType": "Counter"
@@ -126,10 +140,9 @@
         "cellMax": 0,
         "cellMin": 0,
         "cellSegmentLabels": [
+          "Out of area",
           "Parked",
-          "Climbed",
-          "Spotlit",
-          "Out of area"
+          "Climbed"
         ],
         "cellSegments": 4,
         "cellTextHidden": false,
@@ -137,7 +150,9 @@
         "cellType": "Segment",
         "cellUnit": 0,
         "helpText": "Where was the robot positioned at the end of the game",
-        "cellCategory": "Endgame"
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "Endgame",
+        "helpTitle": "End Game position"
       },
       "mTitle": "End of game position",
       "mType": "Segment"
@@ -150,8 +165,8 @@
         "cellMin": 0,
         "cellSegmentLabels": [
           "None",
-          "Ground",
           "Feeder Station",
+          "Floor",
           "Both"
         ],
         "cellSegments": 4,
@@ -159,8 +174,10 @@
         "cellTotalEntries": 0,
         "cellType": "Segment",
         "cellUnit": 0,
-        "helpText": "Default",
-        "cellCategory": "Endgame"
+        "helpText": "Where did the robot pickup notes (Foam Rings)",
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "Feeder",
+        "helpTitle": "Note Pickup"
       },
       "mTitle": "Note pickup location",
       "mType": "Segment"
@@ -177,7 +194,9 @@
         "cellType": "YesNo",
         "cellUnit": 0,
         "helpText": "Did they block the other team or cause them to slow down",
-        "cellCategory": "Endgame"
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Defense"
       },
       "mTitle": "Did they play defense",
       "mType": "YesNo"
@@ -199,7 +218,9 @@
         "cellType": "Text",
         "cellUnit": 0,
         "helpText": "Be Specific, More info is always better",
-        "cellCategory": "Endgame"
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Comments"
       },
       "mTitle": "Comments",
       "mType": "Text"
