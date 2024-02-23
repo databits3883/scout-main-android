@@ -78,7 +78,7 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
         ArrayList.class, new ArrayList<>()));
     try {
       // Sheet name and range to upload data to
-      String range = "StatsRaw!A1:BL700";
+      String range = "SuperRawDatabase!A2:BL700";
 
       // Configure a new value range to store the data
       ValueRange content = new ValueRange();
@@ -106,7 +106,7 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
         // Command to upload the data to google sheets
         return sheetsService.spreadsheets().values().append(spreadsheetId, range, content)
             .setValueInputOption("USER_ENTERED")
-            .setInsertDataOption("INSERT_ROWS")
+            .setInsertDataOption("OVERWRITE")
             .execute();
 
       }
