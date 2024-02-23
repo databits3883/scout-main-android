@@ -119,7 +119,7 @@ public class ScoutUtils {
             break;
           case "Segment":
             SegmentedButtonGroup multiSegment = v.findViewById(R.id.buttonGroup_segments);
-            finalString.append(multiSegment.getPosition()+1)/*.append(",")*/;
+            finalString.append(multiSegment.getPosition())/*.append(",")*/;
             break;
           case "List":
             Spinner listSpinner = v.findViewWithTag("Spinner");
