@@ -224,6 +224,7 @@ public class Crowd extends Fragment {
                                 + " the main menu and require that your device be re-provisioned")
                         .setPositiveButton("Yes", (dialog1, which1) -> {
                             configPreference.setBoolean("role_locked_toggle", false);
+                            configPreference.setBoolean("auto_load_crowd_layout_toggle", false);
                             controller.navigate(R.id.action_crowdScoutFragment_to_StartFragment);
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -290,15 +291,14 @@ public class Crowd extends Fragment {
             //binding.autoLoadCheckBox.setVisibility(View.GONE);
         });
 
-        if (configPreference.getBoolean("role_locked_toggle")) {
-            binding.loadButton.performClick();
-        }
-
         binding.autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
             configPreference.putBoolean("auto_load_crowd_layout_toggle", isChecked));
 
-        if (configPreference.getBoolean("auto_load_crowd_layout_toggle")) {
+        if (configPreference.getBoolean("role_locked_toggle") ||
+            configPreference.getBoolean("auto_load_crowd_layout_toggle")) {
             binding.loadButton.performClick();
+            binding.loadButton.setVisibility(View.INVISIBLE);
+            binding.importButton.setVisibility(View.INVISIBLE);
         }
 
         refreshActionBar();
