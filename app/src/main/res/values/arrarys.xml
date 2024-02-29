@@ -48,66 +48,60 @@
   </array>
 
   <string-array name="team_list">
-    <item>1816</item>
-    <item>2052</item>
-    <item>2177</item>
-    <item>2181</item>
-    <item>2207</item>
-    <item>2225</item>
-    <item>2450</item>
-    <item>2470</item>
+    <item>1714</item>
+    <item>1716</item>
+    <item>1792</item>
+    <item>1806</item>
+    <item>2039</item>
+    <item>2062</item>
+    <item>2129</item>
+    <item>2169</item>
+    <item>2175</item>
+    <item>2227</item>
+    <item>2264</item>
+    <item>2472</item>
     <item>2491</item>
-    <item>2498</item>
-    <item>2500</item>
-    <item>2502</item>
-    <item>2508</item>
-    <item>2509</item>
-    <item>2513</item>
-    <item>2515</item>
-    <item>2518</item>
-    <item>2549</item>
-    <item>2606</item>
-    <item>2823</item>
+    <item>2501</item>
+    <item>2512</item>
+    <item>2574</item>
     <item>2846</item>
     <item>2855</item>
-    <item>2879</item>
-    <item>3007</item>
-    <item>3018</item>
-    <item>3026</item>
-    <item>3038</item>
+    <item>2987</item>
+    <item>3023</item>
     <item>3082</item>
-    <item>3202</item>
+    <item>3100</item>
+    <item>3130</item>
     <item>3206</item>
-    <item>3278</item>
-    <item>3407</item>
-    <item>3454</item>
-    <item>3610</item>
-    <item>3630</item>
-    <item>3871</item>
-    <item>4198</item>
-    <item>4215</item>
-    <item>4225</item>
-    <item>4277</item>
-    <item>4536</item>
-    <item>4549</item>
-    <item>4632</item>
-    <item>4663</item>
-    <item>4664</item>
+    <item>3212</item>
+    <item>3297</item>
+    <item>3418</item>
+    <item>3883</item>
+    <item>4166</item>
+    <item>4182</item>
+    <item>4229</item>
+    <item>4230</item>
+    <item>4623</item>
+    <item>4703</item>
+    <item>4786</item>
+    <item>5232</item>
     <item>5271</item>
-    <item>5278</item>
-    <item>5434</item>
+    <item>5275</item>
+    <item>5339</item>
+    <item>5720</item>
     <item>5913</item>
-    <item>5996</item>
-    <item>6709</item>
-    <item>7019</item>
-    <item>7068</item>
-    <item>7235</item>
-    <item>7258</item>
-    <item>7849</item>
-    <item>7850</item>
-    <item>8234</item>
-    <item>8255</item>
-    <item>8787</item>
-    <item>9157</item>
+    <item>6044</item>
+    <item>6045</item>
+    <item>6047</item>
+    <item>6132</item>
+    <item>6147</item>
+    <item>6419</item>
+    <item>6574</item>
+    <item>6758</item>
+    <item>7273</item>
+    <item>7530</item>
+    <item>7619</item>
+    <item>8122</item>
+    <item>8700</item>
+    <item>8803</item>
   </string-array>
 </resources>
