@@ -9,42 +9,12 @@
     <item>Red 2</item>
     <item>Red 3</item>
   </array>
-  <array name="student_names">
-    <item>Alex Wan</item>
-    <item>Andrew Choi</item>
-    <item>Arjun Senthilvel</item>
-    <item>Blake Anderson</item>
-    <item>Blue Spies</item>
-    <item>Cami Grinde</item>
-    <item>Carter Kloestra</item>
-    <item>Clifton Floyd</item>
-    <item>Connor Wahlstrom</item>
-    <item>Corrie Mattison</item>
-    <item>Dylan Moya</item>
-    <item>Eli Kloetstra</item>
-    <item>Ethan Chung</item>
-    <item>Eva Vokac</item>
-    <item>George Vokac</item>
-    <item>Grace Winter</item>
-    <item>Henry Decker</item>
-    <item>Jack Toenjes</item>
-    <item>Jacob Erikson</item>
-    <item>Joey Capistrant</item>
-    <item>Joesph Spielbauer</item>
-    <item>Kaleb Girma</item>
-    <item>Liam Peters</item>
-    <item>Logan Curtis</item>
-    <item>Mateo Olson</item>
-    <item>Max Duthie</item>
-    <item>Nathan Wan</item>
-    <item>Nikhil Iyer</item>
-    <item>Osman Mohamed</item>
-    <item>Owen Spores</item>
-    <item>Rylan Chung</item>
-    <item>Sam Henning</item>
-    <item>Seth Schardt</item>
-    <item>Tony Baston</item>
-    <item>Wren LaValle</item>
+  <array name="databits_students">
+    <item>Bob</item>
+  </array>
+
+  <array name="royal_students">
+    <item>Jim</item>
   </array>
 
   <string-array name="team_list">
