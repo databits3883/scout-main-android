@@ -52,11 +52,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -338,21 +336,21 @@ public class Scanner extends Fragment {
         //raw_data.add(new String[] {bar_string});
 
         // Create a HashSet to keep track of the lines we've already seen
-        Set<String> seenLines = listPreference.getObject("seen_lines", Set.class,
-            new HashSet<>());
+        //Set<String> seenLines = listPreference.getObject("seen_lines", Set.class,
+        //    new HashSet<>());
 
         // Check for duplicate and don't upload role qr data
-        if (!seenLines.contains(bar_string) & !bar_string.contains("Role")) {
+        //if (!seenLines.contains(bar_string) & !bar_string.contains("Role")) {
 
             // Add the line to the HashSet so we can check for duplicates in the future
-            seenLines.add(bar_string);
+            //seenLines.add(bar_string);
 
             // Save the HashSet to the shared preferences
-            listPreference.setObject("seen_lines", seenLines);
+            //listPreference.setObject("seen_lines", seenLines);
 
             // Save the data to the shared preferences
             matchPreference.setObject("upload_data", raw_data);
-        }
+        //}
     }
 
     private void set_team(int id) {

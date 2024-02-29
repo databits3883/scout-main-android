@@ -25,9 +25,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.databits.androidscouting.util.GoogleAuthActivity.REQUEST_ACCOUNT_PICKER;
 
@@ -106,18 +104,18 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
         String removeTimeStamp = lineStringT.substring(0, lineStringT.lastIndexOf(','));
 
         // Create a HashSet to keep track of the lines we've already seen
-        Set<String> seenLines = listPreference.getObject("seen_lines", Set.class,
-            new HashSet<>());
+        //Set<String> seenLines = listPreference.getObject("seen_lines", Set.class,
+        //    new HashSet<>());
 
         // Check for duplicate and don't upload role qr data
-        if (!seenLines.contains(removeTimeStamp) & !removeTimeStamp.contains("Role")) {
+        //if (!seenLines.contains(removeTimeStamp) & !removeTimeStamp.contains("Role")) {
           // If we haven't seen this line before, add it to the unique list
-          uniqueList.add(line);
+          //uniqueList.add(line);
 
           // Add the line minus the timestamp to the HashSet so we can check for duplicates later
-          seenLines.add(removeTimeStamp);
-          listPreference.setObject("seen_lines", seenLines);
-        }
+          //seenLines.add(removeTimeStamp);
+          //listPreference.setObject("seen_lines", seenLines);
+        //}
       }
 
       configPreference.setBoolean("upload_unique_toggle", true);
