@@ -299,6 +299,7 @@ public class Crowd extends Fragment {
             binding.loadButton.performClick();
             binding.loadButton.setVisibility(View.INVISIBLE);
             binding.importButton.setVisibility(View.INVISIBLE);
+            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
         }
 
         refreshActionBar();
