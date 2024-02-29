@@ -389,6 +389,7 @@ public class Scanner extends Fragment {
         boolean locked = Boolean.parseBoolean(qr_data[7]);
         int match = Integer.parseInt(qr_data[9]);
         boolean delete_data = Boolean.parseBoolean(qr_data[11]);
+        boolean team_selector = Boolean.parseBoolean(qr_data[13]);
 
         if (delete_data) {
             PowerPreference.clearAllData();
@@ -400,6 +401,7 @@ public class Scanner extends Fragment {
         configPreference.setInt("crowd_position", crowd_num);
         configPreference.setString("current_scouter", name);
         configPreference.setBoolean("role_locked_toggle", locked);
+        configPreference.setBoolean("altMode", team_selector);
         //configPreference.setInt("current_match", match);
 
         //if (locked) {
