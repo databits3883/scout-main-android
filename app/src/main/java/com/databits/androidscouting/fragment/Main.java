@@ -104,6 +104,28 @@ public class Main extends Fragment {
             }
         });
 
+        binding.buttonGroupSelector.setOnPositionChangedListener(position -> {
+            switch (position) {
+                case 0:
+                    configPreference.remove("altMode");
+                    break;
+                case 1:
+                    configPreference.setBoolean("altMode",false);
+                    break;
+                case 2:
+                    configPreference.setBoolean("altMode",true);
+                    break;
+            }
+        });
+
+        boolean alt = configPreference.getBoolean("altMode");
+        if (alt) {
+            binding.buttonGroupSelector.setPosition(1,false);
+        } else {
+            binding.buttonGroupSelector.setPosition(2,false);
+        }
+
+
         if (lock) {
             role_selector(controller);
         }

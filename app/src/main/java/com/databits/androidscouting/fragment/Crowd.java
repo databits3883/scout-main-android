@@ -38,7 +38,6 @@ import com.travijuu.numberpicker.library.NumberPicker;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -115,17 +114,13 @@ public class Crowd extends Fragment {
                         })
                         .create();
 
-                    ArrayList<String> student_list = debugPreference.getObject("student_list",
-                        ArrayList.class);
-
-                    if (student_list == null) {
-                        scouterList = new LinkedList<>(Arrays.asList(getResources().
-                            getStringArray(R.array.student_names)));
+                    if (configPreference.getBoolean("altMode", false)) {
+                        scouterList = new ArrayList<>(Arrays.asList(getResources()
+                            .getStringArray(R.array.royal_students)));
                     } else {
-                        scouterList = student_list;
+                        scouterList = new ArrayList<>(Arrays.asList(getResources()
+                            .getStringArray(R.array.databits_students)));
                     }
-                    //scouterList = new LinkedList<>(Arrays.asList(getResources().
-                    //    getStringArray(R.array.student_names)));
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                         R.layout.ui_list_item,
                         scouterList);

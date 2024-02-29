@@ -119,8 +119,13 @@ public class Provision extends Fragment {
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    scouterList = new LinkedList<>(Arrays.asList(getResources()
-        .getStringArray(R.array.student_names)));
+    if (configPreference.getBoolean("altMode", false)) {
+      scouterList = new LinkedList<>(Arrays.asList(getResources()
+          .getStringArray(R.array.royal_students)));
+    } else {
+      scouterList = new LinkedList<>(Arrays.asList(getResources()
+          .getStringArray(R.array.databits_students)));
+    }
 
     NavController controller = NavHostFragment.findNavController(Provision.this);
 

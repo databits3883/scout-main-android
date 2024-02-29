@@ -192,4 +192,74 @@
         app:layout_constraintTop_toBottomOf="@+id/buttonPermissions"
         />
 
+    <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
+        android:id="@+id/buttonGroup_selector"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:elevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/altModeSelectorText"
+        app:sbg_divider="@color/accent_color"
+        app:sbg_dividerPadding="@dimen/sbg_dividerPadding"
+        app:sbg_dividerWidth="@dimen/sbg_dividerWidth"
+        app:sbg_position="0"
+        app:sbg_radius="2dp"
+        app:sbg_ripple="true"
+        app:sbg_selectedBackground="@color/accent_color"
+        app:sbg_selectionAnimationDuration="250"
+        app:sbg_selectionAnimationInterpolator="fastOutSlowIn"
+        >
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:id="@+id/button_one"
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="Neither"
+            app:sb_textColor="@color/text_color"
+            />
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:id="@+id/button_two"
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="Databits 3883"
+            app:sb_textColor="@color/text_color"
+            />
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:id="@+id/button_three"
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="Royal T-Wrecks 3206"
+            app:sb_textColor="@color/text_color"
+            />
+    </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>
+    <TextView
+        android:id="@+id/altModeSelectorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Team Selector"
+        android:textColor="@color/text_color"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/team_saved_button"
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

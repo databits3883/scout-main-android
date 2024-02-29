@@ -125,8 +125,13 @@ public class Pit extends Fragment {
                         })
                         .create();
 
-                    scouterList = new LinkedList<>(Arrays.asList(getResources().
-                        getStringArray(R.array.student_names)));
+                    if (configPreference.getBoolean("altMode", false)) {
+                        scouterList = new LinkedList<>(Arrays.asList(getResources()
+                            .getStringArray(R.array.royal_students)));
+                    } else {
+                        scouterList = new LinkedList<>(Arrays.asList(getResources()
+                            .getStringArray(R.array.databits_students)));
+                    }
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                         R.layout.ui_list_item,
                         scouterList);

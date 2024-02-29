@@ -78,7 +78,15 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
         ArrayList.class, new ArrayList<>()));
     try {
       // Sheet name and range to upload data to
-      String range = "SuperRawDatabase!A2:BL700";
+      String range;
+
+      if (configPreference.getBoolean("altMode", false)) {
+        // Royal Twrecks
+        range = "Raw Data!A2:BL700";
+      } else {
+        // Databits
+        range = "SuperRawDatabase!A2:BL700";
+      }
 
       // Configure a new value range to store the data
       ValueRange content = new ValueRange();
@@ -132,7 +140,14 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
 
   @Override
   protected void onPreExecute() {
-    String hardcode = "1ZKXLsKNM05-5BhIzbWjLOdvka-9NipSjVqFf_iG2eak";
+    String hardcode;
+    if (configPreference.getBoolean("altMode", false)) {
+      // Royal Twrecks
+      hardcode = "";
+    } else {
+      // Databits
+      hardcode = "";
+    }
     spreadsheetId = configPreference.getString("linked_spreadsheet_id", hardcode);
   }
 
