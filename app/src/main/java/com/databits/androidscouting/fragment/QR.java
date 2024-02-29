@@ -52,7 +52,7 @@ public class QR extends Fragment {
 
     Preference debugPreference = PowerPreference.getFileByName("Debug");
     Preference matchPreference = PowerPreference.getFileByName("Match");
-    Preference configPreference = PowerPreference.getFileByName("Config");
+    Preference listPreference = PowerPreference.getFileByName("List");
     Preference pitDataPreference = PowerPreference.getFileByName("PitData");
 
     @Override
@@ -247,7 +247,6 @@ public class QR extends Fragment {
     }
 
     private void setTeamText(boolean mode, int team) {
-        if (teamInfo.teamsLoaded()) {
             int tempMatch = matchInfo.getTempMatch();
             int teamCount = teamInfo.getPitTeamCount();
 
@@ -260,9 +259,6 @@ public class QR extends Fragment {
                         team));
                 }
             }
-        } else {
-            binding.qrTeamText.setText(R.string.qr_no_data);
-        }
     }
 
     private void setMatchText() {
@@ -286,9 +282,14 @@ public class QR extends Fragment {
             setTeamText(false, 0);
 
             // get the match scouting data from the shared preferences
-            matchData = matchPreference.getString(String.format(Locale.US, "Match%d",
-                value), "No Data");
 
+            if (listPreference.getBoolean("pit_remove_enabled")) {
+                matchData = pitDataPreference.getString(String.format(Locale.US, "Match%d",
+                    value), "No Data");
+            } else {
+                matchData = matchPreference.getString(String.format(Locale.US, "Match%d",
+                    value), "No Data");
+            }
             // Only generate a qr code if there is data
             if (matchData.equals("No Data")) {
                 binding.qrImg.setImageBitmap(textAsBitmap("No Data", 100,
@@ -316,7 +317,9 @@ public class QR extends Fragment {
     private void saveData(String data, boolean mode) {
         if (mode) {
             // Pit Mode
-            pitDataPreference.setString(data.split(",")[1], data);
+            pitDataPreference.setString(String.format(Locale.US,"Match%d",
+                matchInfo.getTempMatch()), data);
+            teamInfo.setTeam(Integer.parseInt(data.split(",")[0]));
         } else {
             // Match Mode
             matchPreference.setString(String.format(Locale.US,"Match%d",

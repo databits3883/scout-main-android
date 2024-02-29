@@ -24,6 +24,8 @@ import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellParam;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.preference.PowerPreference;
+import com.preference.Preference;
 import com.skydoves.balloon.ArrowOrientation;
 import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
@@ -465,7 +467,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 case "TeamSelect":
                     Balloon teamSelectHelp = helpBuilder
                         .build();
-
+                    Preference listPreference = PowerPreference.getFileByName("List");
                     TextView teamSelectTitle = teamSelectHelp.getContentView().findViewById(R.id.help_title);
                     TextView teamSelectContent = teamSelectHelp.getContentView().findViewById(R.id.help_content);
                     ImageView teamSelectImage = teamSelectHelp.getContentView().findViewById(R.id.help_image);
@@ -477,17 +479,27 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((TeamSelectTypeViewHolder) holder).help.setOnClickListener(view ->
                         teamSelectHelp.showAlignBottom(((TeamSelectTypeViewHolder) holder)
                             .help));
-                    entryLabels = Arrays.asList(
-                        mContext.getResources().getStringArray(R.array.team_list));
-                    ArrayAdapter<String> teamselectspinnerArrayAdapter =new ArrayAdapter<>(mContext,
+
+                    ((TeamSelectTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
+
+                    ArrayList<String> remainingList = listPreference.getObject(
+                        "pit_teams_remaining_list", ArrayList.class);
+                    if (listPreference.getBoolean("pit_remove_enabled")) {
+                        entryLabels = remainingList;
+                    } else {
+                        entryLabels = Arrays.asList(mContext.getResources().getStringArray(
+                            R.array.team_list));;
+                    }
+
+                    ((TeamSelectTypeViewHolder) holder).spinner.setTag("TeamSpinner");
+
+                    ArrayAdapter<String> teamselectspinnerArrayAdapter = new ArrayAdapter<>(mContext,
                         android.R.layout.simple_spinner_item, entryLabels);
                     teamselectspinnerArrayAdapter.setDropDownViewResource(
                         android.R.layout.simple_spinner_dropdown_item);
                     ((TeamSelectTypeViewHolder) holder).spinner.setAdapter(
                         teamselectspinnerArrayAdapter);
-                    ((TeamSelectTypeViewHolder) holder).spinner.setTag("TeamSpinner");
-                    ((TeamSelectTypeViewHolder) holder).categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
                     //((TeamSelectTypeViewHolder) holder).spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     //    @Override
                     //    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

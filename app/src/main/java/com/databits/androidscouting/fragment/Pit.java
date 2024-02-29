@@ -14,8 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -96,6 +94,7 @@ public class Pit extends Fragment {
                                 bundle.putString("qrData", data);
                                 bundle.putBoolean("mode", true);
                                 int team = Integer.parseInt(data.split(",")[0]);
+                                teamInfo.setTeam(team);
                                 teamSpinner(String.valueOf(team),true, requireContext(),requireView());
                             }
                             controller.navigate(R.id.action_pitScoutFragment_to_QRFragment,
@@ -333,7 +332,6 @@ public class Pit extends Fragment {
                     scoutUtils.saveData(requireView(), false);
                     scoutUtils.layoutMaker(ScoutUtils.NONE,fileUtils.readFile(file), requireView(),
                         mRecyclerViewTop, mRecyclerViewBot);
-                    teamSpinner("0", false, requireContext(),requireView());
                 }
             }
         }
@@ -341,8 +339,11 @@ public class Pit extends Fragment {
 
     public void teamSpinner(String team, boolean remove, Context context, View v) {
         String[] origList = context.getResources().getStringArray(R.array.team_list);
-        if (listPreference.getObject("pit_teams_remaining_list", ArrayList.class) != null) {
-            editedList = listPreference.getObject("pit_teams_remaining_list", ArrayList.class);
+        listPreference.setBoolean("pit_remove_enabled", true);
+        ArrayList<String> remainingList = listPreference.getObject(
+            "pit_teams_remaining_list", ArrayList.class);
+        if (remainingList != null) {
+            editedList = remainingList;
         } else {
             editedList = new ArrayList<>(Arrays.asList(origList));
         }
@@ -351,12 +352,7 @@ public class Pit extends Fragment {
             editedList.remove(team);
             listPreference.setObject("pit_teams_remaining_list", editedList);
         }
-        LinearLayout cellContainerLayout = v.findViewById(R.id.cell_container);
-        Spinner teamSpinner = cellContainerLayout.findViewWithTag("TeamSpinner");
-        ArrayAdapter<String> SpinnerArrayAdapter = new ArrayAdapter<>(context,
-            android.R.layout.simple_spinner_item, editedList);
-        SpinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamSpinner.setAdapter(SpinnerArrayAdapter);
+        Objects.requireNonNull(mRecyclerViewTop.getAdapter()).notifyItemChanged(1);
     }
 
     @Override

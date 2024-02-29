@@ -63,6 +63,7 @@ public class ScoutUtils {
 
   Preference configPreference = PowerPreference.getFileByName("Config");
   Preference debugPreference = PowerPreference.getFileByName("Debug");
+  Preference listPreference = PowerPreference.getFileByName("List");
 
   MatchInfo matchInfo;
   TeamInfo teamInfo;
@@ -191,13 +192,18 @@ public class ScoutUtils {
     int team = 9999;
     if (debugPreference.getBoolean("manual_team_override_toggle")) {
       team = debugPreference.getInt("manual_team_override_value");
-    } else if (teamInfo.teamsLoaded()) {
+    } else if (teamInfo.teamsLoaded() || listPreference.getBoolean("pit_remove_enabled")) {
       team = teamInfo.getTeam(match);
     }
 
     //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
-    cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view_top))
-        .substring(1) + "," + teamInfo.getScouterName();
+    if (listPreference.getBoolean("pit_remove_enabled")) {
+      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1)  + "," +
+          teamInfo.getScouterName();
+    } else {
+      cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view_top))
+          .substring(1) + "," + teamInfo.getScouterName();
+    }
     return cellData;
   }
 
