@@ -23,27 +23,57 @@
       android:id="@+id/match_prov"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Match Selector"
+      android:text="Team Selector"
       android:textSize="20sp"
-      android:visibility="invisible"
+      android:visibility="visible"
       app:layout_constraintEnd_toStartOf="@+id/guideline_v_5_percent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="@+id/guideline_h_90_percent"
       />
 
-  <com.travijuu.numberpicker.library.NumberPicker
-      android:id="@+id/number_counter_inside"
-      android:layout_width="wrap_content"
+
+  <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
+      android:id="@+id/buttonGroup_teamSelector"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
-      android:layout_marginTop="4dp"
-      android:visibility="invisible"
+      android:elevation="2dp"
+      app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toStartOf="@+id/guideline_v_5_percent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/match_prov"
-      numberpicker:custom_layout="@layout/ui_number_picker_layout"
-      />
+      app:sbg_divider="@color/accent_color"
+      app:sbg_dividerPadding="@dimen/sbg_dividerPadding"
+      app:sbg_dividerWidth="@dimen/sbg_dividerWidth"
+      app:sbg_position="0"
+      app:sbg_radius="2dp"
+      app:sbg_ripple="true"
+      app:sbg_selectedBackground="@color/accent_color"
+      app:sbg_selectionAnimationDuration="250"
+      app:sbg_selectionAnimationInterpolator="fastOutSlowIn"
+      >
 
-  <TextView
+    <com.addisonelliott.segmentedbutton.SegmentedButton
+        android:layout_width="7dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="5dp"
+        app:autoSizeTextType="uniform"
+        app:sb_selectedTextColor="@color/white"
+        app:sb_text="Databits"
+        app:sb_textColor="@color/text_color"
+        />
+
+    <com.addisonelliott.segmentedbutton.SegmentedButton
+        android:layout_width="7dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="5dp"
+        app:autoSizeTextType="uniform"
+        app:sb_selectedTextColor="@color/white"
+        app:sb_text="Royal T-Wrecks"
+        app:sb_textColor="@color/text_color"
+        />
+  </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>  <TextView
       android:id="@+id/provision_main_text"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"

@@ -36,7 +36,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
 import com.preference.Preference;
-import com.travijuu.numberpicker.library.NumberPicker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -54,6 +53,7 @@ public class Provision extends Fragment {
   AtomicReference<String> crowd_position = new AtomicReference<>("1");
   AtomicReference<String> content_string = new AtomicReference<>("Nothing");
   AtomicReference<String> data_erase = new AtomicReference<>("false");
+  AtomicReference<String> team_selector = new AtomicReference<>("false");
 
   AtomicReference<Integer> match = new AtomicReference<>(1);
 
@@ -148,9 +148,6 @@ public class Provision extends Fragment {
     SwitchMaterial role_lock_switch = binding.roleLockSwitch;
     SegmentedButtonGroup position_selector = binding.buttonGroupPosition;
     SegmentedButtonGroup role_selector = binding.buttonGroupRole;
-    NumberPicker numberPicker = binding.numberCounterInside;
-
-    numberPicker.setValue(matchInfo.getMatch());
 
     position_selector.setPosition(0, true);
     role_selector.setPosition(1, true);
@@ -164,6 +161,13 @@ public class Provision extends Fragment {
         requireContext().getResources().getStringArray(R.array.team_list));
     dropdown.setAdapter(adapter);
     dropdown.setThreshold(0);
+
+    boolean alt = configPreference.getBoolean("altMode");
+    if (alt) {
+      binding.buttonGroupTeamSelector.setPosition(1,false);
+    } else {
+      binding.buttonGroupTeamSelector.setPosition(0,false);
+    }
 
     generateQrCode();
 
@@ -220,9 +224,12 @@ public class Provision extends Fragment {
       generateQrCode();
     });
 
-    numberPicker.setValueChangedListener((value, action) -> {
-      matchInfo.setMatch(value);
-      match.set(value);
+    binding.buttonGroupTeamSelector.setOnPositionChangedListener(position -> {
+      if (position == 0) {
+        team_selector.set("true");
+      } else {
+        team_selector.set("false");
+      }
       generateQrCode();
     });
 
@@ -288,9 +295,9 @@ public class Provision extends Fragment {
     }
 
     content_string.set(
-        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,",
+        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,team,%s",
         role.get(), crowd_position.get(), scouter_name.get(), lock_status.get(),
-        match.get(), data_erase.get()));
+        match.get(), data_erase.get(), team_selector.get()));
 
     Logo logo = new Logo();
 
