@@ -35,7 +35,7 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
 
   private final Sheets sheetsService;
 
-  private static final String[] ACCOUNT_SCOPES = {SheetsScopes.SPREADSHEETS};
+  private static final String[] ACCOUNT_SCOPES = { SheetsScopes.SPREADSHEETS };
 
   private String spreadsheetId;
 
@@ -74,18 +74,57 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
   }
 
   @Override protected AppendValuesResponse doInBackground(Void... voids) {
-    List<List<String>> columnData = new ArrayList<>(matchPreference.getObject("upload_data",
-        ArrayList.class, new ArrayList<>()));
+    List<List<String>> columnData = null;
+    switch (configPreference.getString("uploadMode")) {
+      case "Crowd":
+        columnData = new ArrayList<>(matchPreference.getObject("upload_data",
+            ArrayList.class, new ArrayList<>()));
+        break;
+      case "Pit":
+        columnData = new ArrayList<>(matchPreference.getObject("pit_upload_data",
+            ArrayList.class, new ArrayList<>()));
+        break;
+      case "Speciality":
+        columnData = new ArrayList<>(matchPreference.getObject("special_upload_data",
+            ArrayList.class, new ArrayList<>()));
+        break;
+    }
+
+
     try {
       // Sheet name and range to upload data to
-      String range;
+      String range = null;
 
-      if (configPreference.getBoolean("altMode", false)) {
-        // Royal Twrecks
-        range = "Raw Data!A2:BL700";
-      } else {
-        // Databits
-        range = "SuperRawDatabase!A2:BL700";
+      boolean altMode = configPreference.getBoolean("altMode", false);
+
+      switch (configPreference.getString("uploadMode")) {
+        case "Crowd":
+          if (altMode) {
+            // Royal Twrecks
+            range = "Raw Data!A2:BL700";
+          } else {
+            // Databits
+            range = "SuperRawDatabase!A2:BL700";
+          }
+          break;
+        case "Pit":
+          if (altMode) {
+            // Royal Twrecks
+            range = "Raw Data!A2:BL700";
+          } else {
+            // Databits
+            range = "PitData!A2:Z700";
+          }
+          break;
+        case "Speciality":
+          if (altMode) {
+            // Royal Twrecks
+            range = "Raw Data!A2:BL700";
+          } else {
+            // Databits
+            range = "SuperSpecializedRawData!A2:X700";
+          }
+          break;
       }
 
       // Configure a new value range to store the data

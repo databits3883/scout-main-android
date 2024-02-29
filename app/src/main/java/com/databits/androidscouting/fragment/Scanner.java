@@ -151,6 +151,21 @@ public class Scanner extends Fragment {
             //}
         });
 
+        binding.buttonGroupUploadMode.setOnPositionChangedListener(position -> {
+            switch (position) {
+                case 0:
+                    configPreference.setString("uploadMode", "Crowd");
+                    break;
+                case 1:
+                    configPreference.setString("uploadMode","Speciality");
+                    break;
+                case 2:
+                    configPreference.setString("uploadMode","Pit");
+                    break;
+
+            }
+        });
+
         binding.testButton.setOnClickListener(view1 ->
             PowerPreference.showDebugScreen(true));
 
@@ -337,8 +352,26 @@ public class Scanner extends Fragment {
         // Add non-split data to the list
         raw_data.add(new String[] {bar_string});
 
+        String uploadData = null;
+        String uploadLines = null;
+
+        switch (configPreference.getString("uploadMode")) {
+            case "Crowd":
+                uploadData = "upload_data";
+                uploadLines = "seen_lines";
+                break;
+            case "Speciality":
+                uploadData = "special_upload_data";
+                uploadLines = "special_seen_lines";
+                break;
+            case "Pit":
+                uploadData = "pit_upload_data";
+                uploadLines = "pit_seen_lines";
+                break;
+        }
+
         // Create a HashSet to keep track of the lines we've already seen
-        Set<String> seenLines = listPreference.getObject("seen_lines", Set.class,
+        Set<String> seenLines = listPreference.getObject(uploadLines, Set.class,
             new HashSet<>());
 
         // Check for duplicate and don't upload role qr data
@@ -348,10 +381,10 @@ public class Scanner extends Fragment {
             seenLines.add(bar_string);
 
             // Save the HashSet to the shared preferences
-            listPreference.setObject("seen_lines", seenLines);
+            listPreference.setObject(uploadLines, seenLines);
 
             // Save the data to the shared preferences
-            matchPreference.setObject("upload_data", raw_data);
+            matchPreference.setObject(uploadData, raw_data);
         }
     }
 
@@ -468,6 +501,7 @@ public class Scanner extends Fragment {
             binding.buttonBack.setText(R.string.back);
             binding.matchSelectorText.setVisibility(View.GONE);
             binding.buttonUpload.setVisibility(View.GONE);
+            binding.buttonGroupUploadMode.setVisibility(View.GONE);
         } else {
             binding.teamListDisplay.getRoot().setVisibility(View.VISIBLE);
             binding.uiInsideNumberPicker.setVisibility(View.VISIBLE);
@@ -475,6 +509,7 @@ public class Scanner extends Fragment {
             binding.buttonBack.setText(R.string.back);
             binding.matchSelectorText.setVisibility(View.VISIBLE);
             binding.buttonUpload.setVisibility(View.VISIBLE);
+            binding.buttonGroupUploadMode.setVisibility(View.VISIBLE);
         }
 
     }

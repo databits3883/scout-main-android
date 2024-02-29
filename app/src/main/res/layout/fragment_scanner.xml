@@ -104,4 +104,58 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent=".17" />
+
+    <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
+        android:id="@+id/buttonGroup_uploadMode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toTopOf="@+id/match_selector_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:sbg_divider="@color/accent_color"
+        app:sbg_dividerPadding="@dimen/sbg_dividerPadding"
+        app:sbg_dividerWidth="@dimen/sbg_dividerWidth"
+        app:sbg_position="0"
+        app:sbg_radius="2dp"
+        app:sbg_ripple="true"
+        app:sbg_selectedBackground="@color/accent_color"
+        app:sbg_selectionAnimationDuration="250"
+        app:sbg_selectionAnimationInterpolator="fastOutSlowIn"
+        >
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="Crowd"
+            app:sb_textColor="@color/white"
+            />
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="Specialty"
+            app:sb_textColor="@color/white"
+            />
+
+        <com.addisonelliott.segmentedbutton.SegmentedButton
+            android:layout_width="7dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="5dp"
+            app:autoSizeTextType="uniform"
+            app:sb_selectedTextColor="@color/white"
+            app:sb_text="Pit"
+            app:sb_textColor="@color/white"
+            />
+    </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>
