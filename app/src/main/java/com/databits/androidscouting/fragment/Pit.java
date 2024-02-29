@@ -231,22 +231,6 @@ public class Pit extends Fragment {
                         .show();
                 }
 
-                if (id == R.id.action_reset) {
-                    new AlertDialog.Builder(requireContext())
-                        .setTitle("Unlock the View")
-                        .setMessage(
-                            "Are you sure you want to unlock?\n\nThis will bring you back to"
-                                + " the main menu and require that your device be re-provisioned")
-                        .setPositiveButton("Yes", (dialog1, which1) -> {
-                            configPreference.setBoolean("role_locked_toggle", false);
-                            controller.navigate(R.id.action_crowdScoutFragment_to_StartFragment);
-                        })
-                        .setNegativeButton("Cancel", (dialog1, which1) -> {
-                            // Do nothing
-                        })
-                        .show();
-                }
-
                 return false;
             }
 
@@ -278,13 +262,11 @@ public class Pit extends Fragment {
         mRecyclerViewBot = scoutUtils.makeRecyclerView(requireContext(),v, R.id.recycler_view_bot);
 
         //Sorts the tables based on saved Table Status
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.BOTH);
-        scoutUtils.tableSorter(table_status, requireView(), mRecyclerViewTop, mRecyclerViewBot);
-        scoutUtils.setupTables(requireView());
+        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
 
         File layoutLoc = new File(requireContext().getFilesDir(), fileName);
         if (fileUtils.fileExists(layoutLoc.toString())) {
-            scoutUtils.layoutMaker(ScoutUtils.NONE,fileUtils.readFile(layoutLoc),
+            scoutUtils.layoutMaker(table_status,fileUtils.readFile(layoutLoc),
                 requireView(), mRecyclerViewTop, mRecyclerViewBot);
         }
 
@@ -299,13 +281,12 @@ public class Pit extends Fragment {
                 .openRawResource(R.raw.pit_layout));
             scoutUtils.layoutMaker(ScoutUtils.NONE, storedLayout, requireView(),
                 mRecyclerViewTop, mRecyclerViewBot);
-            binding.loadButton.setVisibility(View.GONE);
-            binding.autoLoadCheckBox.setVisibility(View.GONE);
+            binding.loadButton.setVisibility(View.INVISIBLE);
+            binding.importButton.setVisibility(View.INVISIBLE);
+            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
         });
 
-        if (configPreference.getBoolean("role_locked_toggle")) {
-            binding.loadButton.performClick();
-        }
+
 
         Button testButton = v.findViewById(R.id.testButton);
         testButton.setOnClickListener(view -> PowerPreference.showDebugScreen(true));
@@ -313,8 +294,12 @@ public class Pit extends Fragment {
         binding.autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
             configPreference.putBoolean("auto_load_pit_layout_toggle", isChecked));
 
-        if (configPreference.getBoolean("auto_load_pit_layout_toggle")) {
+        if (configPreference.getBoolean("role_locked_toggle") ||
+            configPreference.getBoolean("auto_load_pit_layout_toggle")) {
             binding.loadButton.performClick();
+            binding.loadButton.setVisibility(View.INVISIBLE);
+            binding.importButton.setVisibility(View.INVISIBLE);
+            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
         }
         refreshActionBar();
     }
