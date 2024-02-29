@@ -9,11 +9,13 @@
     android:layout_marginTop="@dimen/cardview_margin_top"
     app:cardCornerRadius="20sp"
     app:cardElevation="10sp"
+
     >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/text_color_inverted"
         >
 
         <LinearLayout
