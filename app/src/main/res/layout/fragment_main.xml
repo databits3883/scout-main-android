@@ -53,7 +53,20 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@+id/guideline_v_50_percent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_role"
+        app:layout_constraintTop_toBottomOf="@+id/button_scanner"
+        />
+
+    <Button
+        android:id="@+id/button_special"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@android:color/holo_orange_light"
+        android:text="Specialty"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline_v_50_percent"
+        app:layout_constraintTop_toBottomOf="@+id/button_pit"
         />
 
     <Button
@@ -64,9 +77,9 @@
         android:backgroundTint="@android:color/holo_orange_dark"
         android:text="Settings"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline_v_50_percent"
-        app:layout_constraintTop_toBottomOf="@+id/button_role"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_v_75_percent"
+        app:layout_constraintStart_toStartOf="@+id/guideline_v_25_percent"
+        app:layout_constraintTop_toBottomOf="@+id/button_drawing_map"
         />
 
     <Button

@@ -1,0 +1,66 @@
+{
+  "mCell": [
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Special",
+        "cellUnit": 0,
+        "helpText": "",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Helpful Stuff",
+        "cellSpecial": 1
+      },
+      "mTitle": "Team 3883",
+      "mType": "Special"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Special",
+        "cellUnit": 0,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "None",
+        "helpTitle": "Helpful Stuff",
+        "cellSpecial": 2
+      },
+      "mTitle": "Team 1816",
+      "mType": "Special"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Special",
+        "cellUnit": 0,
+        "helpText": "",
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Helpful Stuff",
+        "cellSpecial": 3
+      },
+      "mTitle": "Team 4146",
+      "mType": "Special"
+    }
+  ]
+}
+
+^{"entryLabels":[],"mCell":[]}

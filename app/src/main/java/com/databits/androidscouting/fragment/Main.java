@@ -89,6 +89,8 @@ public class Main extends Fragment {
             .navigate(R.id.action_StartFragment_to_provisionFragment));
         binding.buttonSettings.setOnClickListener(view1 -> controller
             .navigate(R.id.action_StartFragment_to_SettingsFragment));
+        binding.buttonSpecial.setOnClickListener(view1 -> controller
+            .navigate(R.id.action_StartFragment_to_SpecialFragment));
 
         binding.teamSavedButton.setOnClickListener(view1 -> savedTeams());
 
@@ -202,6 +204,8 @@ public class Main extends Fragment {
             case "pit":
                 controller.navigate(R.id.action_StartFragment_to_pitScoutFragment);
                 break;
+            case "special":
+                controller.navigate(R.id.action_StartFragment_to_SpecialFragment);
         }
     }
 

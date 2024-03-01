@@ -120,4 +120,10 @@
   <string name="next_team">Next Team</string>
   <string name="select_team_title">Select Team</string>
   <string name="TeamSelectType">TeamSelect</string>
+  <string name="specialType">Special</string>
+  <string name="amplified_speaker">Amplified Speaker</string>
+  <string name="harmony">Harmony</string>
+  <string name="human_player">Human Player</string>
+  <string name="comments">Comments</string>
+  <string name="spotlit_stage_position">Spotlit (Stage position)</string>
 </resources>

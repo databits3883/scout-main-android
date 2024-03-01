@@ -41,6 +41,9 @@
         <action
             android:id="@+id/action_StartFragment_to_SettingsFileHandlerFragment"
             app:destination="@id/SettingsFileHandlerFragment" />
+        <action
+            android:id="@+id/action_StartFragment_to_SpecialFragment"
+            app:destination="@id/SpecialFragment" />
     </fragment>
     <fragment
         android:id="@+id/ScannerFragment"
@@ -59,6 +62,9 @@
         <action
             android:id="@+id/action_ScannerFragment_to_pitScoutFragment"
             app:destination="@id/pitScoutFragment" />
+        <action
+            android:id="@+id/action_ScannerFragment_to_SpecialFragment"
+            app:destination="@id/SpecialFragment" />
     </fragment>
     <fragment
         android:id="@+id/crowdScoutFragment"
@@ -146,6 +152,30 @@
         <action
             android:id="@+id/action_DrawingMapFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SpecialFragment"
+        android:name="com.databits.androidscouting.fragment.Special"
+        android:label="fragment_special"
+        tools:layout="@layout/fragment_special" >
+        <action
+            android:id="@+id/action_SpecialFragment_to_StartFragment"
+            app:destination="@id/StartFragment" />
+        <action
+            android:id="@+id/action_SpecialFragment_to_ScannerFragment"
+            app:destination="@id/ScannerFragment" />
+        <action
+            android:id="@+id/action_SpecialFragment_to_StartFragment2"
+            app:destination="@id/StartFragment" />
+        <action
+            android:id="@+id/action_SpecialFragment_to_QRFragment"
+            app:destination="@id/QRFragment"
+            />
+        <argument
+            android:name="qrData"
+            app:argType="string"
+            android:defaultValue="ERROR" />
     </fragment>
 
     <fragment

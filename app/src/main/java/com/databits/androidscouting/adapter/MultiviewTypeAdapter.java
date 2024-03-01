@@ -22,6 +22,8 @@ import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellParam;
+import com.databits.androidscouting.util.MatchInfo;
+import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
@@ -152,6 +154,28 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    public static class SpecialTypeViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        ImageButton help;
+        LinearLayout categoryColor;
+        SegmentedButtonGroup humanPlayer;
+        SegmentedButtonGroup specialSelector;
+        TextView spotlitTitle;
+        NumberPicker amplifiedSpeaker;
+
+        public SpecialTypeViewHolder(View itemView) {
+            super(itemView);
+            this.help = itemView.findViewById(R.id.help_button);
+            this.title = itemView.findViewById(R.id.special_title);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
+            this.humanPlayer = itemView.findViewById(R.id.buttonGroup_yes_no);
+            this.specialSelector = itemView.findViewById(R.id.buttonGroup_segments);
+            this.spotlitTitle = itemView.findViewById(R.id.spotlit);
+            this.amplifiedSpeaker = itemView.findViewById(R.id.number_counter_inside);
+
+        }
+    }
+
     public MultiviewTypeAdapter(List<Cell> cells) {
         this.mCell = cells;
     }
@@ -189,6 +213,10 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_dualcounter,
                     parent,false);
                 return new DualCounterTypeViewHolder(view);
+            case 7:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_special,
+                    parent,false);
+                return new SpecialTypeViewHolder(view);
         }
         return null;
     }
@@ -210,6 +238,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return 5;
             case "DualCounter":
                 return 6;
+            case "Special":
+                return 7;
             default:
                 return -1;
         }
@@ -222,6 +252,11 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         String title_text = mCell.get(listPosition).getTitle();
 
         Context mContext = holder.itemView.getContext();
+
+        TeamInfo teamInfo = new TeamInfo(mContext);
+        MatchInfo matchInfo = new MatchInfo();
+
+        Preference configPreference = PowerPreference.getFileByName("Config");
 
         // Common Help balloon settings for all cells
         Balloon.Builder helpBuilder = new Balloon.Builder(mContext)
@@ -514,6 +549,57 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         //
                         //}
                     //});
+                    break;
+                case "Special":
+
+                    Balloon specialHelp = helpBuilder
+                        .build();
+
+                    TextView specialTitle = specialHelp.getContentView().findViewById(R.id.help_title);
+                    TextView specialContent = specialHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView specialImage = specialHelp.getContentView().findViewById(R.id.help_image);
+                    specialTitle.setText(object.getHelpTitle());
+                    specialContent.setText(object.getHelpText());
+                    specialImage.setImageDrawable(helpPicture);
+                    ((SpecialTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
+
+                    boolean scouterSelector = configPreference.getBoolean("specialSwitch",true);
+                    String team;
+
+                    int cellNumber = object.getCellSpecial();
+
+                    if (scouterSelector) {
+                        team = teamInfo.getMasterTeam(matchInfo.getMatch(),cellNumber+3);
+                    } else {
+                        team = teamInfo.getMasterTeam(matchInfo.getMatch(),cellNumber);
+                    }
+
+                    ((SpecialTypeViewHolder) holder).amplifiedSpeaker.setValue(0);
+                    ((SpecialTypeViewHolder) holder).specialSelector.setPosition(4,true);
+                    ((SpecialTypeViewHolder) holder).humanPlayer.setPosition(0,true);
+
+                    ((SpecialTypeViewHolder) holder).humanPlayer.setOnPositionChangedListener(position -> {
+                        switch (position) {
+                            case 0:
+                                ((SpecialTypeViewHolder) holder).spotlitTitle
+                                    .setVisibility(View.GONE);
+                                ((SpecialTypeViewHolder) holder).specialSelector
+                                    .setVisibility(View.GONE);
+                                break;
+                            case 1:
+                                ((SpecialTypeViewHolder) holder).spotlitTitle
+                                    .setVisibility(View.VISIBLE);
+                                ((SpecialTypeViewHolder) holder).specialSelector
+                                    .setVisibility(View.VISIBLE);
+                                break;
+                        }
+                    });
+
+                    ((SpecialTypeViewHolder) holder).title.setText(team);
+                    ((SpecialTypeViewHolder) holder).help.setOnClickListener(view ->
+                        specialHelp.showAlignBottom(((SpecialTypeViewHolder) holder)
+                            .help));
                     break;
 
             }

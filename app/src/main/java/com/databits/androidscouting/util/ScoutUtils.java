@@ -53,7 +53,7 @@ public class ScoutUtils {
   public static final int TELEOP = 2;
   public static final int BOTH = 3;
 
-  String[] cellTypes = {"YesNo", "Counter","DoubleCounter", "Segment", "List", "Text"};
+  String[] cellTypes = {"YesNo", "Counter","DoubleCounter", "Segment", "List", "Text", "Special"};
   String[] cellTitles = {"YesNo_title", "Counter_Title", "Segment_Title", "List_Title", "Textbox_title"};
   String[] topTitles = { "Left\nSide", "Autonomous\nCenter Side", "Right\nSide" };
   String[] botTitles = { "Left\nSide", "Teleop\nCenter Side", "Right\nSide" };
@@ -137,6 +137,23 @@ public class ScoutUtils {
           case "TeamSelect":
             Spinner teamSpinner = v.findViewWithTag("TeamSpinner");
             finalString.append(teamSpinner.getSelectedItem())/*.append(",")*/;
+            break;
+          case "Special":
+            NumberPicker amplifedSpeaker = v.findViewById(R.id.ampSpeakerCounterUI).findViewById(R.id.number_counter_inside);
+            finalString.append(amplifedSpeaker.getValue()).append(",");
+
+            SegmentedButtonGroup harmony = v.findViewById(R.id.harmonyYesNoUI).findViewById(R.id.buttonGroup_yes_no);
+            finalString.append(harmony.getPosition()).append(",");
+
+            SegmentedButtonGroup humanPlayer = v.findViewById(R.id.humanYesNoUI).findViewById(R.id.buttonGroup_yes_no);
+            finalString.append(humanPlayer.getPosition()).append(",");
+
+            SegmentedButtonGroup spotlit = v.findViewById(R.id.buttonGroup_segments);
+            finalString.append(spotlit.getPosition()).append(",");
+
+            EditText specialEnteredText = v.findViewById(R.id.commentsTextboxUI).findViewById(R.id.enteredText);
+            // Remove commas from the string to prevent the spreadsheet from breaking
+            finalString.append(specialEnteredText.getText().toString().replaceAll(",", "."))/*.append(",")*/;
             break;
 
         }

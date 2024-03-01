@@ -54,6 +54,7 @@ public class Provision extends Fragment {
   AtomicReference<String> content_string = new AtomicReference<>("Nothing");
   AtomicReference<String> data_erase = new AtomicReference<>("false");
   AtomicReference<String> team_selector = new AtomicReference<>("false");
+  AtomicReference<String> special_selector = new AtomicReference<>("false");
 
   AtomicReference<Integer> match = new AtomicReference<>(1);
 
@@ -99,6 +100,8 @@ public class Provision extends Fragment {
           configPreference.setInt("crowd_position", Integer.parseInt(crowd_position.get()));
           configPreference.setString("current_scouter", scouter_name.get());
           configPreference.setBoolean("role_locked_toggle", lock_status.get().equals("true"));
+          configPreference.setBoolean("altMode", Boolean.parseBoolean(String.valueOf(team_selector)));
+          configPreference.setBoolean("specialSwitch", Boolean.parseBoolean(special_selector.get()));
           //configPreference.setInt("current_match", matchInfo.getMatch());
           controller.navigate(R.id.action_provisionFragment_to_StartFragment);
         }
@@ -148,9 +151,11 @@ public class Provision extends Fragment {
     SwitchMaterial role_lock_switch = binding.roleLockSwitch;
     SegmentedButtonGroup position_selector = binding.buttonGroupPosition;
     SegmentedButtonGroup role_selector = binding.buttonGroupRole;
+    SegmentedButtonGroup special_selectorgroup = binding.buttonGroupSpecialPosition;
 
     position_selector.setPosition(0, true);
     role_selector.setPosition(1, true);
+    binding.buttonGroupTeamSelector.setPosition(0,true);
     role_lock_switch.setChecked(true);
 
     ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.ui_list_item,
@@ -168,8 +173,6 @@ public class Provision extends Fragment {
     } else {
       binding.buttonGroupTeamSelector.setPosition(0,false);
     }
-
-    generateQrCode();
 
     custom_scout.setSelectAllOnFocus(true);
     custom_scout.setOnEditorActionListener((v, keyCode, event) -> {
@@ -206,19 +209,39 @@ public class Provision extends Fragment {
       generateQrCode();
     });
 
+    special_selectorgroup.setOnPositionChangedListener(position -> {
+      switch (position) {
+        case 0:
+          special_selector.set("false");
+          break;
+        case 1:
+          special_selector.set("true");
+          break;
+      }
+      generateQrCode();
+    });
+
     role_selector.setOnPositionChangedListener(position -> {
       switch (position) {
         case 0:
           role.set("master");
           position_selector.setVisibility(View.INVISIBLE);
+          special_selectorgroup.setVisibility(View.INVISIBLE);
           break;
         case 1:
           role.set("crowd");
           position_selector.setVisibility(View.VISIBLE);
+          special_selectorgroup.setVisibility(View.INVISIBLE);
           break;
         case 2:
           role.set("pit");
           position_selector.setVisibility(View.INVISIBLE);
+          special_selectorgroup.setVisibility(View.INVISIBLE);
+          break;
+        case 3:
+          role.set("special");
+          position_selector.setVisibility(View.INVISIBLE);
+          special_selectorgroup.setVisibility(View.VISIBLE);
           break;
       }
       generateQrCode();
@@ -226,9 +249,9 @@ public class Provision extends Fragment {
 
     binding.buttonGroupTeamSelector.setOnPositionChangedListener(position -> {
       if (position == 0) {
-        team_selector.set("true");
-      } else {
         team_selector.set("false");
+      } else {
+        team_selector.set("true");
       }
       generateQrCode();
     });
@@ -277,6 +300,7 @@ public class Provision extends Fragment {
       generateQrCode();
     });
 
+    generateQrCode();
     refreshActionBar();
   }
 
@@ -295,9 +319,9 @@ public class Provision extends Fragment {
     }
 
     content_string.set(
-        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,team,%s",
+        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,team,%s,special,%s",
         role.get(), crowd_position.get(), scouter_name.get(), lock_status.get(),
-        match.get(), data_erase.get(), team_selector.get()));
+        match.get(), data_erase.get(), team_selector.get(), special_selector.get()));
 
     Logo logo = new Logo();
 

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/Dynamic_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragment.Special"
+    >
+
+  <include
+      layout="@layout/ui_table_single"
+      android:id="@+id/left_table"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:visibility="invisible"
+      app:layout_constraintBottom_toTopOf="@+id/guideline3"
+      app:layout_constraintEnd_toStartOf="@+id/guideline4"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <include
+      layout="@layout/ui_table_single"
+      android:id="@+id/center_table"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:visibility="invisible"
+      app:layout_constraintBottom_toTopOf="@+id/guideline3"
+      app:layout_constraintEnd_toStartOf="@+id/guideline5"
+      app:layout_constraintStart_toStartOf="@+id/guideline4"
+      app:layout_constraintTop_toTopOf="parent"
+      app:layout_constraintVertical_bias="0.0"
+      />
+
+  <include
+      layout="@layout/ui_table_single"
+      android:id="@+id/right_table"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:visibility="invisible"
+      app:layout_constraintBottom_toTopOf="@+id/guideline3"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="@+id/guideline5"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <include
+      layout="@layout/ui_table_single"
+      android:id="@+id/bot_right_table"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:visibility="invisible"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="@+id/guideline5"
+      app:layout_constraintTop_toBottomOf="@+id/recycler_view_top"
+      />
+
+  <include
+      layout="@layout/ui_table_single"
+      android:id="@+id/bot_center_table"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:visibility="invisible"
+      app:layout_constraintEnd_toStartOf="@+id/guideline5"
+      app:layout_constraintStart_toStartOf="@+id/guideline4"
+      app:layout_constraintTop_toBottomOf="@+id/recycler_view_top"
+      />
+
+  <include
+      layout="@layout/ui_table_single"
+      android:id="@+id/bot_left_table"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:visibility="invisible"
+      app:layout_constraintEnd_toStartOf="@+id/guideline4"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/recycler_view_top"
+      />
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recycler_view_top"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:columnCount="2"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/center_table"
+      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+      />
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/recycler_view_bot"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:columnCount="2"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/bot_center_table"
+      app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+      />
+
+  <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/guideline3"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintGuide_percent="0.28"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/guideline6"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintGuide_percent="0.50"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/guideline7"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintGuide_percent="0.60"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+  <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/guideline4"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      app:layout_constraintGuide_percent=".32" />
+
+
+  <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/guideline5"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      app:layout_constraintGuide_percent=".68" />
+
+  <androidx.constraintlayout.widget.Guideline
+      android:id="@+id/guideline8"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:orientation="vertical"
+      app:layout_constraintGuide_percent=".5"
+      />
+
+  <androidx.constraintlayout.widget.Barrier
+      android:id="@+id/barrier3"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:barrierDirection="bottom"
+      app:constraint_referenced_ids="bot_center_table" />
+  <Button
+      android:id="@+id/loadButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/load_saved_layout"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="@+id/guideline8"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+
+  <Button
+      android:id="@+id/importButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/import_layout"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@+id/guideline8"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent"
+      />
+  <Button
+      android:id="@+id/qrButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginEnd="8dp"
+      android:text="Save Data"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      />
+
+  <Button
+      android:id="@+id/manualButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Manual Entry"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@+id/guideline5"
+      app:layout_constraintStart_toStartOf="@+id/guideline4"
+      />
+
+  <Button
+      android:id="@+id/testButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="8dp"
+      android:text="Debug"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      />
+
+  <CheckBox
+      android:id="@+id/auto_load_checkBox"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Auto load the layout in the future?"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/loadButton"
+      />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

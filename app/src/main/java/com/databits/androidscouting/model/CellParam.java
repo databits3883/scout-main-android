@@ -21,6 +21,8 @@ public class CellParam {
     private String helpPictureSelector;
     private String helpText;
 
+    private int cellSpecial;
+
     public CellParam(String cellType) {
         this.cellType = cellType;
     }
@@ -129,5 +131,11 @@ public class CellParam {
 
     public void setelpPictureSelector(String helpPictureSelector) {this.helpPictureSelector = helpPictureSelector;}
 
+    public int getCellSpecial() {
+        return cellSpecial;
+    }
 
+    public void setCellSpecial(int cellSpecial) {
+        this.cellSpecial = cellSpecial;
+    }
 }
