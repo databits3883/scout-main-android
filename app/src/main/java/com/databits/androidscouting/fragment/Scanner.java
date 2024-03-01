@@ -338,20 +338,6 @@ public class Scanner extends Fragment {
 
     private void saveData(String bar_string) {
 
-        // Check to see if data is already in the list, if not initialize the list
-        List<String[]> raw_data = matchPreference.getObject("upload_data", ArrayList.class,
-            new ArrayList<>());
-
-        // Split the string into an array
-        String[] split = bar_string.split(",");
-        raw_data.add(split);
-
-        // Make upload.csv for debugging
-        makeUploadFile(bar_string);
-
-        // Add non-split data to the list
-        raw_data.add(new String[] {bar_string});
-
         String uploadData = null;
         String uploadLines = null;
 
@@ -369,6 +355,20 @@ public class Scanner extends Fragment {
                 uploadLines = "pit_seen_lines";
                 break;
         }
+
+        // Check to see if data is already in the list, if not initialize the list
+        List<String[]> raw_data = matchPreference.getObject(uploadData, ArrayList.class,
+            new ArrayList<>());
+
+        // Split the string into an array
+        String[] split = bar_string.split(",");
+        raw_data.add(split);
+
+        // Make upload.csv for debugging
+        makeUploadFile(bar_string);
+
+        // Add non-split data to the list
+        //raw_data.add(new String[] {bar_string});
 
         // Create a HashSet to keep track of the lines we've already seen
         Set<String> seenLines = listPreference.getObject(uploadLines, Set.class,
