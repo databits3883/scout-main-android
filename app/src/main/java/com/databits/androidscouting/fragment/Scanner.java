@@ -277,14 +277,14 @@ public class Scanner extends Fragment {
                 } else if (!bar_string.startsWith("role")) {
                     saveData(bar_string);
                 } else if (!bar_string.split(",")[0].equals(String.valueOf(
-                    matchInfo.getMatch()))) {
+                    match))) {
                     // Disables the camera
                     camController.unbind();
                     AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
                     builder.setTitle("Wrong Match!");
                     builder.setCancelable(false);
                     builder.setMessage("Scanned Match: " + bar_string.split(",")[0]
-                        + "\nCurrent Match: " + matchInfo.getMatch());
+                        + "\nCurrent Match: " + match);
                     builder.setPositiveButton("Ignore bad data", (dialog, which) -> {
                         dialog.dismiss();
                         camController.bindToLifecycle(this);
