@@ -60,7 +60,7 @@
         "helpPictureSelector": "None",
         "helpTitle": "If not in list do other and leave a comment"
       },
-      "mTitle": "What drivetrain is used?",
+      "mTitle": "Drivetrain used?",
       "mType": "Segment"
     },
     {
@@ -123,8 +123,32 @@
         "helpPictureSelector": "Stage",
         "helpTitle": "Climbing the stage"
       },
-      "mTitle": "Can they climb on the side?",
+      "mTitle": "Climb on the side?",
       "mType": "YesNo"
+    },
+    {
+      "mCellId": 10,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Out of area",
+          "Parked",
+          "Climbed"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "Be Specific, More info is always better",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Comments"
+      },
+      "mTitle": "Comments",
+      "mType": "Text"
     }
   ]
 }
