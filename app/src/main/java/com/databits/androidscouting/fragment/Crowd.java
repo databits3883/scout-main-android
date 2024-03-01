@@ -260,6 +260,8 @@ public class Crowd extends Fragment {
         mRecyclerViewTop = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view_top);
         mRecyclerViewBot = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view_bot);
 
+        configPreference.setBoolean("grid_toggle", true);
+
         //Sorts the tables based on saved Table Status
         int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
         scoutUtils.tableSorter(table_status, requireView(), mRecyclerViewTop, mRecyclerViewBot);
