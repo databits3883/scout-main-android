@@ -122,9 +122,9 @@ public class Main extends Fragment {
 
         boolean alt = configPreference.getBoolean("altMode");
         if (alt) {
-            binding.buttonGroupSelector.setPosition(1,false);
+            binding.buttonGroupSelector.setPosition(2,true);
         } else {
-            binding.buttonGroupSelector.setPosition(2,false);
+            binding.buttonGroupSelector.setPosition(1,true);
         }
 
 

@@ -169,9 +169,9 @@ public class Provision extends Fragment {
 
     boolean alt = configPreference.getBoolean("altMode");
     if (alt) {
-      binding.buttonGroupTeamSelector.setPosition(1,false);
+      binding.buttonGroupTeamSelector.setPosition(1,true);
     } else {
-      binding.buttonGroupTeamSelector.setPosition(0,false);
+      binding.buttonGroupTeamSelector.setPosition(0,true);
     }
 
     custom_scout.setSelectAllOnFocus(true);
