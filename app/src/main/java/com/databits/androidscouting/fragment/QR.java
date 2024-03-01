@@ -36,6 +36,7 @@ import com.github.sumimakito.awesomeqr.option.logo.Logo;
 import com.preference.PowerPreference;
 import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -108,7 +109,7 @@ public class QR extends Fragment {
             debugPreference.setBoolean("manual_team_override_toggle", false);
             debugPreference.setBoolean("manual_match_override_toggle", false);
             matchInfo.incrementMatch();
-            //matchInfo.setTempMatch(matchInfo.getMatch());
+            matchInfo.setTempMatch(matchInfo.getMatch());
             controller.navigateUp();
         });
 
