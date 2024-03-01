@@ -1,0 +1,252 @@
+{
+  "mCell": [
+    {
+      "mCellId": 1,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "TeamSelect",
+        "cellUnit": 0,
+        "helpText": "Select the team your currently scouting",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Default"
+      },
+      "mTitle": "Set the team",
+      "mType": "TeamSelect"
+    },
+    {
+      "mCellId": 2,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 0,
+        "helpText": "You must leave a comment if you say yes to this, explaining what happened!",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Are they willing/able to play defense?"
+      },
+      "mTitle": "Able to play defense",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Tank",
+          "Swerve",
+          "Mecanum",
+          "Other"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "mTitle": "What drivetrain is used",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 4,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Feeder",
+          "Floor",
+          "Both"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Default"
+      },
+      "mTitle": "What intake is used",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 5,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 4,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 1,
+        "helpText": "Can the team put notes inside of the trap",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Stage",
+        "helpTitle": "Trap Location"
+      },
+      "mTitle": "Ability to do the trap",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 4,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Yes",
+          "No",
+          "Yes & Harmony"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Default"
+      },
+      "mTitle": "Can they climb",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 4,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Speaker",
+          "Amp",
+          "Both"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 0,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Default"
+      },
+      "mTitle": "Where does it shoot",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 6,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 4,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "YesNo",
+        "cellUnit": 1,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Default"
+      },
+      "mTitle": "Ability to go under chain",
+      "mType": "YesNo"
+    },
+    {
+      "mCellId": 10,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Out of area",
+          "Parked",
+          "Climbed"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "Length, Width, Height",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Robot dimensions"
+      },
+      "mTitle": "Robot dimensions",
+      "mType": "Text"
+    },
+    {
+      "mCellId": 10,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Out of area",
+          "Parked",
+          "Climbed"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "What is their plan for auto",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": ""
+      },
+      "mTitle": "Auto Strategy",
+      "mType": "Text"
+    },
+    {
+      "mCellId": 10,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Out of area",
+          "Parked",
+          "Climbed"
+        ],
+        "cellSegments": 3,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Text",
+        "cellUnit": 0,
+        "helpText": "Be Specific, More info is always better",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Comments"
+      },
+      "mTitle": "Comments",
+      "mType": "Text"
+    }
+  ]
+}
+
+^{"entryLabels":[],"mCell":[]}

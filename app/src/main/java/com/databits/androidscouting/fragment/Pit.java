@@ -284,8 +284,16 @@ public class Pit extends Fragment {
         });
 
         binding.loadButton.setOnClickListener(v1 -> {
-            String storedLayout = fileUtils.readTextFile(getResources()
-                .openRawResource(R.raw.pit_layout));
+            boolean alt = configPreference.getBoolean("altMode");
+            String storedLayout;
+            if (alt) {
+                storedLayout = fileUtils.readTextFile(getResources()
+                    .openRawResource(R.raw.royal_pit_layout));
+            } else {
+                storedLayout = fileUtils.readTextFile(getResources()
+                    .openRawResource(R.raw.pit_layout));
+            }
+
             scoutUtils.layoutMaker(ScoutUtils.NONE, storedLayout, requireView(),
                 mRecyclerViewTop, mRecyclerViewBot);
             binding.loadButton.setVisibility(View.INVISIBLE);
