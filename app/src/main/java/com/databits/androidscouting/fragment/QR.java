@@ -92,6 +92,9 @@ public class QR extends Fragment {
             newQrCode(data);
             saveData(data, mode);
             checkMode(mode);
+            ArrayList<String> specialData = new ArrayList<>();
+            specialData.add(data);
+            listPreference.setObject("special_scout",specialData);
         } else {
             setTeamText(mode,0);
         }
@@ -108,6 +111,7 @@ public class QR extends Fragment {
             // Turn off team/match override after each match
             debugPreference.setBoolean("manual_team_override_toggle", false);
             debugPreference.setBoolean("manual_match_override_toggle", false);
+            debugPreference.remove("manual_team_override_value");
             matchInfo.incrementMatch();
             matchInfo.setTempMatch(matchInfo.getMatch());
             controller.navigateUp();
