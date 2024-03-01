@@ -187,7 +187,7 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
       // Databits
       hardcode = "";
     }
-    spreadsheetId = configPreference.getString("linked_spreadsheet_id", hardcode);
+    spreadsheetId = hardcode;
   }
 
   @Override
