@@ -101,7 +101,7 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
         case "Crowd":
           if (altMode) {
             // Royal Twrecks
-            range = "Raw Data!A2:BL700";
+            range = "StatsRaw!A2:Z700";
           } else {
             // Databits
             range = "SuperRawDatabase!A2:BL700";
@@ -110,7 +110,7 @@ public class SheetsUpdateTaskNew extends AsyncTask<Void, Void, AppendValuesRespo
         case "Pit":
           if (altMode) {
             // Royal Twrecks
-            range = "Raw Data!A2:BL700";
+            range = "PitData!A2:Z700";
           } else {
             // Databits
             range = "PitData!A2:Z700";
