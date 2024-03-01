@@ -30,7 +30,7 @@
             android:layout_weight="1"
             android:padding="5dp"
             app:autoSizeTextType="uniform"
-            app:sb_selectedTextColor="@color/text_color"
+            app:sb_selectedTextColor="@color/white"
             app:sb_text="@string/no"
             app:sb_textColor="@color/text_color"
             />
@@ -41,7 +41,7 @@
             android:layout_weight="1"
             android:padding="5dp"
             app:autoSizeTextType="uniform"
-            app:sb_selectedTextColor="@color/text_color"
+            app:sb_selectedTextColor="@color/white"
             app:sb_text="@string/yes"
             app:sb_textColor="@color/text_color"
             />
