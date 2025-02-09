@@ -74,7 +74,7 @@ dependencies {
     implementation 'com.github.travijuu:numberpicker:1.0.7'
 
     // Cross application value storage
-    implementation 'com.github.deadman96385:PowerPreference:2.2.0'
+    implementation 'com.github.AliAsadi:PowerPreference:2.1.1'
 
     implementation('com.google.api-client:google-api-client-android:1.25.0') {
         exclude group: 'org.apache.httpcomponents'
