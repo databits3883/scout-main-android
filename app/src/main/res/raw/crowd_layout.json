@@ -4,20 +4,304 @@
       "mCellId": 0,
       "mParam": {
         "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "DoubleCounter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Coral Level 1 & 2",
+      "mType": "DoubleCounter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 12,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "DoubleCounter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Coral Level 3 & 4",
+      "mType": "DoubleCounter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Algae Removed",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Algae Processed",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Algae Barged",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 2,
+      "mParam": {
+        "cellDefault": 0,
         "cellMax": 0,
         "cellMin": 0,
         "cellSegments": 0,
         "cellTextHidden": false,
         "cellTotalEntries": 0,
         "cellType": "YesNo",
-        "cellUnit": 0,
-        "helpText": "Did the robot leave the starting zone in auto",
+        "cellUnit": 1,
+        "helpText": "",
         "cellCategory": "Auto",
-        "helpPictureSelector": "Auto",
-        "helpTitle": "Location of starting zone"
+        "helpPictureSelector": "None",
+        "helpTitle": ""
       },
-      "mTitle": "Left in Auto",
+      "mTitle": "Did they move in auto?",
       "mType": "YesNo"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "DoubleCounter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Coral Level 1 & 2",
+      "mType": "DoubleCounter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 12,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "DoubleCounter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Coral Level 3 & 4",
+      "mType": "DoubleCounter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Algae Removed",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Algae Processed",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Algae Barged",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 0,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 50,
+        "cellMin": 0,
+        "cellSegments": 0,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Counter",
+        "cellUnit": 1,
+        "helpText": "",
+        "cellCategory": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "mTitle": "Human Player Barged",
+      "mType": "Counter"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Feeder",
+          "Ground",
+          "Both"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 1,
+        "helpText": "Default",
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "mTitle": "Coral Intake",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Reef",
+          "Ground",
+          "Both"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 1,
+        "helpText": "Default",
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "mTitle": "Algae Intake",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "Dead",
+          "Parked",
+          "Shallow",
+          "Deep"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 1,
+        "helpText": "Default",
+        "cellCategory": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "mTitle": "Endgame",
+      "mType": "Segment"
     },
     {
       "mCellId": 1,
@@ -37,150 +321,6 @@
       },
       "mTitle": "Did the robot break",
       "mType": "YesNo"
-    },
-    {
-      "mCellId": 2,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 30,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "DualCounter",
-        "cellUnit": 1,
-        "helpText": "Did they score a note in the amp in auto",
-        "cellCategory": "Auto",
-        "helpPictureSelector": "Amp",
-        "helpTitle": "Amp Location"
-      },
-      "mTitle": "Auto Amp",
-      "mType": "DualCounter"
-    },
-    {
-      "mCellId": 3,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 30,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "DualCounter",
-        "cellUnit": 1,
-        "helpText": "Did they score a note in the speaker in auto",
-        "cellCategory": "Auto",
-        "helpPictureSelector": "Speaker",
-        "helpTitle": "Speaker Location"
-      },
-      "mTitle": "Auto Speaker",
-      "mType": "DualCounter"
-    },
-    {
-      "mCellId": 4,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 30,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "DualCounter",
-        "cellUnit": 1,
-        "helpText": "Did they score a note in the amp in teleop",
-        "cellCategory": "Teleop",
-        "helpPictureSelector": "Amp",
-        "helpTitle": "Amp Location"
-      },
-      "mTitle": "Teleop Amp",
-      "mType": "DualCounter"
-    },
-    {
-      "mCellId": 5,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 30,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "DualCounter",
-        "cellUnit": 1,
-        "helpText": "Did they score a note in the speaker in auto",
-        "cellCategory": "Teleop",
-        "helpPictureSelector": "Speaker",
-        "helpTitle": "Speaker Location"
-      },
-      "mTitle": "Teleop Speaker",
-      "mType": "DualCounter"
-    },
-    {
-      "mCellId": 6,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 4,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "Counter",
-        "cellUnit": 1,
-        "helpText": "Notes scored into the middle of the climbing area",
-        "cellCategory": "Endgame",
-        "helpPictureSelector": "Stage",
-        "helpTitle": "Trap Location"
-      },
-      "mTitle": "Notes in Trap",
-      "mType": "Counter"
-    },
-    {
-      "mCellId": 7,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegmentLabels": [
-          "Out of area",
-          "Parked",
-          "Climbed"
-        ],
-        "cellSegments": 4,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "Segment",
-        "cellUnit": 0,
-        "helpText": "Where was the robot positioned at the end of the game",
-        "cellCategory": "Endgame",
-        "helpPictureSelector": "Endgame",
-        "helpTitle": "End Game position"
-      },
-      "mTitle": "End of game position",
-      "mType": "Segment"
-    },
-    {
-      "mCellId": 8,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegmentLabels": [
-          "None",
-          "Feeder Station",
-          "Floor",
-          "Both"
-        ],
-        "cellSegments": 4,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "Segment",
-        "cellUnit": 0,
-        "helpText": "Where did the robot pickup notes (Foam Rings)",
-        "cellCategory": "Endgame",
-        "helpPictureSelector": "Feeder",
-        "helpTitle": "Note Pickup"
-      },
-      "mTitle": "Note pickup location",
-      "mType": "Segment"
     },
     {
       "mCellId": 9,
