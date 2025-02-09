@@ -20,25 +20,6 @@
       "mType": "TeamSelect"
     },
     {
-      "mCellId": 2,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "YesNo",
-        "cellUnit": 0,
-        "helpText": "You must leave a comment if you say yes to this, explaining what happened!",
-        "cellCategory": "Auto",
-        "helpPictureSelector": "None",
-        "helpTitle": "Are they willing/able to play defense?"
-      },
-      "mTitle": "Able to play defense?",
-      "mType": "YesNo"
-    },
-    {
       "mCellId": 3,
       "mParam": {
         "cellDefault": 0,
@@ -64,67 +45,28 @@
       "mType": "Segment"
     },
     {
-      "mCellId": 4,
+      "mCellId": 9,
       "mParam": {
         "cellDefault": 0,
         "cellMax": 0,
         "cellMin": 0,
         "cellSegmentLabels": [
-          "None",
-          "Feeder",
-          "Floor",
-          "Both"
+          "Out of area",
+          "Parked",
+          "Climbed"
         ],
-        "cellSegments": 4,
+        "cellSegments": 3,
         "cellTextHidden": false,
         "cellTotalEntries": 0,
-        "cellType": "Segment",
+        "cellType": "Text",
         "cellUnit": 0,
-        "helpText": "Default",
+        "helpText": "Be Specific, More info is always better",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
-        "helpTitle": "Default"
+        "helpTitle": "Comments"
       },
-      "mTitle": "What intake is used?",
-      "mType": "Segment"
-    },
-    {
-      "mCellId": 5,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 4,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "Counter",
-        "cellUnit": 1,
-        "helpText": "Notes scored into the middle of the climbing area",
-        "cellCategory": "Auto",
-        "helpPictureSelector": "Stage",
-        "helpTitle": "Trap Location"
-      },
-      "mTitle": "Notes in Trap",
-      "mType": "Counter"
-    },
-    {
-      "mCellId": 6,
-      "mParam": {
-        "cellDefault": 0,
-        "cellMax": 4,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "YesNo",
-        "cellUnit": 1,
-        "helpText": "Can the robot climb on the chain after another robot has grabbed on",
-        "cellCategory": "Auto",
-        "helpPictureSelector": "Stage",
-        "helpTitle": "Climbing the stage"
-      },
-      "mTitle": "Climb on the side?",
-      "mType": "YesNo"
+      "mTitle": "Auto routine Info",
+      "mType": "Text"
     },
     {
       "mCellId": 10,
