@@ -234,7 +234,7 @@ public class Scanner extends Fragment {
             ContextCompat.getMainExecutor(requireContext()),
             result -> {
                 List<Barcode> qrResList = result.getValue(qrScanner);
-                if (qrResList == null || qrResList.size() == 0 || qrResList.get(0) == null) {
+                if (qrResList == null || qrResList.isEmpty() || qrResList.get(0) == null) {
                     preview.getOverlay().clear();
                     //if there is no result
                     return;
