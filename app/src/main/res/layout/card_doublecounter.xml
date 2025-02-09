@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/cardview_margin_bottom"
+    android:layout_marginEnd="@dimen/cardview_margin_end"
+    android:layout_marginStart="@dimen/cardview_margin_start"
+    android:layout_marginTop="@dimen/cardview_margin_top"
+    app:cardCornerRadius="20sp"
+    app:cardElevation="10sp"
+
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/text_color_inverted"
+        >
+
+        <LinearLayout
+            android:id="@+id/category_color"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/blue_100"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/help_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <ImageButton
+            android:id="@+id/help_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/help_icon_red"
+            app:layout_constraintBottom_toTopOf="@+id/counterUI"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/double_counter_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Double Counter"
+            android:textColor="@color/black"
+            android:textSize="@dimen/cardview_title_size"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/help_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <include
+            layout="@layout/ui_inside_number_picker_dual"
+            android:id="@+id/counterUI"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/double_counter_title"
+            app:layout_constraintVertical_bias="0.0"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

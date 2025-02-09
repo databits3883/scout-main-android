@@ -89,6 +89,21 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    public static class DoubleCounterTypeViewHolder extends RecyclerView.ViewHolder {
+        TextView title;
+        ImageButton help;
+        NumberPicker counterOne, counterTwo;
+        LinearLayout categoryColor;
+        public DoubleCounterTypeViewHolder(View itemView) {
+            super(itemView);
+            this.help = itemView.findViewById(R.id.help_button);
+            this.title = itemView.findViewById(R.id.double_counter_title);
+            this.counterOne = itemView.findViewById(R.id.number_counter_one);
+            this.counterTwo = itemView.findViewById(R.id.number_counter_two);
+            this.categoryColor = itemView.findViewById(R.id.category_color);
+        }
+    }
+
     public static class DualCounterTypeViewHolder extends RecyclerView.ViewHolder {
         TextView title;
         ImageButton help;
@@ -217,6 +232,10 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_special,
                     parent,false);
                 return new SpecialTypeViewHolder(view);
+            case 8:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_doublecounter,
+                    parent,false);
+                return new DoubleCounterTypeViewHolder(view);
         }
         return null;
     }
@@ -240,6 +259,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return 6;
             case "Special":
                 return 7;
+            case "DoubleCounter":
+                return 8;
             default:
                 return -1;
         }
@@ -386,6 +407,34 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((CounterTypeViewHolder) holder).currentPicker.setValue(object.getDefault());
                     ((CounterTypeViewHolder) holder).currentPicker.setFocusable(false);
                     ((CounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                        ContextCompat.getColor(mContext, categoryColor));
+                    break;
+                case "DoubleCounter":
+                    Balloon doublecounterHelp = helpBuilder
+                        .build();
+
+                    TextView doublecounterTitle = doublecounterHelp.getContentView().findViewById(R.id.help_title);
+                    TextView doublecounterContent = doublecounterHelp.getContentView().findViewById(R.id.help_content);
+                    ImageView doublecounterImage = doublecounterHelp.getContentView().findViewById(R.id.help_image);
+                    doublecounterTitle.setText(object.getHelpTitle());
+                    doublecounterContent.setText(object.getHelpText());
+                    doublecounterImage.setImageDrawable(helpPicture);
+
+                    ((DoubleCounterTypeViewHolder) holder).title.setText(title_text);
+                    ((DoubleCounterTypeViewHolder) holder).help.setOnClickListener(view ->
+                        doublecounterHelp.showAlignBottom(((DoubleCounterTypeViewHolder) holder).help));
+                    ((DoubleCounterTypeViewHolder) holder).counterOne.setMax(object.getMax());
+                    ((DoubleCounterTypeViewHolder) holder).counterOne.setMin(object.getMin());
+                    ((DoubleCounterTypeViewHolder) holder).counterOne.setUnit(object.getUnit());
+                    ((DoubleCounterTypeViewHolder) holder).counterOne.setValue(object.getDefault());
+                    ((DoubleCounterTypeViewHolder) holder).counterOne.setFocusable(false);
+
+                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setMax(object.getMax());
+                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setMin(object.getMin());
+                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setUnit(object.getUnit());
+                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setValue(object.getDefault());
+                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setFocusable(false);
+                    ((DoubleCounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "DualCounter":

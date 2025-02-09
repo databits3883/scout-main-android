@@ -54,7 +54,7 @@ public class ScoutUtils {
   public static final int BOTH = 3;
 
   String[] cellTypes = {"YesNo", "Counter","DoubleCounter", "Segment", "List", "Text", "Special"};
-  String[] cellTitles = {"YesNo_title", "Counter_Title", "Segment_Title", "List_Title", "Textbox_title"};
+  String[] cellTitles = {"YesNo_title", "Counter_Title", "DoubleCounter_Title", "Segment_Title", "List_Title", "Textbox_title"};
   String[] topTitles = { "Left\nSide", "Autonomous\nCenter Side", "Right\nSide" };
   String[] botTitles = { "Left\nSide", "Teleop\nCenter Side", "Right\nSide" };
 
@@ -111,6 +111,12 @@ public class ScoutUtils {
           case "Counter":
             NumberPicker numberPicker = v.findViewById(R.id.number_counter_inside);
             finalString.append(numberPicker.getValue())/*.append(",")*/;
+            break;
+          case "DoubleCounter":
+            NumberPicker numberPicker1 = v.findViewById(R.id.number_counter_one);
+            finalString.append(numberPicker1.getValue()).append(",");
+            NumberPicker numberPicker2 = v.findViewById(R.id.number_counter_two);
+            finalString.append(numberPicker2.getValue())/*.append(",")*/;
             break;
           case "DualCounter":
             NumberPicker picker1 = v.findViewById(R.id.counterOne);
