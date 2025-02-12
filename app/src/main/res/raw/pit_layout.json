@@ -69,6 +69,56 @@
       "mType": "Text"
     },
     {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Feeder",
+          "Ground",
+          "Both"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 1,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "mTitle": "Coral Intake",
+      "mType": "Segment"
+    },
+    {
+      "mCellId": 3,
+      "mParam": {
+        "cellDefault": 0,
+        "cellMax": 0,
+        "cellMin": 0,
+        "cellSegmentLabels": [
+          "None",
+          "Reef",
+          "Ground",
+          "Both"
+        ],
+        "cellSegments": 4,
+        "cellTextHidden": false,
+        "cellTotalEntries": 0,
+        "cellType": "Segment",
+        "cellUnit": 1,
+        "helpText": "Default",
+        "cellCategory": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "mTitle": "Algae Intake",
+      "mType": "Segment"
+    },
+    {
       "mCellId": 10,
       "mParam": {
         "cellDefault": 0,
