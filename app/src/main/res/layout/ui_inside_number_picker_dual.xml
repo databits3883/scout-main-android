@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toStartOf="@+id/guideline17"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        numberpicker:custom_layout="@layout/ui_number_picker"
+        numberpicker:custom_layout="@layout/ui_number_picker_dual"
         />
     <com.travijuu.numberpicker.library.NumberPicker
         android:id="@+id/number_counter_two"
@@ -33,6 +33,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline17"
         app:layout_constraintTop_toTopOf="parent"
-        numberpicker:custom_layout="@layout/ui_number_picker"
+        numberpicker:custom_layout="@layout/ui_number_picker_dual"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
