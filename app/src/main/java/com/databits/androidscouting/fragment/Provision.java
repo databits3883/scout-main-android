@@ -53,7 +53,6 @@ public class Provision extends Fragment {
   AtomicReference<String> crowd_position = new AtomicReference<>("1");
   AtomicReference<String> content_string = new AtomicReference<>("Nothing");
   AtomicReference<String> data_erase = new AtomicReference<>("false");
-  AtomicReference<String> team_selector = new AtomicReference<>("false");
   AtomicReference<String> special_selector = new AtomicReference<>("false");
 
   AtomicReference<Integer> match = new AtomicReference<>(1);
@@ -100,7 +99,6 @@ public class Provision extends Fragment {
           configPreference.setInt("crowd_position", Integer.parseInt(crowd_position.get()));
           configPreference.setString("current_scouter", scouter_name.get());
           configPreference.setBoolean("role_locked_toggle", lock_status.get().equals("true"));
-          configPreference.setBoolean("altMode", Boolean.parseBoolean(String.valueOf(team_selector)));
           configPreference.setBoolean("specialSwitch", Boolean.parseBoolean(special_selector.get()));
           //configPreference.setInt("current_match", matchInfo.getMatch());
           controller.navigate(R.id.action_provisionFragment_to_StartFragment);
@@ -121,14 +119,8 @@ public class Provision extends Fragment {
   @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-
-    if (configPreference.getBoolean("altMode", false)) {
-      scouterList = new LinkedList<>(Arrays.asList(getResources()
-          .getStringArray(R.array.royal_students)));
-    } else {
       scouterList = new LinkedList<>(Arrays.asList(getResources()
           .getStringArray(R.array.databits_students)));
-    }
 
     NavController controller = NavHostFragment.findNavController(Provision.this);
 
@@ -167,12 +159,7 @@ public class Provision extends Fragment {
     dropdown.setAdapter(adapter);
     dropdown.setThreshold(0);
 
-    boolean alt = configPreference.getBoolean("altMode");
-    if (alt) {
-      binding.buttonGroupTeamSelector.setPosition(1,true);
-    } else {
       binding.buttonGroupTeamSelector.setPosition(0,true);
-    }
 
     custom_scout.setSelectAllOnFocus(true);
     custom_scout.setOnEditorActionListener((v, keyCode, event) -> {
@@ -247,15 +234,6 @@ public class Provision extends Fragment {
       generateQrCode();
     });
 
-    binding.buttonGroupTeamSelector.setOnPositionChangedListener(position -> {
-      if (position == 0) {
-        team_selector.set("false");
-      } else {
-        team_selector.set("true");
-      }
-      generateQrCode();
-    });
-
     role_lock_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
       if (isChecked) {
         role_lock_switch.setText(R.string.role_locked);
@@ -319,9 +297,9 @@ public class Provision extends Fragment {
     }
 
     content_string.set(
-        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,team,%s,special,%s",
+        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,special,%s",
         role.get(), crowd_position.get(), scouter_name.get(), lock_status.get(),
-        match.get(), data_erase.get(), team_selector.get(), special_selector.get()));
+        match.get(), data_erase.get(), special_selector.get()));
 
     Logo logo = new Logo();
 

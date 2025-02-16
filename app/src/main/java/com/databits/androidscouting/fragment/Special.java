@@ -125,13 +125,8 @@ public class Special extends Fragment {
               })
               .create();
 
-          if (configPreference.getBoolean("altMode", false)) {
-            scouterList = new LinkedList<>(Arrays.asList(getResources()
-                .getStringArray(R.array.royal_students)));
-          } else {
             scouterList = new LinkedList<>(Arrays.asList(getResources()
                 .getStringArray(R.array.databits_students)));
-          }
           ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
               R.layout.ui_list_item,
               scouterList);

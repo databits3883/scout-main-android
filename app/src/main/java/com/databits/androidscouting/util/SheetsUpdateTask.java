@@ -95,35 +95,15 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
       // Sheet name and range to upload data to
       String range = null;
 
-      boolean altMode = configPreference.getBoolean("altMode", false);
-
       switch (configPreference.getString("uploadMode")) {
         case "Crowd":
-          if (altMode) {
-            // Royal Twrecks
-            range = "StatsRaw!A2:Z700";
-          } else {
-            // Databits
             range = "SuperRawDatabase!A2:BL700";
-          }
           break;
         case "Pit":
-          if (altMode) {
-            // Royal Twrecks
             range = "PitData!A2:Z700";
-          } else {
-            // Databits
-            range = "PitData!A2:Z700";
-          }
           break;
         case "Speciality":
-          if (altMode) {
-            // Royal Twrecks
-            range = "Raw Data!A2:BL700";
-          } else {
-            // Databits
             range = "SuperSpecializedRawData!A2:X700";
-          }
           break;
       }
 
@@ -177,13 +157,7 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
   @Override
   protected void onPreExecute() {
     String hardcode;
-    if (configPreference.getBoolean("altMode", false)) {
-      // Royal Twrecks
       hardcode = "";
-    } else {
-      // Databits
-      hardcode = "";
-    }
     spreadsheetId = hardcode;
   }
 
