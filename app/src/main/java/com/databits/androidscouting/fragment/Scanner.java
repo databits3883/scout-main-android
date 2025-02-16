@@ -35,7 +35,6 @@ import com.databits.androidscouting.model.QrCodeViewModel;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.SheetsUpdateTask;
-import com.databits.androidscouting.util.SheetsUpdateTaskNew;
 import com.databits.androidscouting.util.TeamInfo;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -147,7 +146,7 @@ public class Scanner extends Fragment {
             //        Toast.LENGTH_SHORT).show();
             //} else {
             //call_sheets();
-            call_sheets_new();
+            call_sheets();
             //}
         });
 
@@ -477,11 +476,6 @@ public class Scanner extends Fragment {
     // Starts the AsyncTask to push the data to the Sheets API.
     protected void call_sheets(){
         SheetsUpdateTask task = new SheetsUpdateTask(requireActivity());
-        task.execute();
-    }
-
-    protected void call_sheets_new(){
-        SheetsUpdateTaskNew task = new SheetsUpdateTaskNew(requireActivity());
         task.execute();
     }
 

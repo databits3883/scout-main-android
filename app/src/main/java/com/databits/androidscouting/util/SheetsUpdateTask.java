@@ -17,11 +17,8 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.opencsv.CSVReader;
 import com.preference.PowerPreference;
 import com.preference.Preference;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +33,7 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
   @SuppressLint("StaticFieldLeak")
   private final Context context;
 
-  private final com.google.api.services.sheets.v4.Sheets sheetsService;
+  private final Sheets sheetsService;
 
   private static final String[] ACCOUNT_SCOPES = {SheetsScopes.SPREADSHEETS};
 
@@ -47,7 +44,7 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
 
   Preference configPreference = PowerPreference.getFileByName("Config");
   Preference debugPreference = PowerPreference.getFileByName("Debug");
-  Preference listPreference = PowerPreference.getFileByName("List");
+  Preference matchPreference = PowerPreference.getFileByName("Match");
 
   MatchInfo matchInfo;
 
@@ -77,71 +74,75 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
   }
 
   @Override protected AppendValuesResponse doInBackground(Void... voids) {
+    List<List<String>> columnData = null;
+    switch (configPreference.getString("uploadMode")) {
+      case "Crowd":
+        columnData = new ArrayList<>(matchPreference.getObject("upload_data",
+            ArrayList.class, new ArrayList<>()));
+        break;
+      case "Pit":
+        columnData = new ArrayList<>(matchPreference.getObject("pit_upload_data",
+            ArrayList.class, new ArrayList<>()));
+        break;
+      case "Speciality":
+        columnData = new ArrayList<>(matchPreference.getObject("special_upload_data",
+            ArrayList.class, new ArrayList<>()));
+        break;
+    }
+
+
     try {
       // Sheet name and range to upload data to
-      String range = "StatsRaw!A1:BL700";
+      String range = null;
+
+      boolean altMode = configPreference.getBoolean("altMode", false);
+
+      switch (configPreference.getString("uploadMode")) {
+        case "Crowd":
+          if (altMode) {
+            // Royal Twrecks
+            range = "StatsRaw!A2:Z700";
+          } else {
+            // Databits
+            range = "SuperRawDatabase!A2:BL700";
+          }
+          break;
+        case "Pit":
+          if (altMode) {
+            // Royal Twrecks
+            range = "PitData!A2:Z700";
+          } else {
+            // Databits
+            range = "PitData!A2:Z700";
+          }
+          break;
+        case "Speciality":
+          if (altMode) {
+            // Royal Twrecks
+            range = "Raw Data!A2:BL700";
+          } else {
+            // Databits
+            range = "SuperSpecializedRawData!A2:X700";
+          }
+          break;
+      }
 
       // Configure a new value range to store the data
       ValueRange content = new ValueRange();
       content.setMajorDimension("ROWS");
       content.setRange(range);
 
-      // Create a new CSV reader to read the data from the file
-      // /data/data/com.databits.androidscouting/files
-      CSVReader csvReader = new CSVReader(new FileReader(
-          context.getFilesDir() + "/" + "upload.csv"));
-
-      // Reading CSV into a list
-      List<String[]> columnData = csvReader.readAll();
-
-      // Create a new list to store the unique lines
-      List<String[]> uniqueList = new ArrayList<>();
-
-      for (String[] line : columnData) {
-        String lineStringT = Arrays.toString(line);
-
-        // Remove last comma and data after it
-        String removeTimeStamp = lineStringT.substring(0, lineStringT.lastIndexOf(','));
-
-        // Create a HashSet to keep track of the lines we've already seen
-        //Set<String> seenLines = listPreference.getObject("seen_lines", Set.class,
-        //    new HashSet<>());
-
-        // Check for duplicate and don't upload role qr data
-        //if (!seenLines.contains(removeTimeStamp) & !removeTimeStamp.contains("Role")) {
-          // If we haven't seen this line before, add it to the unique list
-          //uniqueList.add(line);
-
-          // Add the line minus the timestamp to the HashSet so we can check for duplicates later
-          //seenLines.add(removeTimeStamp);
-          //listPreference.setObject("seen_lines", seenLines);
-        //}
-      }
-
-      configPreference.setBoolean("upload_unique_toggle", true);
-      // Replace the original list with the unique list if the preference is set (Debugging)
-      if (configPreference.getBoolean("upload_unique_toggle")) {
-        columnData = uniqueList;
-      }
-
-      // Get the number of lines to upload
-      int uploadCount = columnData.size();
-
-      // Add the number of lines to upload to preference
-      debugPreference.setString("upload_line_count", String.valueOf(uploadCount));
-
-      // Print the number of lines to upload
-      Log.d("SheetsUpdateTask", "uploadCount" + " lines to upload");
-
       // Make sure the list has values
-      if (uploadCount > 0) {
+      assert columnData != null;
+      if (!columnData.isEmpty()) {
 
         // Create a new list to store the sheet values
-        List upload = new ArrayList<String>();
+        List<List<Object>> upload = new ArrayList<>();
 
-        // Loop through the list and add each line to the upload list
         for (int i = 0; i < columnData.size(); i++) {
-          upload.add(Arrays.asList(columnData.get(i)));
+          List<String> rowData = columnData.get(i);
+          List<Object> row = new ArrayList<>(rowData);
+          upload.add(row);
         }
 
         // Set the value range to our data
@@ -150,18 +151,24 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
         // Command to upload the data to google sheets
         return sheetsService.spreadsheets().values().append(spreadsheetId, range, content)
             .setValueInputOption("USER_ENTERED")
-            .setInsertDataOption("INSERT_ROWS")
+            .setInsertDataOption("OVERWRITE")
             .execute();
       }
       // Google Auth Flow handling (Makes a popup asking for permission to access google account)
     } catch (UserRecoverableAuthIOException g) {
       mLastError = g;
       cancel(true);
+      Log.d("SheetsUpdateTask", g.getMessage());
+      debugPreference.putBoolean("upload_error", true);
+      debugPreference.setString("upload_error_message", g.getMessage());
       g.printStackTrace();
       return null;
       // General Error reporting
     } catch (IOException e) {
+      Log.d("SheetsUpdateTask", e.getMessage());
       e.printStackTrace();
+      debugPreference.putBoolean("upload_error", true);
+      debugPreference.setString("upload_error_message", e.getMessage());
       return null;
     }
     return null;
@@ -169,36 +176,34 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
 
   @Override
   protected void onPreExecute() {
-    String hardcode = "1ZKXLsKNM05-5BhIzbWjLOdvka-9NipSjVqFf_iG2eak";
-    spreadsheetId = configPreference.getString("linked_spreadsheet_id", hardcode);
+    String hardcode;
+    if (configPreference.getBoolean("altMode", false)) {
+      // Royal Twrecks
+      hardcode = "";
+    } else {
+      // Databits
+      hardcode = "";
+    }
+    spreadsheetId = hardcode;
   }
 
   @Override
   protected void onPostExecute(AppendValuesResponse response) {
-    // Print the number of rows to upload for debugging
-    //Toast.makeText(context,"Number of rows to upload: " +
-    //    debugPreference.getString("upload_count"), Toast.LENGTH_SHORT).show();
-
-    // Reset the upload count
-    debugPreference.setString("upload_count", "None");
-
     // Anything that is not null is a successful upload
     if (response == null) {
-      Toast.makeText(context, "Null response while uploading data, or no data to upload",
-          Toast.LENGTH_LONG).show();
-    } else {
-      // If the response is not null and rows were updated, send a message and delete the file
-      Toast.makeText(context, "Data uploaded successfully!", Toast.LENGTH_SHORT).show();
-      File file = new File(context.getFilesDir() + "/" + "upload.csv");
-
-      // If delete() fails, make sure it's because the file didn't exist!
-      if (!file.delete() && file.exists()) {
-        try {
-          throw new IOException("failed to delete " + file);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
+      if (debugPreference.getBoolean("upload_error", false)) {
+        debugPreference.putBoolean("upload_error", false);
+        Toast.makeText(context, debugPreference.getString("upload_error_message"),
+            Toast.LENGTH_LONG).show();
+      } else {
+        Toast.makeText(context, "No data to upload", Toast.LENGTH_LONG).show();
       }
+    } else {
+      // If the response is not null and rows were updated, send a message and clear the data cache
+      String test = response.getUpdates().getUpdatedRange();
+      Toast.makeText(context,"Updated Data range: " + test, Toast.LENGTH_LONG).show();
+      Log.d("Sheets", "onPostExecute: " + response.getUpdates().toString());
+      matchPreference.clear();
     }
 
   }
