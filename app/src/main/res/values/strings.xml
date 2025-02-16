@@ -126,4 +126,11 @@
   <string name="human_player">Human Player</string>
   <string name="comments">Comments</string>
   <string name="spotlit_stage_position">Spotlit (Stage position)</string>
+  <string name="settings_dashboard_hint_text">Select the X or ✓ to configure</string>
+  <string name="upper_range">Upper Range</string>
+  <string name="lower_range">Lower Range</string>
+  <string name="google_sheets_id">Sheet/Tab ID</string>
+  <string name="google_sheets_config">Google Workbook Config</string>
+  <string name="name">Name</string>
+  <string name="generic_data_location">Generic Data location</string>
 </resources>

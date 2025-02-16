@@ -74,30 +74,11 @@ public class Dashboard extends Fragment {
     binding.buttonTest.setOnClickListener(v1 -> controller.navigate(
         R.id.action_SettingsFragment_to_SettingsTestingFragment));
 
-    binding.buttonConfig.setOnClickListener(v1 -> controller.navigate(
-        R.id.action_SettingsFragment_to_SettingsManualConfigFragment));
-
     binding.buttonFile.setOnClickListener(v1 -> controller.navigate(
         R.id.action_SettingsFragment_to_SettingsFileHandlerFragment));
 
-    // Internet Status Indicator
-    //updateInternetStatus();
-
-    // TEMP Hardcoded
-    binding.teamListStatusIndicator.indicatorTitleText.setText("Team List");
-    binding.scouterListStatusIndicator.indicatorTitleText.setText("Scouter List");
-    //
-    //binding.teamListStatusIndicator.indicatorStatusText.setText("Not Loaded");
-    //binding.scouterListStatusIndicator.indicatorStatusText.setText("Loaded");
-    //
-    //binding.teamListStatusIndicator.indicatorButton.setImageResource(R.drawable.close);
-    //binding.scouterListStatusIndicator.indicatorButton.setImageResource(R.drawable.checkmark);
-    //
-    //
-    //binding.teamListStatusIndicator.indicatorButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),
-    //    com.github.dhaval2404.colorpicker.R.color.red_200));
-    //binding.scouterListStatusIndicator.indicatorButton.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(),
-    //    com.github.dhaval2404.colorpicker.R.color.green_200));
+    binding.googleStatusIndicator.indicatorButton.setOnClickListener(v1 -> controller.navigate(
+        R.id.action_SettingsFragment_to_SettingsManualConfigFragment));
 
     updateStatusIndicators();
   }
@@ -109,6 +90,11 @@ public class Dashboard extends Fragment {
     setStatusIndicator(binding.matchListStatusIndicator, "Match List",
         fileUtils.fileExists(String.valueOf(
             new File(requireContext().getFilesDir() + "/" + "teams.csv"))),
+        "Loaded", "Not Loaded");
+
+    setStatusIndicator(binding.scouterListStatusIndicator, "Scouter List",
+        fileUtils.fileExists(String.valueOf(
+            new File(requireContext().getFilesDir() + "/" + "scouter.csv"))),
         "Loaded", "Not Loaded");
 
     setStatusIndicator(binding.googleStatusIndicator, "Google", configPreference.getString("google_account_name").isEmpty(),

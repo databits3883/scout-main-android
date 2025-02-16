@@ -194,7 +194,7 @@
             app:destination="@id/SettingsTestingFragment" />
         <action
             android:id="@+id/action_SettingsFragment_to_SettingsManualConfigFragment"
-            app:destination="@id/SettingsManualConfigFragment" />
+            app:destination="@id/SettingsGoogleConfigFragment" />
     </fragment>
 
     <fragment
@@ -225,12 +225,12 @@
     </fragment>
 
     <fragment
-        android:id="@+id/SettingsManualConfigFragment"
-        android:name="com.databits.androidscouting.fragment.settings.ManualConfig"
-        android:label="fragment_settings_manualconfig"
-        tools:layout="@layout/fragment_settings_manualconfig" >
+        android:id="@+id/SettingsGoogleConfigFragment"
+        android:name="com.databits.androidscouting.fragment.settings.GoogleConfig"
+        android:label="fragment_settings_googleconfig"
+        tools:layout="@layout/fragment_settings_googleconfig" >
         <action
-            android:id="@+id/action_SettingsManualConfigFragment_to_SettingsFragment"
+            android:id="@+id/action_SettingsGoogleConfigFragment_to_SettingsFragment"
             app:destination="@id/SettingsFragment" />
     </fragment>
 

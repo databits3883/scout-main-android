@@ -97,13 +97,13 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
 
       switch (configPreference.getString("uploadMode")) {
         case "Crowd":
-            range = "SuperRawDatabase!A2:BL700";
+          range = configPreference.getString("Crowd_range","");
           break;
         case "Pit":
-            range = "PitData!A2:Z700";
+          range = configPreference.getString("Pit_range","");
           break;
         case "Speciality":
-            range = "SuperSpecializedRawData!A2:X700";
+          range = configPreference.getString("Speciality_range","");
           break;
       }
 
