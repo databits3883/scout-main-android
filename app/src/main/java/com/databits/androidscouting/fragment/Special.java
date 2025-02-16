@@ -125,8 +125,7 @@ public class Special extends Fragment {
               })
               .create();
 
-            scouterList = new LinkedList<>(Arrays.asList(getResources()
-                .getStringArray(R.array.databits_students)));
+          scouterList = debugPreference.getObject("scouter_list", List.class);
           ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
               R.layout.ui_list_item,
               scouterList);

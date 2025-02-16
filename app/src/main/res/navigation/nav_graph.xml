@@ -39,9 +39,6 @@
             android:id="@+id/action_StartFragment_to_SettingsFragment"
             app:destination="@id/SettingsFragment" />
         <action
-            android:id="@+id/action_StartFragment_to_SettingsFileHandlerFragment"
-            app:destination="@id/SettingsFileHandlerFragment" />
-        <action
             android:id="@+id/action_StartFragment_to_SpecialFragment"
             app:destination="@id/SpecialFragment" />
     </fragment>
@@ -187,28 +184,11 @@
             android:id="@+id/action_SettingsFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
         <action
-            android:id="@+id/action_SettingsFragment_to_SettingsFileHandlerFragment"
-            app:destination="@id/SettingsFileHandlerFragment" />
-        <action
             android:id="@+id/action_SettingsFragment_to_SettingsTestingFragment"
             app:destination="@id/SettingsTestingFragment" />
         <action
             android:id="@+id/action_SettingsFragment_to_SettingsManualConfigFragment"
             app:destination="@id/SettingsGoogleConfigFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/SettingsFileHandlerFragment"
-        android:name="com.databits.androidscouting.fragment.settings.FileHandler"
-        android:label="fragment_settings_filehandler"
-        tools:layout="@layout/fragment_settings_filehandler" >
-        <action
-            android:id="@+id/action_SettingsFileHandlerFragment_to_SettingsFragment"
-            app:destination="@id/SettingsFragment" />
-        <argument
-            android:name="zipData"
-            app:argType="string"
-            android:defaultValue="ERROR" />
     </fragment>
 
     <fragment
