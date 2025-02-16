@@ -66,6 +66,7 @@ public class Provision extends Fragment {
   List<String> entryLabels = new ArrayList<>();
 
   Preference configPreference = PowerPreference.getFileByName("Config");
+  Preference debugPreference = PowerPreference.getFileByName("Debug");
 
   boolean lock = configPreference.getBoolean("role_locked_toggle", false);
 
@@ -119,8 +120,7 @@ public class Provision extends Fragment {
   @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-      scouterList = new LinkedList<>(Arrays.asList(getResources()
-          .getStringArray(R.array.databits_students)));
+    scouterList = debugPreference.getObject("scouter_list", List.class);
 
     NavController controller = NavHostFragment.findNavController(Provision.this);
 

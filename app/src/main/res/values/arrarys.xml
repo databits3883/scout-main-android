@@ -9,13 +9,6 @@
     <item>Red 2</item>
     <item>Red 3</item>
   </array>
-  <array name="databits_students">
-    <item>Bob</item>
-  </array>
-
-  <array name="royal_students">
-    <item>Jim</item>
-  </array>
 
   <string-array name="team_list">
     <item>1714</item>
