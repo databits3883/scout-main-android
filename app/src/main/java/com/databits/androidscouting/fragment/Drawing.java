@@ -58,7 +58,7 @@ public class Drawing extends Fragment {
     mDrawView = binding.canvasView;
     // Create an array of the button IDs
     int[] buttonIds = {R.id.buttonPlace1, R.id.buttonPlace2, R.id.buttonPlace3, R.id.buttonPlace4,
-        R.id.buttonPlace5, R.id.buttonPlace6, R.id.buttonPlace7, R.id.buttonPlace8};
+        R.id.buttonPlace5, R.id.buttonPlace6};
 
     // Register the click event and default image for each button using a loop
     for (int buttonId : buttonIds) {
@@ -94,10 +94,10 @@ public class Drawing extends Fragment {
         buttonPlace.setImageResource(R.drawable.android_x);
         break;
       case 1:
-        buttonPlace.setImageResource(R.drawable.cube44);
+        buttonPlace.setImageResource(R.drawable.cageshallow);
         break;
       case 2:
-        buttonPlace.setImageResource(R.drawable.cone44);
+        buttonPlace.setImageResource(R.drawable.cagedeep);
         break;
     }
     // Increment counter by 1 and use modulo to cycle through the drawables (0,1,2)
