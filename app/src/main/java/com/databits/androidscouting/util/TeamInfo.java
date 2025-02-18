@@ -82,11 +82,11 @@ public class TeamInfo {
     return configPreference.getString("current_scouter", "Scouter");
   }
 
-  // Read the team data for validator from teams.csv
+  // Read the team data for validator from match.csv
   public void read_teams() {
       String[][] dataArr;
       try {
-        File teams = new File(context.getFilesDir() + "/" + "teams.csv");
+        File teams = new File(context.getFilesDir() + "/" + "match.csv");
           CSVReader csvReader = new CSVReader(new FileReader(teams));
           List<String[]> list = csvReader.readAll();
           int size = list.size();

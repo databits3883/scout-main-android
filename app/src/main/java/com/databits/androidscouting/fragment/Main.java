@@ -92,41 +92,11 @@ public class Main extends Fragment {
         binding.buttonSpecial.setOnClickListener(view1 -> controller
             .navigate(R.id.action_StartFragment_to_SpecialFragment));
 
-        binding.teamSavedButton.setOnClickListener(view1 -> savedTeams());
-
-
         if (lock) {
             role_selector(controller);
         }
 
-        buttonState();
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        ActivityResultLauncher<Intent> teamsLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Intent data = result.getData();
-                    if (data != null) {
-                        importTeams(data.getData());
-                        teamInfo.read_teams();
-                    }
-                }
-            }
-        );
-
-        binding.buttonTeams.setOnClickListener(view1 -> {
-            Intent data  = fileUtils.intentFileDialog();
-            Intent.createChooser(data, "Select a layout.json file to import");
-            teamsLauncher.launch(data);
-        });
-    }
-
-    public void buttonState() {
-        scoutUtils.setButtonStatus(binding.buttonTeams,
-            fileUtils.fileExists(String.valueOf(
-                new File(requireContext().getFilesDir() + "/" + "teams.csv"))),
-            "Match/Team Info Loaded", "Import Match/Team Info");
     }
 
     // Switch statement to determine which role the device is in
@@ -146,20 +116,6 @@ public class Main extends Fragment {
         }
     }
 
-    public void importTeams(Uri uri) {
-        Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri,
-            "teams.csv"));
-        binding.buttonTeams.setText(R.string.main_team_match);
-        binding.buttonTeams.setEnabled(false);
-    }
-
-    public void savedTeams(){
-        Uri uri=Uri.parse("android.resource://"+requireContext().getPackageName()+"/raw/teams");
-        FileUtils.copyFileToInternal(requireContext(),uri,"teams.csv");
-        teamInfo.read_teams();
-        buttonState();
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -176,6 +132,5 @@ public class Main extends Fragment {
 
     @Override public void onResume() {
         super.onResume();
-        buttonState();
     }
 }

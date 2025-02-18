@@ -96,19 +96,6 @@
         app:layout_constraintTop_toBottomOf="@+id/button_scanner"
         />
 
-    <Button
-        android:id="@+id/buttonTeams"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="@android:color/holo_blue_light"
-        android:text="Import Match/Team Info"
-        android:textColor="@color/text_color_inverted"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_settings"
-        />
-
     <TextView
         android:id="@+id/textview_scouting_select"
         android:layout_width="wrap_content"
@@ -156,15 +143,4 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent=".75"
         />
-    <Button
-        android:id="@+id/team_saved_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Load Saved Match Info"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonTeams"
-        />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

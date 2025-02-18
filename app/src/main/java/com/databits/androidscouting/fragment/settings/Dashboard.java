@@ -33,6 +33,7 @@ import com.preference.PowerPreference;
 import com.preference.Preference;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static android.content.ContentValues.TAG;
 
@@ -149,6 +150,12 @@ public class Dashboard extends Fragment {
       }
     });
 
+    binding.matchListStatusIndicator.indicatorButton.setOnClickListener(view1 -> {
+      Intent data  = fileUtils.intentFileDialog();
+      Intent.createChooser(data, "Select a match.csv file to import");
+      matchLauncher.launch(data);
+    });
+
     updateStatusIndicators();
   }
 
@@ -158,7 +165,7 @@ public class Dashboard extends Fragment {
 
     setStatusIndicator(binding.matchListStatusIndicator, "Match List",
         fileUtils.fileExists(String.valueOf(
-            new File(requireContext().getFilesDir() + "/" + "teams.csv"))),
+            new File(requireContext().getFilesDir() + "/" + "match.csv"))),
         "Loaded", "Not Loaded");
 
     setStatusIndicator(binding.scouterListStatusIndicator, "Scouter List",
@@ -209,6 +216,20 @@ public class Dashboard extends Fragment {
             File file1 = new File(path);
             ArrayList<String> studentList = fileUtils.readList(file1);
             debugPreference.setObject("scouter_list", studentList);
+          }
+        }
+      }
+  );
+
+  ActivityResultLauncher<Intent> matchLauncher = registerForActivityResult(
+      new ActivityResultContracts.StartActivityForResult(),
+      result -> {
+        if (result.getResultCode() == Activity.RESULT_OK) {
+          Intent data = result.getData();
+          if (data != null) {
+            Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), data.getData(),
+                "match.csv"));
+            teamInfo.read_teams();
           }
         }
       }
