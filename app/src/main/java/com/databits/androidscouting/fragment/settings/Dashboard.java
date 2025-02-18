@@ -164,9 +164,25 @@ public class Dashboard extends Fragment {
     });
 
     binding.matchListStatusIndicator.indicatorButton.setOnClickListener(view1 -> {
-      Intent data  = fileUtils.intentFileDialog();
-      Intent.createChooser(data, "Select a match.csv file to import");
-      matchLauncher.launch(data);
+      AlertDialog matchListDialog = new AlertDialog.Builder(requireContext())
+          .setTitle("Do you want to import a new match list?")
+          .setMessage("This will overwrite the current match list. \n\n"
+              + "The format is a csv file, 1st line has the header and then one match per line.\n\n"
+              + "Match,Blue 1,Blue 2,Blue 3,Red 1,Red 2,Red 3\n\n"
+              + "1,2169,6147,7619,2062,4786,2987\n"
+              + "2,7530,3100,6758,8803,5913,4229\n\n"
+              + "Select Yes and then select your file to import it from your device.")
+          .setPositiveButton("Yes", (dialog1, which1) -> {
+            Intent data  = fileUtils.intentFileDialog();
+            Intent.createChooser(data, "Select a match.csv file to import");
+            matchLauncher.launch(data);
+          })
+          .setNegativeButton("Cancel", (dialog1, which1) -> {
+            // Do nothing
+          })
+          .create();
+      matchListDialog.show();
+
     });
 
     updateStatusIndicators();
