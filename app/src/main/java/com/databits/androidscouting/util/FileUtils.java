@@ -150,6 +150,14 @@ public class FileUtils {
     return file.exists();
   }
 
+  public void testStorage() {
+    DocumentFile storage = storageFolder();
+
+    if (storage != null) {
+      storage.createFile("text/csv", "pit");
+    }
+  }
+
   public void handleZip(Uri uri) {
     if ((uri != null) && !uri.toString().contains("ERROR")) {
       try {

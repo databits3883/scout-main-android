@@ -166,21 +166,8 @@
             android:id="@+id/action_SettingsFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
         <action
-            android:id="@+id/action_SettingsFragment_to_SettingsTestingFragment"
-            app:destination="@id/SettingsTestingFragment" />
-        <action
             android:id="@+id/action_SettingsFragment_to_SettingsManualConfigFragment"
             app:destination="@id/SettingsGoogleConfigFragment" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/SettingsTestingFragment"
-        android:name="com.databits.androidscouting.fragment.settings.Testing"
-        android:label="fragment_settings_testing"
-        tools:layout="@layout/fragment_settings_testing" >
-        <action
-            android:id="@+id/action_SettingsTestingFragment_to_SettingsFragment"
-            app:destination="@id/SettingsFragment" />
     </fragment>
 
     <fragment

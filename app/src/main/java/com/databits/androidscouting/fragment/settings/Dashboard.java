@@ -83,9 +83,6 @@ public class Dashboard extends Fragment {
 
     binding.buttonBack.setOnClickListener(v1 -> controller.navigateUp());
 
-    binding.buttonTest.setOnClickListener(v1 -> controller.navigate(
-        R.id.action_SettingsFragment_to_SettingsTestingFragment));
-
     binding.buttonImportZip.setOnClickListener(view -> {
       storageHelper.requestStorageAccess();
       storageHelper.openFilePicker(69, false);
@@ -119,6 +116,8 @@ public class Dashboard extends Fragment {
           .create();
       scouterListDialog.show();
     });
+
+    binding.buttonDebug.setOnClickListener(view1 -> PowerPreference.showDebugScreen(true));
 
     updateStatusIndicators();
   }
