@@ -156,9 +156,7 @@ public class SheetsUpdateTask extends AsyncTask<Void, Void, AppendValuesResponse
 
   @Override
   protected void onPreExecute() {
-    String hardcode;
-      hardcode = "";
-    spreadsheetId = hardcode;
+    spreadsheetId = configPreference.getString("workbook_id","");
   }
 
   @Override
