@@ -94,18 +94,6 @@ public class Main extends Fragment {
 
         binding.teamSavedButton.setOnClickListener(view1 -> savedTeams());
 
-        binding.buttonPermissions.setOnClickListener(view1 -> {
-            if (scoutUtils.allPermissionsGranted()) {
-                Toast.makeText(requireContext(), "Permissions Already Granted!",
-                    Toast.LENGTH_SHORT).show();
-            } else {
-                ActivityCompat.requestPermissions(
-                    requireActivity(), ScoutUtils.REQUIRED_PERMISSIONS,
-                    ScoutUtils.REQUEST_CODE_PERMISSIONS
-                );
-            }
-        });
-
 
         if (lock) {
             role_selector(controller);
@@ -132,17 +120,6 @@ public class Main extends Fragment {
             Intent.createChooser(data, "Select a layout.json file to import");
             teamsLauncher.launch(data);
         });
-
-        // Launches the intent to allow the app to change the screen brightness
-        binding.buttonBright.setOnClickListener(view1 -> {
-            if (Settings.System.canWrite(requireContext())) {
-                Toast.makeText(requireContext(), "Brightness Permission Already Granted!", Toast.LENGTH_SHORT).show();
-            } else {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + requireActivity().getPackageName()));
-                startActivity(intent);
-            }
-        });
     }
 
     public void buttonState() {
@@ -150,16 +127,6 @@ public class Main extends Fragment {
             fileUtils.fileExists(String.valueOf(
                 new File(requireContext().getFilesDir() + "/" + "teams.csv"))),
             "Match/Team Info Loaded", "Import Match/Team Info");
-
-        scoutUtils.setButtonStatus(binding.buttonBright,
-            Settings.System.canWrite(requireActivity()),
-            "Screen Brightness Control Enabled",
-            "Enable Screen Brightness Control");
-
-        scoutUtils.setButtonStatus(binding.buttonPermissions,
-            scoutUtils.allPermissionsGranted(),
-            "All Required Permissions Granted",
-            "Enable Required Permissions");
     }
 
     // Switch statement to determine which role the device is in

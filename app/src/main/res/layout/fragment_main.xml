@@ -109,31 +109,6 @@
         app:layout_constraintTop_toBottomOf="@+id/button_settings"
         />
 
-    <Button
-        android:id="@+id/buttonBright"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Enable brightness control"
-        android:textColor="@color/text_color_inverted"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonTeams"
-        />
-
-    <Button
-        android:id="@+id/buttonPermissions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="@android:color/holo_orange_light"
-        android:text="Enable required permissions"
-        android:textColor="@color/text_color_inverted"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonBright"
-        />
-
     <TextView
         android:id="@+id/textview_scouting_select"
         android:layout_width="wrap_content"
@@ -189,7 +164,7 @@
         android:text="Load Saved Match Info"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonPermissions"
+        app:layout_constraintTop_toBottomOf="@+id/buttonTeams"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

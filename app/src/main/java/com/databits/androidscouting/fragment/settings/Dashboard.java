@@ -2,16 +2,20 @@ package com.databits.androidscouting.fragment.settings;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -119,6 +123,32 @@ public class Dashboard extends Fragment {
 
     binding.buttonDebug.setOnClickListener(view1 -> PowerPreference.showDebugScreen(true));
 
+    binding.permissionStatusIndicator.indicatorButton.setOnClickListener(view1 -> {
+
+      // Launches the intent to allow the app to change the screen brightness
+      if (Settings.System.canWrite(requireContext())) {
+        Toast.makeText(requireContext(), "Brightness control permission already granted!",
+            Toast.LENGTH_SHORT).show();
+      } else {
+        Toast.makeText(requireContext(), "Brightness control permission requested",
+            Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+        intent.setData(Uri.parse("package:" + requireActivity().getPackageName()));
+        startActivity(intent);
+      }
+
+      // Checks if all other permissions are granted
+      if (scoutUtils.allPermissionsGranted()) {
+        Toast.makeText(requireContext(), "All other permissions already granted!",
+            Toast.LENGTH_SHORT).show();
+      } else {
+        ActivityCompat.requestPermissions(
+            requireActivity(), ScoutUtils.REQUIRED_PERMISSIONS,
+            ScoutUtils.REQUEST_CODE_PERMISSIONS
+        );
+      }
+    });
+
     updateStatusIndicators();
   }
 
@@ -140,7 +170,8 @@ public class Dashboard extends Fragment {
         "Logged in", "Logged out");
 
     setStatusIndicator(binding.permissionStatusIndicator, "Permissions",
-        scoutUtils.allPermissionsGranted(), "Granted", "Denied");
+        scoutUtils.allPermissionsGranted() && Settings.System.canWrite(requireActivity()),
+        "Granted", "Denied");
   }
 
   public void setStatusIndicator(UiStatusIndicatorBinding StatusIndicator, String title,
