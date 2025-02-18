@@ -126,28 +126,41 @@ public class Dashboard extends Fragment {
 
     binding.permissionStatusIndicator.indicatorButton.setOnClickListener(view1 -> {
 
-      // Launches the intent to allow the app to change the screen brightness
-      if (Settings.System.canWrite(requireContext())) {
-        Toast.makeText(requireContext(), "Brightness control permission already granted!",
-            Toast.LENGTH_SHORT).show();
-      } else {
-        Toast.makeText(requireContext(), "Brightness control permission requested",
-            Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-        intent.setData(Uri.parse("package:" + requireActivity().getPackageName()));
-        startActivity(intent);
-      }
+      AlertDialog permissionDialog = new AlertDialog.Builder(requireContext())
+          .setTitle("Do you want to grant the following permissions?")
+          .setMessage("1. Manage Settings permission which is needed for the app to control the "
+              + "brightness of the screen in the QR view\n"
+              + "2. Camera is required for the QR scanner to work")
+          .setPositiveButton("Yes", (dialog1, which1) -> {
+            // Launches the intent to allow the app to change the screen brightness
+            if (Settings.System.canWrite(requireContext())) {
+              Toast.makeText(requireContext(), "Brightness control permission already granted!",
+                  Toast.LENGTH_SHORT).show();
+            } else {
+              Toast.makeText(requireContext(), "Brightness control permission requested",
+                  Toast.LENGTH_SHORT).show();
+              Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
+              intent.setData(Uri.parse("package:" + requireActivity().getPackageName()));
+              startActivity(intent);
+            }
 
-      // Checks if all other permissions are granted
-      if (scoutUtils.allPermissionsGranted()) {
-        Toast.makeText(requireContext(), "All other permissions already granted!",
-            Toast.LENGTH_SHORT).show();
-      } else {
-        ActivityCompat.requestPermissions(
-            requireActivity(), ScoutUtils.REQUIRED_PERMISSIONS,
-            ScoutUtils.REQUEST_CODE_PERMISSIONS
-        );
-      }
+            // Checks if all other permissions are granted
+            if (scoutUtils.allPermissionsGranted()) {
+              Toast.makeText(requireContext(), "All other permissions already granted!",
+                  Toast.LENGTH_SHORT).show();
+            } else {
+              ActivityCompat.requestPermissions(
+                  requireActivity(), ScoutUtils.REQUIRED_PERMISSIONS,
+                  ScoutUtils.REQUEST_CODE_PERMISSIONS
+              );
+            }
+          })
+          .setNegativeButton("Cancel", (dialog1, which1) -> {
+            // Do nothing
+          })
+          .create();
+      permissionDialog.show();
+
     });
 
     binding.matchListStatusIndicator.indicatorButton.setOnClickListener(view1 -> {
