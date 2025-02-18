@@ -4,8 +4,8 @@
 <dimen name="sbg_dividerWidth">2dp</dimen>
   <dimen name="color_picker_view_size">200dp</dimen>
   <dimen name="cardview_title_size">17sp</dimen>
-  <dimen name="cardview_margin_bottom">5sp</dimen>
-  <dimen name="cardview_margin_top">5sp</dimen>
+  <dimen name="cardview_margin_bottom">2sp</dimen>
+  <dimen name="cardview_margin_top">2sp</dimen>
   <dimen name="cardview_margin_start">5sp</dimen>
   <dimen name="cardview_margin_end">5sp</dimen>
 </resources>
