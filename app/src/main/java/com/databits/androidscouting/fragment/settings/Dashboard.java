@@ -136,7 +136,7 @@ public class Dashboard extends Fragment {
             new File(requireContext().getFilesDir() + "/" + "scouter_list.txt"))) && !debugPreference.getString("scouter_list").isEmpty(),
         "Loaded", "Not Loaded");
 
-    setStatusIndicator(binding.googleStatusIndicator, "Google", configPreference.getString("google_account_name").isEmpty(),
+    setStatusIndicator(binding.googleStatusIndicator, "Google", !configPreference.getString("google_account_name").isEmpty(),
         "Logged in", "Logged out");
 
     setStatusIndicator(binding.permissionStatusIndicator, "Permissions",

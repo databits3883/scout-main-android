@@ -114,11 +114,6 @@ public class Main extends Fragment {
         buttonState();
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        binding.buttonGoogle.setOnClickListener(view1 -> {
-            Intent intent = new Intent(requireContext(), GoogleAuthActivity.class);
-            startActivity(intent);
-        });
-
         ActivityResultLauncher<Intent> teamsLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -155,10 +150,6 @@ public class Main extends Fragment {
             fileUtils.fileExists(String.valueOf(
                 new File(requireContext().getFilesDir() + "/" + "teams.csv"))),
             "Match/Team Info Loaded", "Import Match/Team Info");
-
-        scoutUtils.setButtonStatus(binding.buttonGoogle,
-            configPreference.getString("google_account_name").isEmpty(),
-            "Logged into Google", "Sign into Google");
 
         scoutUtils.setButtonStatus(binding.buttonBright,
             Settings.System.canWrite(requireActivity()),

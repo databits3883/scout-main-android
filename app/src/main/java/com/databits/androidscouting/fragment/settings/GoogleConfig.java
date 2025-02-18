@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentSettingsGoogleconfigBinding;
 import com.databits.androidscouting.util.FileUtils;
+import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
@@ -158,6 +159,15 @@ public class GoogleConfig extends Fragment {
           })
           .create();
       googleConfigDialog.show();
+    });
+
+    scoutUtils.setButtonStatus(binding.googleButton,
+        !configPreference.getString("google_account_name").isEmpty(),
+        "Logged into Google", "Sign into Google");
+
+    binding.googleButton.setOnClickListener(view1 -> {
+      Intent intent = new Intent(requireContext(), GoogleAuthActivity.class);
+      startActivity(intent);
     });
   }
 

@@ -100,6 +100,18 @@
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/pit_sheet_location"
       />
+
+  <Button
+      android:id="@+id/googleButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="8dp"
+      android:text="Log into Google"
+      app:layout_constraintBottom_toTopOf="@+id/importButton"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.497"
+      app:layout_constraintStart_toStartOf="parent"
+      />
   <Button
       android:id="@+id/importButton"
       android:layout_width="wrap_content"

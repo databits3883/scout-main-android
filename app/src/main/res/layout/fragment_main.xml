@@ -97,19 +97,6 @@
         />
 
     <Button
-        android:id="@+id/buttonGoogle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="@android:color/holo_purple"
-        android:text="Sign in to Google"
-        android:textColor="@color/text_color_inverted"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_settings"
-        />
-
-    <Button
         android:id="@+id/buttonTeams"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -119,7 +106,7 @@
         android:textColor="@color/text_color_inverted"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGoogle"
+        app:layout_constraintTop_toBottomOf="@+id/button_settings"
         />
 
     <Button
