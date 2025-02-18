@@ -122,9 +122,7 @@ public class GoogleConfig extends Fragment {
         binding.specialtySheetLocation.dataTitle.setText(title);
     }
 
-    String saved = configPreference.getString(id_prefix + "_range","");
-
-    if (saved.isEmpty() || save) {
+    if (save) {
       // Range is name!lower:upper ex= StatsRaw!A2:Z700
       String range = Objects.requireNonNull(name.getText()) + "!" + Objects.requireNonNull(
           lower.getText()) + ":" +
@@ -135,11 +133,13 @@ public class GoogleConfig extends Fragment {
     } else {
       // Get the range from configPreference and set the name, lower, and upper text fields
       String range = configPreference.getString(id_prefix + "_range","");
-      String[] split = range.split("!");
-      name.setText(split[0]);
-      split = split[1].split(":");
-      lower.setText(split[0]);
-      upper.setText(split[1]);
+      if (!range.isEmpty()) {
+        String[] split = range.split("!");
+        name.setText(split[0]);
+        split = split[1].split(":");
+        lower.setText(split[0]);
+        upper.setText(split[1]);
+      }
     }
 
     binding.importButton.setOnClickListener(view1 -> {
