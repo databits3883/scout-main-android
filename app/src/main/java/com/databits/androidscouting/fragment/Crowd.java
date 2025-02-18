@@ -256,7 +256,7 @@ public class Crowd extends Fragment {
         configPreference.setBoolean("grid_toggle", true);
 
         //Sorts the tables based on saved Table Status
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
+        int table_status = configPreference.getInt("table_mode", ScoutUtils.BOTH);
         scoutUtils.tableSorter(table_status, requireView(), mRecyclerViewTop, mRecyclerViewBot);
         scoutUtils.setupTables(requireView());
 

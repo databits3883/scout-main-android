@@ -303,7 +303,8 @@ public class ScoutUtils {
             ConstraintSet.BOTTOM, 0);
         constraintSet.connect(R.id.recycler_view_bot, ConstraintSet.TOP, R.id.bot_center_table,
             ConstraintSet.BOTTOM, 0);
-        constraintSet.connect(R.id.inner_table, ConstraintSet.TOP, R.id.dynamicFragment,
+        //FIXME Do not tie directly to crowdScoutFragment and remove table support
+        constraintSet.connect(R.id.inner_table, ConstraintSet.TOP, R.id.crowdScoutFragment,
             ConstraintSet.TOP, 0);
         constraintSet.setVisibility(R.id.recycler_view_top, View.VISIBLE);
         constraintSet.setVisibility(R.id.recycler_view_bot, View.VISIBLE);

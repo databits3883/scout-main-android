@@ -22,9 +22,6 @@
             app:popUpTo="@id/pitScoutFragment"
             app:popUpToInclusive="true"/>
         <action
-            android:id="@+id/action_StartFragment_to_dynamicFragment"
-            app:destination="@id/dynamicFragment" />
-        <action
             android:id="@+id/action_StartFragment_to_provisionFragment"
             app:destination="@id/provisionFragment" />
         <action
@@ -87,7 +84,7 @@
         android:id="@+id/pitScoutFragment"
         android:name="com.databits.androidscouting.fragment.Pit"
         android:label="fragment_pit_scout"
-        tools:layout="@layout/fragment_dynamic" >
+        tools:layout="@layout/fragment_pit_scout" >
         <action
             android:id="@+id/action_pitScoutFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
@@ -113,9 +110,6 @@
         <action
             android:id="@+id/action_QRFragment_to_pitScoutFragment"
             app:destination="@id/pitScoutFragment" />
-        <action
-            android:id="@+id/action_QRFragment_to_dynamicFragment"
-            app:destination="@id/dynamicFragment" />
     </fragment>
     <fragment
         android:id="@+id/provisionFragment"
@@ -128,18 +122,6 @@
         <action
             android:id="@+id/action_provisionFragment_to_StartFragment"
             app:destination="@id/StartFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/dynamicFragment"
-        android:name="com.databits.androidscouting.fragment.Dynamic"
-        android:label="fragment_dynamic"
-        tools:layout="@layout/fragment_pit_scout" >
-        <action
-            android:id="@+id/action_dynamicFragment_to_QRFragment"
-            app:destination="@id/QRFragment" />
-        <action
-            android:id="@+id/action_dynamicFragment_to_SettingsTestingFragment"
-            app:destination="@id/SettingsTestingFragment" />
     </fragment>
     <fragment
         android:id="@+id/DrawingMapFragment"
@@ -199,9 +181,6 @@
         <action
             android:id="@+id/action_SettingsTestingFragment_to_SettingsFragment"
             app:destination="@id/SettingsFragment" />
-        <action
-            android:id="@+id/action_SettingsTestingFragment_to_dynamicFragment"
-            app:destination="@id/dynamicFragment" />
     </fragment>
 
     <fragment

@@ -65,8 +65,6 @@ public class Testing extends Fragment {
       }
     });
     binding.buttonDebug.setOnClickListener(view1 -> PowerPreference.showDebugScreen(true));
-    binding.buttonDynamic.setOnClickListener(view1 -> controller
-        .navigate(R.id.action_SettingsTestingFragment_to_dynamicFragment));
   }
 
   @Override
