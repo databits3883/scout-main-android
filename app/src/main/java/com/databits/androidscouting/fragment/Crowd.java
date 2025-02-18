@@ -256,7 +256,7 @@ public class Crowd extends Fragment {
         configPreference.setBoolean("grid_toggle", true);
 
         //Sorts the tables based on saved Table Status
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.BOTH);
+        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
         scoutUtils.tableSorter(table_status, requireView(), mRecyclerViewTop, mRecyclerViewBot);
         scoutUtils.setupTables(requireView());
 
@@ -277,8 +277,9 @@ public class Crowd extends Fragment {
                 openRawResource(R.raw.crowd_layout));
             scoutUtils.layoutMaker(table_status, storedLayout, requireView(),
                 mRecyclerViewTop, mRecyclerViewBot);
-            //binding.loadButton.setVisibility(View.GONE);
-            //binding.autoLoadCheckBox.setVisibility(View.GONE);
+            binding.loadButton.setVisibility(View.INVISIBLE);
+            binding.importButton.setVisibility(View.INVISIBLE);
+            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
         });
 
         binding.autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
