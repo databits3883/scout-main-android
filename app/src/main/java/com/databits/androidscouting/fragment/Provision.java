@@ -147,7 +147,6 @@ public class Provision extends Fragment {
 
     position_selector.setPosition(0, true);
     role_selector.setPosition(1, true);
-    binding.buttonGroupTeamSelector.setPosition(0,true);
     role_lock_switch.setChecked(true);
 
     ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.ui_list_item,
@@ -158,8 +157,6 @@ public class Provision extends Fragment {
         requireContext().getResources().getStringArray(R.array.team_list));
     dropdown.setAdapter(adapter);
     dropdown.setThreshold(0);
-
-      binding.buttonGroupTeamSelector.setPosition(0,true);
 
     custom_scout.setSelectAllOnFocus(true);
     custom_scout.setOnEditorActionListener((v, keyCode, event) -> {

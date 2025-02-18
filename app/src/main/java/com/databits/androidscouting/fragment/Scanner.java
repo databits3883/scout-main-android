@@ -421,7 +421,7 @@ public class Scanner extends Fragment {
         boolean locked = Boolean.parseBoolean(qr_data[7]);
         int match = Integer.parseInt(qr_data[9]);
         boolean delete_data = Boolean.parseBoolean(qr_data[11]);
-        boolean special_selector = Boolean.parseBoolean(qr_data[15]);
+        boolean special_selector = Boolean.parseBoolean(qr_data[13]);
 
         if (delete_data) {
             PowerPreference.clearAllData();
