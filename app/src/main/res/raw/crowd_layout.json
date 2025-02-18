@@ -111,7 +111,7 @@
         "helpPictureSelector": "None",
         "helpTitle": ""
       },
-      "mTitle": "Did they move in auto?",
+      "mTitle": "Moved in auto?",
       "mType": "YesNo"
     },
     {
@@ -288,7 +288,7 @@
         "helpPictureSelector": "None",
         "helpTitle": "Defense"
       },
-      "mTitle": "Did they play defense",
+      "mTitle": "Played defense?",
       "mType": "YesNo"
     },
     {

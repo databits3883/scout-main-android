@@ -7,11 +7,11 @@
 
     <Button
         android:id="@+id/decrement"
-        android:layout_width="45dp"
+        android:layout_width="50dp"
         android:layout_height="match_parent"
         android:text="@string/minus"
         android:textStyle="bold"
-        app:autoSizeTextType="none"
+        app:autoSizeTextType="uniform"
         android:textColor="@color/white"
         android:backgroundTint="@color/accent_color"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -22,14 +22,14 @@
 
     <EditText
         android:id="@+id/display"
-        android:layout_width="29dp"
+        android:layout_width="40dp"
         android:layout_height="match_parent"
         android:gravity="center"
         android:inputType="number"
-        android:padding="5dp"
+        android:padding="8dp"
         android:text="@string/one"
         android:textColor="@color/text_color"
-        app:autoSizeTextType="none"
+        app:autoSizeTextType="uniform"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/increment"
         app:layout_constraintHorizontal_bias="0.5"
@@ -39,12 +39,12 @@
 
     <Button
         android:id="@+id/increment"
-        android:layout_width="45dp"
+        android:layout_width="50dp"
         android:layout_height="match_parent"
         android:text="@string/plus"
         android:textStyle="bold"
         android:textColor="@color/white"
-        app:autoSizeTextType="none"
+        app:autoSizeTextType="uniform"
         android:backgroundTint="@color/accent_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

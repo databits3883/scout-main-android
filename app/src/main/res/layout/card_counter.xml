@@ -48,6 +48,7 @@
             android:textColor="@color/black"
             android:textSize="@dimen/cardview_title_size"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/category_color"
             app:layout_constraintEnd_toStartOf="@+id/help_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -61,7 +62,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/counter_title"
             />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
