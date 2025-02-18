@@ -25,15 +25,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_test"
         />
-    <Button
-        android:id="@+id/button_export_zip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Export Config Zip"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_import_zip"
-        />
 
     <Button
         android:id="@+id/button_test"

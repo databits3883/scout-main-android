@@ -29,8 +29,6 @@ import com.preference.PowerPreference;
 import com.preference.Preference;
 import java.io.File;
 import java.util.ArrayList;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 
 import static android.content.ContentValues.TAG;
 
@@ -87,19 +85,6 @@ public class Dashboard extends Fragment {
 
     binding.buttonTest.setOnClickListener(v1 -> controller.navigate(
         R.id.action_SettingsFragment_to_SettingsTestingFragment));
-
-    binding.buttonExportZip.setOnClickListener(view -> {
-      storageHelper.requestStorageAccess();
-      String zipName = "scouting_config.zip";
-      ZipFile zip = fileUtils.CreateZipFile(zipName);
-      try {
-        // Adds file to zip, only creates zip if file exists
-        zip.addFile(new File(requireContext().getFilesDir().getPath() +
-            "/scouter_list.txt"));
-      } catch (ZipException e) {
-        throw new RuntimeException(e);
-      }
-    });
 
     binding.buttonImportZip.setOnClickListener(view -> {
       storageHelper.requestStorageAccess();
