@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -33,6 +35,7 @@ import com.preference.PowerPreference;
 import com.preference.Preference;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static android.content.ContentValues.TAG;
@@ -103,6 +106,15 @@ public class Dashboard extends Fragment {
 
     binding.googleStatusIndicator.indicatorButton.setOnClickListener(v1 -> controller.navigate(
         R.id.action_SettingsFragment_to_SettingsManualConfigFragment));
+    View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_list_preview,
+        null);
+
+    AlertDialog previewDialog = new AlertDialog.Builder(requireContext())
+        .setTitle("Data Preview")
+        .setView(dialogView)
+        .setNegativeButton("Cancel", (dialog3,which3) -> {
+          // Do nothing
+        }).create();
 
     binding.scouterListStatusIndicator.indicatorButton.setOnClickListener(view -> {
       AlertDialog scouterListDialog = new AlertDialog.Builder(requireContext())
@@ -118,7 +130,22 @@ public class Dashboard extends Fragment {
           .setNegativeButton("Cancel", (dialog1, which1) -> {
             // Do nothing
           })
+          .setNeutralButton("Loaded Data Preview",(dialog2, which2) -> {
+            previewDialog.show();
+          })
           .create();
+      TextView text = dialogView.findViewById(R.id.data_view);
+      text.setMovementMethod(new ScrollingMovementMethod());
+      List<String> scouterList = debugPreference.getObject("scouter_list", List.class);
+      if (scouterList == null) {
+        scouterList = new ArrayList<>();
+      }
+      // Add all scouterList strings to a string with each being on a newline
+      StringBuilder scouterListString = new StringBuilder();
+      for (String scouter : scouterList) {
+        scouterListString.append(scouter).append("\n");
+      }
+      text.setText(scouterListString.toString());
       scouterListDialog.show();
     });
 
@@ -245,6 +272,7 @@ public class Dashboard extends Fragment {
             File file1 = new File(path);
             ArrayList<String> studentList = fileUtils.readList(file1);
             debugPreference.setObject("scouter_list", studentList);
+
           }
         }
       }
