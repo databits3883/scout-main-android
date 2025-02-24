@@ -3,10 +3,8 @@ package com.databits.androidscouting.fragment;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,12 +25,8 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentQRBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
+import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
-import com.github.sumimakito.awesomeqr.AwesomeQrRenderer;
-import com.github.sumimakito.awesomeqr.RenderResult;
-import com.github.sumimakito.awesomeqr.option.RenderOption;
-import com.github.sumimakito.awesomeqr.option.color.ColorQR;
-import com.github.sumimakito.awesomeqr.option.logo.Logo;
 import com.preference.PowerPreference;
 import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
@@ -47,6 +41,7 @@ public class QR extends Fragment {
     MatchInfo matchInfo;
     TeamInfo teamInfo;
     FileUtils fileUtils;
+    QrCodeGenerator qrCodeGenerator;
 
     boolean mode;
     int team;
@@ -71,6 +66,7 @@ public class QR extends Fragment {
         matchInfo = new MatchInfo();
         teamInfo = new TeamInfo(requireContext());
         fileUtils = new FileUtils(requireContext());
+        qrCodeGenerator = new QrCodeGenerator(requireContext());
 
         // Go Full screen
         View decorView = requireActivity().getWindow().getDecorView();
@@ -89,7 +85,9 @@ public class QR extends Fragment {
             }
             matchInfo.setTempMatch(matchInfo.getMatch());
             setTeamText(mode,team);
-            newQrCode(data);
+            ImageView qr_img = requireView().findViewById(R.id.qr_img);
+            qr_img.setImageBitmap(qrCodeGenerator.generateQRCode(data,
+                1000, 35, true));
             saveData(data, mode);
             checkMode(mode);
             ArrayList<String> specialData = new ArrayList<>();
@@ -287,7 +285,6 @@ public class QR extends Fragment {
             setTeamText(false, 0);
 
             // get the match scouting data from the shared preferences
-
             if (listPreference.getBoolean("pit_remove_enabled")) {
                 matchData = pitDataPreference.getString(String.format(Locale.US, "Match%d",
                     value), "No Data");
@@ -300,7 +297,9 @@ public class QR extends Fragment {
                 binding.qrImg.setImageBitmap(textAsBitmap("No Data", 100,
                     R.color.green_900));
             } else {
-                newQrCode(matchData);
+                ImageView qr_img = requireView().findViewById(R.id.qr_img);
+                qr_img.setImageBitmap(qrCodeGenerator.generateQRCode(matchData,
+                    1000, 35, true));
             }
         });
     }
@@ -329,54 +328,6 @@ public class QR extends Fragment {
             // Match Mode
             matchPreference.setString(String.format(Locale.US,"Match%d",
                 matchInfo.getTempMatch()), data);
-        }
-    }
-
-    private void newQrCode(String data) {
-        Bitmap logoBitmap = BitmapFactory
-            .decodeResource(requireContext().getResources(), R.drawable.logo);
-
-        Logo logo = new Logo();
-
-        logo.setBitmap(logoBitmap);
-        // scale for the logo in the QR code
-        logo.setScale(0.25f);
-        // crop the logo image before applying it to the QR code
-        logo.setClippingRect(new RectF(0, 0, 200, 200));
-
-        ColorQR color = new ColorQR();
-        // for blank spaces
-        color.setLight(getResources().getColor(R.color.white, null));
-        // for non-blank spaces
-        color.setDark(getResources().getColor(R.color.black, null));
-        // for the background (will be overridden by background images, if set)
-        color.setBackground(getResources().getColor(R.color.white, null));
-
-        RenderOption renderOption = new RenderOption();
-        // content to encode
-        renderOption.setContent(data);
-        // size of the final QR code image
-        renderOption.setSize(1000);
-        // if set to true, the patterns will be rounded
-        renderOption.setRoundedPatterns(false);
-        // width of the empty space around the QR code
-        renderOption.setBorderWidth(35);
-        // (optional) specify QR code version
-        renderOption.setQrCodeVersion(12);
-        // (optional) specify a scale for patterns
-        renderOption.setPatternScale(1f);
-        // if set to true, the background will NOT be drawn on the border area
-        renderOption.setClearBorder(false);
-        // set a colorQR palette for the QR code
-        renderOption.setColorQR(color);
-        // set a logo for the QR code
-        renderOption.setLogo(logo);
-        try {
-            RenderResult render = AwesomeQrRenderer.render(renderOption);
-            ImageView qr_img = requireView().findViewById(R.id.qr_img);
-            qr_img.setImageBitmap(render.getBitmap());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

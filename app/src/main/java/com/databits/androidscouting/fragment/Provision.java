@@ -1,8 +1,5 @@
 package com.databits.androidscouting.fragment;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -26,19 +23,14 @@ import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
+import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
-import com.github.sumimakito.awesomeqr.AwesomeQrRenderer;
-import com.github.sumimakito.awesomeqr.RenderResult;
-import com.github.sumimakito.awesomeqr.option.RenderOption;
-import com.github.sumimakito.awesomeqr.option.color.ColorQR;
-import com.github.sumimakito.awesomeqr.option.logo.Logo;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
 import com.preference.Preference;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -62,6 +54,8 @@ public class Provision extends Fragment {
   MatchInfo matchInfo;
 
   TeamInfo teamInfo;
+
+  QrCodeGenerator qrCodeGenerator;
 
   List<String> entryLabels = new ArrayList<>();
 
@@ -132,6 +126,8 @@ public class Provision extends Fragment {
     });
 
     matchInfo = new MatchInfo();
+
+    qrCodeGenerator = new QrCodeGenerator(requireContext());
 
     binding.buttonUpdate.setOnClickListener(view1 -> {
       generateQrCode();
@@ -280,9 +276,6 @@ public class Provision extends Fragment {
   }
 
   private void generateQrCode() {
-    Bitmap logoBitmap = BitmapFactory
-        .decodeResource(requireContext().getResources(), R.drawable.logo);
-
     SwitchMaterial custom_switch = requireView().findViewById(R.id.custom_scouter_switch);
     AutoCompleteTextView custom_scout = requireView().findViewById(R.id.custom_scouter);
     AutoCompleteTextView dropdown = requireView().findViewById(R.id.scouter_select);
@@ -298,46 +291,9 @@ public class Provision extends Fragment {
         role.get(), crowd_position.get(), scouter_name.get(), lock_status.get(),
         match.get(), data_erase.get(), special_selector.get()));
 
-    Logo logo = new Logo();
-
-    logo.setBitmap(logoBitmap);
-    // scale for the logo in the QR code
-    logo.setScale(0.25f);
-    // crop the logo image before applying it to the QR code
-    logo.setClippingRect(new RectF(0, 0, 200, 200));
-
-    ColorQR color = new ColorQR();
-    // for blank spaces
-    color.setLight(getResources().getColor(R.color.white, null));
-    // for non-blank spaces
-    color.setDark(getResources().getColor(R.color.black, null));
-    // for the background (will be overridden by background images, if set)
-    color.setBackground(getResources().getColor(R.color.white, null));
-
-    RenderOption renderOption = new RenderOption();
-    // content to encode
-    renderOption.setContent(content_string.get());
-    // size of the final QR code image
-    renderOption.setSize(1000);
-    // width of the empty space around the QR code
-    renderOption.setBorderWidth(50);
-    // (optional) specify QR code version
-    renderOption.setQrCodeVersion(12);
-    // (optional) specify a scale for patterns
-    renderOption.setPatternScale(0.9f);
-    // if set to true, the background will NOT be drawn on the border area
-    renderOption.setClearBorder(false);
-    // set a colorQR palette for the QR code
-    renderOption.setColorQR(color);
-    // set a logo for the QR code
-    renderOption.setLogo(logo);
-    try {
-      RenderResult render = AwesomeQrRenderer.render(renderOption);
-      ImageView qr_img = requireView().findViewById(R.id.qr_img);
-      qr_img.setImageBitmap(render.getBitmap());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    ImageView qr_img = requireView().findViewById(R.id.qr_img);
+    qr_img.setImageBitmap(qrCodeGenerator.generateQRCode(content_string.get(),
+        1000, 35, true));
   }
 
   public void refreshActionBar() {
