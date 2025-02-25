@@ -28,7 +28,7 @@
         "cellSegmentLabels": [
           "Tank",
           "Swerve",
-          " Mecanum",
+          "Mecanum",
           "Other"
         ],
         "cellSegments": 4,
