@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,7 +48,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -250,10 +251,64 @@ public class Scanner extends Fragment {
 
                 assert bar_string != null;
 
-                Log.d("", "getQrCodeAnalyzer: + " + qr.getRawValue());
+                if (bar_string.startsWith("ScoutData")) {
+                    String[] scouterList = bar_string.split(",");
+                    debugPreference.setObject("scouter_list", scouterList);
+                }  else if (bar_string.startsWith("GoogleConfig")) {
+                    String[] parts = bar_string.split(",");
+                    // parts[0] is "GoogleConfig"
+                    configPreference.setString("workbook_id", parts[1]);
+                    configPreference.setString("crowd_range", parts[2]);
+                    configPreference.setString("pit_range", parts[3]);
+                    configPreference.setString("specialty_range", parts[4]);
+                } else if (bar_string.startsWith("MatchData")) {
+                    List<String[]> matchData = splitMatchData(bar_string);
+                    String[][] originalMatchData = listPreference.getObject("team_match",
+                        String[][].class, new String[0][0]);
+                    // Combine matchData with originalMatchData and delete duplicates
+                    String[][] combinedMatchData = new String[originalMatchData.length +
+                        matchData.size()][];
+                    System.arraycopy(originalMatchData, 0, combinedMatchData, 0,
+                        originalMatchData.length);
+                    System.arraycopy(matchData.toArray(new String[0][0]), 0, combinedMatchData,
+                        originalMatchData.length, matchData.size());
+                    listPreference.setObject("team_match", combinedMatchData);
 
+                    // Sort/Organize combinedMatchData entries in the array by match number
+                    // Handle the case where the Int is not a number
+                    // Deduplicate identical lines
+                    for (String[] entry : combinedMatchData) {
+                        try {
+                            entry[0] = String.valueOf(Integer.parseInt(entry[0]));
+                        } catch (NumberFormatException e) {
+                            entry[0] = "0";
+                        }
+                    }
+                    Arrays.sort(combinedMatchData,
+                        Comparator.comparingInt(a -> Integer.parseInt(a[0])));
 
-                if (bar_string.contains("role")) {
+                  int newLength = combinedMatchData.length;
+
+                    for (int i = 1; i < newLength; i++) {
+                        if (Arrays.equals(combinedMatchData[i], combinedMatchData[i - 1])) {
+                            // Shift elements to the left, overwriting the duplicate
+                            System.arraycopy(combinedMatchData, i + 1, combinedMatchData, i, newLength - i - 1);
+                            // Reduce the effective size of the array
+                            newLength--;
+                            // Decrement i to recheck the current position, as the next element has been shifted
+                            i--;
+                        }
+                    }
+
+                    // Create a new array with the correct size
+                    String[][] uniqueMatchData = new String[newLength][];
+                    System.arraycopy(combinedMatchData, 0, uniqueMatchData, 0, newLength);
+
+                    // Save size and match info for use elsewhere
+                    debugPreference.setInt("team_match_list_size", newLength);
+                    listPreference.setObject("team_match", uniqueMatchData);
+                    setupTeamDisplay(match);
+                } else if (bar_string.startsWith("role")) {
                     process_qr(bar_string);
                 } else if (bar_string.contains(teamInfo.getMasterTeam(match, 1))) {
                     set_team(R.id.blue1);
@@ -307,6 +362,62 @@ public class Scanner extends Fragment {
                 }
             }
         );
+    }
+
+    public List<String[]> splitMatchData(String matchDataString) {
+        List<String[]> result = new ArrayList<>();
+
+        // Check if the string starts with "MatchData" and has the correct format
+        if (!matchDataString.startsWith("MatchData")) {
+            System.err.println("Invalid data format: String does not start with 'MatchData'");
+            return result; // Return empty list for invalid format
+        }
+
+        // Split the string into parts based on the first two commas
+        String[] parts = matchDataString.split(",", 3);
+        if (parts.length != 3) {
+            System.err.println("Invalid data format: Incorrect number of commas");
+            return result; // Return empty list for invalid format
+        }
+
+        // Extract the chunk index
+        int chunkIndex;
+        try {
+            chunkIndex = Integer.parseInt(parts[1]);
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid data format: Chunk index is not a number");
+            return result; // Return empty list for invalid format
+        }
+        Set<Integer> processedChunks = listPreference.getObject("processedChunks", Set.class,
+            new HashSet<>());
+        // Check if this chunk has already been processed
+        if (processedChunks.contains(chunkIndex)) {
+            System.out.println("Duplicate chunk detected: " + chunkIndex + ". Skipping.");
+            return result; // Return empty list to indicate no new data
+        }
+
+        // Add the chunk index to the set of processed chunks
+        processedChunks.add(chunkIndex);
+        listPreference.setObject("processedChunks", processedChunks);
+
+        // Split the data string into individual match entries
+        String[] matchEntries = parts[2].split("(?<=])(?=\\[)");
+
+        // Process each match entry
+        for (String entry : matchEntries) {
+            // Remove any remaining brackets and split by comma
+            String cleanedEntry = entry.replaceAll("[\\[\\]]", "");
+            String[] values = cleanedEntry.split(",");
+
+            // Trim whitespace from each value
+            for (int i = 0; i < values.length; i++) {
+                values[i] = values[i].trim();
+            }
+
+            result.add(values);
+        }
+
+        return result;
     }
 
     private void makeUploadFile(String bar_string) {
@@ -425,42 +536,15 @@ public class Scanner extends Fragment {
 
         if (delete_data) {
             PowerPreference.clearAllData();
-            teamInfo.read_teams();
+            //teamInfo.read_teams();
         }
-
 
         configPreference.setString("device_role", role);
         configPreference.setInt("crowd_position", crowd_num);
         configPreference.setString("current_scouter", name);
         configPreference.setBoolean("role_locked_toggle", locked);
         configPreference.setBoolean("specialSwitch", special_selector);
-        //configPreference.setInt("current_match", match);
-
-        //if (locked) {
-        //    role_selector(controller, role);
-        //}
-        restartApp(requireContext());
     }
-
-    // Switch statement to determine which role the device is in
-    // Doesn't work for some reason
-    // Navigation action/destination com.databits.androidscouting:id/action_ScannerFragment_to_StartFragment
-    // cannot be found from the current destination Destination(com.databits.androidscouting:id/pitScoutFragment)
-    // label=fragment_pit_scout class=com.databits.androidscouting.fragment.Pit
-
-    //public void role_selector(NavController controller, String role) {
-    //    switch (role) {
-    //        case "master":
-    //            // Do nothing
-    //            break;
-    //        case "crowd":
-    //            controller.navigate(R.id.action_ScannerFragment_to_crowdScoutFragment);
-    //            break;
-    //        case "pit":
-    //            controller.navigate(R.id.action_ScannerFragment_to_pitScoutFragment);
-    //            break;
-    //    }
-    //}
 
     public static void restartApp(Context context) {
         PackageManager packageManager = context.getPackageManager();

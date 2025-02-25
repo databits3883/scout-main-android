@@ -1,6 +1,9 @@
 package com.databits.androidscouting.fragment;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,8 +14,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
@@ -22,6 +27,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
+import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
@@ -61,6 +67,7 @@ public class Provision extends Fragment {
 
   Preference configPreference = PowerPreference.getFileByName("Config");
   Preference debugPreference = PowerPreference.getFileByName("Debug");
+  Preference listPreference = PowerPreference.getFileByName("List");
 
   boolean lock = configPreference.getBoolean("role_locked_toggle", false);
 
@@ -131,6 +138,70 @@ public class Provision extends Fragment {
 
     binding.buttonUpdate.setOnClickListener(view1 -> {
       generateQrCode();
+    });
+
+    binding.buttonConfigProvision.setOnClickListener(view1 -> {
+      AlertDialog alertDialog = new AlertDialog.Builder(requireContext()).create();
+      alertDialog.setTitle("Config");
+      alertDialog.setMessage("Config");
+      //alertDialog.show();
+
+      String[][] matchData = listPreference.getObject("team_match", String[][].class);
+      if (matchData == null) {
+        Toast.makeText(requireContext(), "Not all data was found", Toast.LENGTH_LONG).show();
+      } else {
+        int numMatches = matchData.length;
+        if (numMatches > 0) {
+          int chunkSize = 6;
+          int numChunks = (numMatches + chunkSize - 1) / chunkSize;
+          String[] qr = new String[numChunks];
+          // Add two more slot for the scouter list and google QR codes
+          Bitmap[] qr_img = new Bitmap[numChunks + 2];
+
+          for (int i = 0; i < numChunks; i++) {
+            StringBuilder chunkData = new StringBuilder();
+            int start = i * chunkSize;
+            int end = Math.min(start + chunkSize, numMatches);
+
+            for (int j = start; j < end; j++) {
+              chunkData.append(Arrays.toString(matchData[j]));
+            }
+            qr[i] = "MatchData" + "," + i + "," + chunkData;
+            // Save bitmap for each match
+            qr_img[i] = qrCodeGenerator.generateQRCode(qr[i], 1000, 35, false);
+          }
+
+          ArrayList<String> scouterList = debugPreference.getObject(
+              "scouter_list", List.class);
+          // Add all scouterList strings to one string with a , separating each
+          String scouterListString = "ScoutData"
+              + ","
+              + String.join(",", scouterList);
+          // Store the scouter list QR code in the 2nd to last slot
+          qr_img[numChunks] = qrCodeGenerator.generateQRCode(scouterListString,
+              1000, 35, false);
+
+          // Build the google config string from the configPreference
+          String googleConfig = "GoogleConfig"
+              + ","
+              + configPreference.getString("workbook_id")
+              + ","
+              + configPreference.getString("Crowd_range")
+              + ","
+              + configPreference.getString("Pit_range")
+              + ","
+              + configPreference.getString("Specialty_range");
+
+          // Store the google config QR code in the last slot
+          qr_img[numChunks+1] = qrCodeGenerator.generateQRCode(googleConfig,
+              1000, 35, false);
+
+          // Start the animation loop
+          final Handler handler = new Handler(Looper.getMainLooper());
+          final Runnable runnable = getRunnable(qr_img, handler);
+          handler.post(runnable);
+        }
+      }
     });
 
     AutoCompleteTextView custom_scout = binding.customScouter;
@@ -273,6 +344,31 @@ public class Provision extends Fragment {
 
     generateQrCode();
     refreshActionBar();
+  }
+
+  @NonNull private Runnable getRunnable(Bitmap[] qr_img, Handler handler) {
+    final int[] currentIndex = { 0 };
+    final int[] currentRepeat = { 0 };
+    long delayMillis = 300;
+    final int repeatCount = 1;
+    ImageView qr_img_view = requireView().findViewById(R.id.qr_img);
+    return new Runnable() {
+      @Override
+      public void run() {
+        if (currentIndex[0] < qr_img.length) {
+          qr_img_view.setImageBitmap(qr_img[currentIndex[0]]);
+          currentIndex[0]++;
+          handler.postDelayed(this, delayMillis);
+        } else {
+          // Check if we need to repeat
+          if (currentRepeat[0] < repeatCount) {
+            currentRepeat[0]++;
+            currentIndex[0] = 0; // Reset index for next repeat
+            handler.postDelayed(this, delayMillis); // Start the next repeat
+          }
+        }
+      }
+    };
   }
 
   private void generateQrCode() {

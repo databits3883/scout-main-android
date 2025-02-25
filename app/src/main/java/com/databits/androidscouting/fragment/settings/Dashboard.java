@@ -220,6 +220,7 @@ public class Dashboard extends Fragment {
         "Online", "Offline");
 
     setStatusIndicator(binding.matchListStatusIndicator, "Match List",
+        debugPreference.getInt("team_match_list_size") > 0 ||
         fileUtils.fileExists(String.valueOf(
             new File(requireContext().getFilesDir() + "/" + "match.csv"))),
         "Loaded", "Not Loaded");

@@ -10,8 +10,6 @@
       android:id="@+id/qr_img"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_marginBottom="16dp"
-      android:layout_marginTop="8dp"
       app:layout_constraintBottom_toTopOf="@+id/buttonGroup_role"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
@@ -42,6 +40,17 @@
       style="@style/textview_accent_color"
       />
 
+  <Button
+      android:id="@+id/button_config_provision"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Display Config Qr's"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toStartOf="@+id/guideline_v_5_percent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@+id/guideline_h_90_percent"
+      style="@style/textview_accent_color"
+      />
 
   <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/menu_layout"
