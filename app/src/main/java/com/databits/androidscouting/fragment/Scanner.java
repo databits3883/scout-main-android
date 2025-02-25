@@ -451,7 +451,7 @@ public class Scanner extends Fragment {
         String uploadData = null;
         String uploadLines = null;
 
-        switch (configPreference.getString("uploadMode")) {
+        switch (configPreference.getString("uploadMode", "Crowd")) {
             case "Crowd":
                 uploadData = "upload_data";
                 uploadLines = "seen_lines";
