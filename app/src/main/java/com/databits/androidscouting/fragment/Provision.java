@@ -27,6 +27,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
+import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
@@ -57,6 +58,8 @@ public class Provision extends Fragment {
   List<String> scouterList;
 
   MatchInfo matchInfo;
+
+  FileUtils fileUtils;
 
   TeamInfo teamInfo;
 
@@ -132,6 +135,7 @@ public class Provision extends Fragment {
     });
 
     matchInfo = new MatchInfo();
+    fileUtils = new FileUtils(requireContext());
 
     qrCodeGenerator = new QrCodeGenerator(requireContext());
 
@@ -149,15 +153,23 @@ public class Provision extends Fragment {
       if (matchData == null) {
         Toast.makeText(requireContext(), "Not all data was found", Toast.LENGTH_LONG).show();
       } else {
+        String crowd_layout = fileUtils.readInternalFile("crowd_layout.json");
+        String pit_layout = fileUtils.readInternalFile("pit_layout.json");
+        String specialty_layout = fileUtils.readInternalFile("special_layout.json");
+
         int numMatches = matchData.length;
+        int layoutLength = crowd_layout.length();
         if (numMatches > 0) {
           int chunkSize = 6;
-          int numChunks = (numMatches + chunkSize - 1) / chunkSize;
-          String[] qr = new String[numChunks];
-          // Add two more slot for the scouter list and google QR codes
-          Bitmap[] qr_img = new Bitmap[numChunks + 2];
+          int layoutChunkSize = 200;
+          int numMatchChunks = (numMatches + chunkSize - 1) / chunkSize;
+          int numLayoutChunks = (layoutLength + layoutChunkSize - 1) / layoutChunkSize;
 
-          for (int i = 0; i < numChunks; i++) {
+          String[] qr = new String[numMatchChunks + numLayoutChunks];
+          // Add two more slot for the scouter list and google QR codes
+          Bitmap[] qr_img = new Bitmap[numMatchChunks + numLayoutChunks + 2];
+
+          for (int i = 0; i < numMatchChunks; i++) {
             StringBuilder chunkData = new StringBuilder();
             int start = i * chunkSize;
             int end = Math.min(start + chunkSize, numMatches);
@@ -170,6 +182,17 @@ public class Provision extends Fragment {
             qr_img[i] = qrCodeGenerator.generateQRCode(qr[i], 1000, 35, false);
           }
 
+          // Split the layout string into small sections
+          for (int i = 0; i < numLayoutChunks; i++) {
+            StringBuilder chunkData = new StringBuilder();
+            int start = i * layoutChunkSize;
+            int end = Math.min(start + layoutChunkSize, layoutLength);
+            chunkData.append(crowd_layout.substring(start, end));
+            qr[i] = "Crowd" + "," + i + "," + chunkData;
+            qr_img[i + numMatchChunks] = qrCodeGenerator.generateQRCode(qr[i],
+                1000, 35, false);
+          }
+
           ArrayList<String> scouterList = debugPreference.getObject(
               "scouter_list", List.class);
           // Add all scouterList strings to one string with a , separating each
@@ -177,7 +200,7 @@ public class Provision extends Fragment {
               + ","
               + String.join(",", scouterList);
           // Store the scouter list QR code in the 2nd to last slot
-          qr_img[numChunks] = qrCodeGenerator.generateQRCode(scouterListString,
+          qr_img[numMatchChunks] = qrCodeGenerator.generateQRCode(scouterListString,
               1000, 35, false);
 
           // Build the google config string from the configPreference
@@ -192,7 +215,7 @@ public class Provision extends Fragment {
               + configPreference.getString("Specialty_range");
 
           // Store the google config QR code in the last slot
-          qr_img[numChunks+1] = qrCodeGenerator.generateQRCode(googleConfig,
+          qr_img[numMatchChunks+1] = qrCodeGenerator.generateQRCode(googleConfig,
               1000, 35, false);
 
           // Start the animation loop

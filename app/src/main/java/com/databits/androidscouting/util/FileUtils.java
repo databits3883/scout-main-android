@@ -11,16 +11,19 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import net.lingala.zip4j.ZipFile;
@@ -114,20 +117,33 @@ public class FileUtils {
   }
 
   public String readTextFile(InputStream inputStream) {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    byte[] buf = new byte[1024];
-    int len;
-    try {
-      while ((len = inputStream.read(buf)) != -1) {
-        outputStream.write(buf, 0, len);
+    if (inputStream == null) {
+      return null; // Handle null input stream
+    }
+    StringBuilder stringBuilder = new StringBuilder();
+    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream,
+        StandardCharsets.UTF_8))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        stringBuilder.append(line).append('\n');
       }
-      outputStream.close();
-      inputStream.close();
     } catch (IOException e) {
       e.printStackTrace();
+      return null; // Return null on error
     }
-    return outputStream.toString();
+    return stringBuilder.toString();
+  }
+
+  public String readInternalFile(String fileName) {
+    try (FileInputStream fis = context.openFileInput(fileName)) {
+      return readTextFile(fis);
+    } catch (FileNotFoundException e) {
+      System.err.println("File not found: " + fileName);
+      return null; // Return null if file not found
+    } catch (IOException e) {
+      e.printStackTrace();
+      return null; // Return null on error
+    }
   }
 
   public Intent intentFileDialog() {
@@ -188,23 +204,50 @@ public class FileUtils {
     }
   }
 
-  public static String copyFileToInternal(Context context, final Uri fileUri, String fileName) {
-    File file = new File(context.getFilesDir() + "/" + fileName);
-      try {
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        InputStream inputStream = context.getContentResolver().openInputStream(fileUri);
-        int bufferSize = 1024;
-        final byte[] buffers = new byte[bufferSize];
-        int read;
-        while ((read = inputStream.read(buffers)) != -1) {
-          fileOutputStream.write(buffers, 0, read);
-        }
-        inputStream.close();
-        fileOutputStream.close();
-        return file.getPath();
-      } catch (IOException e) {
-        e.printStackTrace();
+  public static String copyFileToInternal(Context context, Uri fileUri, String fileName) {
+    if (context == null || fileUri == null || fileName == null || fileName.trim().isEmpty()) {
+      Log.e(TAG, "Invalid input parameters: context, fileUri, or fileName is null or empty.");
+      return null;
+    }
+
+    File destinationFile = new File(context.getFilesDir(), fileName);
+    InputStream inputStream = null;
+    OutputStream outputStream = null;
+
+    try {
+      inputStream = context.getContentResolver().openInputStream(fileUri);
+      if (inputStream == null) {
+        Log.e(TAG, "Failed to open input stream for URI: " + fileUri);
+        return null;
       }
-    return null;
+
+      outputStream = Files.newOutputStream(destinationFile.toPath());
+      byte[] buffer = new byte[4096];
+      int bytesRead;
+      while ((bytesRead = inputStream.read(buffer)) != -1) {
+        outputStream.write(buffer, 0, bytesRead);
+      }
+      Log.d(TAG, "File copied successfully to: " + destinationFile.getAbsolutePath());
+      return destinationFile.getAbsolutePath();
+    } catch (IOException e) {
+      Log.e(TAG, "Error copying file to internal storage", e);
+      return null;
+    } finally {
+      // Ensure input/output streams are closed in the finally block
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (IOException e) {
+          Log.e(TAG, "Error closing input stream", e);
+        }
+      }
+      if (outputStream != null) {
+        try {
+          outputStream.close();
+        } catch (IOException e) {
+          Log.e(TAG, "Error closing output stream", e);
+        }
+      }
+    }
   }
 }
