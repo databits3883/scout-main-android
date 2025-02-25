@@ -26,9 +26,9 @@
         "cellMax": 0,
         "cellMin": 0,
         "cellSegmentLabels": [
-          "Tank (Demo bot)",
-          "Swerve (Swerve)",
-          "Mecanum",
+          "Tank",
+          "Swerve",
+          " Mecanum",
           "Other"
         ],
         "cellSegments": 4,
