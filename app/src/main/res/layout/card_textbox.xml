@@ -46,7 +46,7 @@
             android:textColor="@color/black"
             android:textSize="@dimen/cardview_title_size"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/help_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             />
