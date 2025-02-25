@@ -27,7 +27,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
-import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
@@ -210,7 +209,6 @@ public class Provision extends Fragment {
     SwitchMaterial role_lock_switch = binding.roleLockSwitch;
     SegmentedButtonGroup position_selector = binding.buttonGroupPosition;
     SegmentedButtonGroup role_selector = binding.buttonGroupRole;
-    SegmentedButtonGroup special_selectorgroup = binding.buttonGroupSpecialPosition;
 
     position_selector.setPosition(0, true);
     role_selector.setPosition(1, true);
@@ -260,39 +258,24 @@ public class Provision extends Fragment {
       generateQrCode();
     });
 
-    special_selectorgroup.setOnPositionChangedListener(position -> {
-      switch (position) {
-        case 0:
-          special_selector.set("false");
-          break;
-        case 1:
-          special_selector.set("true");
-          break;
-      }
-      generateQrCode();
-    });
 
     role_selector.setOnPositionChangedListener(position -> {
       switch (position) {
         case 0:
           role.set("master");
           position_selector.setVisibility(View.INVISIBLE);
-          special_selectorgroup.setVisibility(View.INVISIBLE);
           break;
         case 1:
           role.set("crowd");
           position_selector.setVisibility(View.VISIBLE);
-          special_selectorgroup.setVisibility(View.INVISIBLE);
           break;
         case 2:
           role.set("pit");
           position_selector.setVisibility(View.INVISIBLE);
-          special_selectorgroup.setVisibility(View.INVISIBLE);
           break;
         case 3:
           role.set("special");
           position_selector.setVisibility(View.INVISIBLE);
-          special_selectorgroup.setVisibility(View.VISIBLE);
           break;
       }
       generateQrCode();

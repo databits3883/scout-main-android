@@ -90,13 +90,18 @@ public class Special extends Fragment {
               .setPositiveButton("Yes", (dialog, Identify) -> {
                 Bundle bundle = controller.saveState();
                 if (bundle != null) {
-                  String data = scoutUtils.saveData(requireView(), false);
+                  String data = scoutUtils.saveData(requireView(), true);
                   bundle.putString("qrData", data);
-                  bundle.putBoolean("mode", true);
-                  int team = Integer.parseInt(data.split(",")[0]);
-                  teamInfo.setTeam(team);
-                  teamSpinner(String.valueOf(team),true, requireContext(),requireView());
+                  bundle.putBoolean("mode", false);
+                  try {
+                    int team = Integer.parseInt(data.split(",")[0]);
+                    teamInfo.setTeam(team);
+                    teamSpinner(String.valueOf(team),true, requireContext(),requireView());
+                  } catch (NumberFormatException e) {
+                      teamInfo.setTeam(0);
+                  }
                 }
+
                 controller.navigate(R.id.action_SpecialFragment_to_QRFragment,
                     bundle);
               })
@@ -313,7 +318,7 @@ public class Special extends Fragment {
             File file = new File(
                 Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri,
                     fileName)));
-            scoutUtils.saveData(requireView(), false);
+            scoutUtils.saveData(requireView(), true);
             scoutUtils.layoutMaker(ScoutUtils.NONE,fileUtils.readFile(file), requireView(),
                 mRecyclerViewTop, mRecyclerViewBot);
           }

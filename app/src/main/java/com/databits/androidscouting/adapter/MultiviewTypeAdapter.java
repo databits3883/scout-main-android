@@ -173,21 +173,20 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView title;
         ImageButton help;
         LinearLayout categoryColor;
-        SegmentedButtonGroup humanPlayer;
-        SegmentedButtonGroup specialSelector;
-        TextView spotlitTitle;
-        NumberPicker amplifiedSpeaker;
+        SegmentedButtonGroup teamSelector;
+        NumberPicker algaeMiss;
+        NumberPicker algaeSuccess;
+        NumberPicker algaeReturned;
 
         public SpecialTypeViewHolder(View itemView) {
             super(itemView);
             this.help = itemView.findViewById(R.id.help_button);
             this.title = itemView.findViewById(R.id.special_title);
             this.categoryColor = itemView.findViewById(R.id.category_color);
-            this.humanPlayer = itemView.findViewById(R.id.buttonGroup_yes_no);
-            this.specialSelector = itemView.findViewById(R.id.buttonGroup_segments);
-            this.spotlitTitle = itemView.findViewById(R.id.spotlit);
-            this.amplifiedSpeaker = itemView.findViewById(R.id.number_counter_inside);
-
+            this.teamSelector = itemView.findViewById(R.id.buttonGroup_segments);
+            this.algaeMiss = itemView.findViewById(R.id.counterUI1).findViewById(R.id.number_counter_inside);
+            this.algaeSuccess = itemView.findViewById(R.id.counterUI2).findViewById(R.id.number_counter_inside);
+            this.algaeReturned = itemView.findViewById(R.id.counterUI3).findViewById(R.id.number_counter_inside);
         }
     }
 
@@ -613,39 +612,58 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     ((SpecialTypeViewHolder) holder).categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
 
-                    boolean scouterSelector = configPreference.getBoolean("specialSwitch",true);
-                    String team;
+                    ((SpecialTypeViewHolder) holder).algaeMiss.setValue(0);
+                    ((SpecialTypeViewHolder) holder).algaeSuccess.setValue(0);
+                    ((SpecialTypeViewHolder) holder).algaeReturned.setValue(0);
 
-                    int cellNumber = object.getCellSpecial();
+                    int specialSegmentCount = object.getSegments();
 
-                    if (scouterSelector) {
-                        team = teamInfo.getMasterTeam(matchInfo.getMatch(),cellNumber+3);
-                    } else {
-                        team = teamInfo.getMasterTeam(matchInfo.getMatch(),cellNumber);
+                    SegmentedButton[] specialSegmentedButtons = {
+                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_one),
+                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_two),
+                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_three),
+                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_four),
+                    };
+
+
+                    int visibleSpecialSegmentCount = Math.min(object.getSegmentLabels().size(),
+                        specialSegmentCount);
+
+                    for (int i = 0; i < visibleSpecialSegmentCount; i++) {
+                        specialSegmentedButtons[i].setText(object.getSegmentLabels().get(i));
+                        specialSegmentedButtons[i].setVisibility(View.VISIBLE);
                     }
 
-                    ((SpecialTypeViewHolder) holder).amplifiedSpeaker.setValue(0);
-                    ((SpecialTypeViewHolder) holder).specialSelector.setPosition(4,true);
-                    ((SpecialTypeViewHolder) holder).humanPlayer.setPosition(0,true);
+                    for (int i = visibleSpecialSegmentCount; i < specialSegmentedButtons.length; i++) {
+                        specialSegmentedButtons[i].setVisibility(View.GONE);
+                    }
 
-                    ((SpecialTypeViewHolder) holder).humanPlayer.setOnPositionChangedListener(position -> {
-                        switch (position) {
-                            case 0:
-                                ((SpecialTypeViewHolder) holder).spotlitTitle
-                                    .setVisibility(View.GONE);
-                                ((SpecialTypeViewHolder) holder).specialSelector
-                                    .setVisibility(View.GONE);
-                                break;
-                            case 1:
-                                ((SpecialTypeViewHolder) holder).spotlitTitle
-                                    .setVisibility(View.VISIBLE);
-                                ((SpecialTypeViewHolder) holder).specialSelector
-                                    .setVisibility(View.VISIBLE);
-                                break;
-                        }
-                    });
+                    ((SpecialTypeViewHolder) holder).teamSelector.setPosition(3,false);
+                    String teamColor = object.getCellSpecialTeamColorTitle();
 
-                    ((SpecialTypeViewHolder) holder).title.setText(team);
+                    String teamNumberOne;
+                    String teamNumberTwo;
+                    String teamNumberThree;
+                    String teamNumberFour = "No Team";
+
+                    // Get team numbers based on team color
+                    if(teamColor.equals("Blue")){
+                        teamNumberOne = teamInfo.getMasterTeam(matchInfo.getMatch(),1);
+                        teamNumberTwo = teamInfo.getMasterTeam(matchInfo.getMatch(),2);
+                        teamNumberThree = teamInfo.getMasterTeam(matchInfo.getMatch(),3);
+                    } else { // Red
+                        teamNumberOne = teamInfo.getMasterTeam(matchInfo.getMatch(),4);
+                        teamNumberTwo = teamInfo.getMasterTeam(matchInfo.getMatch(),5);
+                        teamNumberThree = teamInfo.getMasterTeam(matchInfo.getMatch(),6);
+                    }
+
+                    specialSegmentedButtons[0].setText(teamNumberOne);
+                    specialSegmentedButtons[1].setText(teamNumberTwo);
+                    specialSegmentedButtons[2].setText(teamNumberThree);
+                    specialSegmentedButtons[3].setText(teamNumberFour);
+
+                    ((SpecialTypeViewHolder) holder).title.setText(
+                        String.format("%s Team", teamColor));
                     ((SpecialTypeViewHolder) holder).help.setOnClickListener(view ->
                         specialHelp.showAlignBottom(((SpecialTypeViewHolder) holder)
                             .help));

@@ -145,21 +145,18 @@ public class ScoutUtils {
             finalString.append(teamSpinner.getSelectedItem())/*.append(",")*/;
             break;
           case "Special":
-            NumberPicker amplifedSpeaker = v.findViewById(R.id.ampSpeakerCounterUI).findViewById(R.id.number_counter_inside);
-            finalString.append(amplifedSpeaker.getValue()).append(",");
+            SegmentedButtonGroup teamSelector = v.findViewById(R.id.teamSelector_segment).findViewById(R.id.buttonGroup_segments);
+            // Gets the title of the selected button instead of just the position as normal
+            finalString.append(teamSelector.getButton(teamSelector.getPosition()).getText()).append(",");
 
-            SegmentedButtonGroup harmony = v.findViewById(R.id.harmonyYesNoUI).findViewById(R.id.buttonGroup_yes_no);
-            finalString.append(harmony.getPosition()).append(",");
+            NumberPicker algaeMiss = v.findViewById(R.id.counterUI1).findViewById(R.id.number_counter_inside);
+            finalString.append(algaeMiss.getValue()).append(",");
 
-            SegmentedButtonGroup humanPlayer = v.findViewById(R.id.humanYesNoUI).findViewById(R.id.buttonGroup_yes_no);
-            finalString.append(humanPlayer.getPosition()).append(",");
+            NumberPicker algaeSuccess = v.findViewById(R.id.counterUI2).findViewById(R.id.number_counter_inside);
+            finalString.append(algaeSuccess.getValue()).append(",");
 
-            SegmentedButtonGroup spotlit = v.findViewById(R.id.buttonGroup_segments);
-            finalString.append(spotlit.getPosition()).append(",");
-
-            EditText specialEnteredText = v.findViewById(R.id.commentsTextboxUI).findViewById(R.id.enteredText);
-            // Remove commas from the string to prevent the spreadsheet from breaking
-            finalString.append(specialEnteredText.getText().toString().replaceAll(",", "."))/*.append(",")*/;
+            NumberPicker algaeReturned = v.findViewById(R.id.counterUI3).findViewById(R.id.number_counter_inside);
+            finalString.append(algaeReturned.getValue());
             break;
 
         }
@@ -208,7 +205,7 @@ public class ScoutUtils {
   }
 
   // Save the table and cell data to a string
-  public String saveData(View v, boolean exportTable) {
+  public String saveData(View v, boolean special) {
     String cellData;
 
     int match = matchInfo.getMatch();
@@ -221,7 +218,10 @@ public class ScoutUtils {
 
     //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
     if (listPreference.getBoolean("pit_remove_enabled")) {
-      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1)  + "," +
+      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) + "," +
+          teamInfo.getScouterName();
+    } else if (special){
+      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) + "," +
           teamInfo.getScouterName();
     } else {
       cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view_top))

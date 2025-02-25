@@ -3,62 +3,54 @@
     {
       "mCellId": 0,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
+        "cellSegments": 4,
+        "cellSegmentLabels": [
+          "Team 1",
+          "Team 2",
+          "Team 3",
+          "No Team"
+        ],
         "cellType": "Special",
-        "cellUnit": 0,
+        "cellSpecialTeamColor": "Blue",
         "helpText": "",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
-        "helpTitle": "Helpful Stuff",
-        "cellSpecial": 1
+        "helpTitle": "Helpful Stuff"
       },
-      "mTitle": "Team 3883",
+      "mTitle": "Blue Team",
       "mType": "Special"
     },
     {
-      "mCellId": 0,
+      "mCellId": 1,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
+        "cellSegments": 4,
+        "cellSegmentLabels": [
+          "Team 1",
+          "Team 2",
+          "Team 3",
+          "No Team"
+        ],
         "cellType": "Special",
-        "cellUnit": 0,
+        "cellSpecialTeamColor": "Red",
         "helpText": "",
         "cellCategory": "Teleop",
         "helpPictureSelector": "None",
-        "helpTitle": "Helpful Stuff",
-        "cellSpecial": 2
+        "helpTitle": "Helpful Stuff"
       },
-      "mTitle": "Team 1816",
+      "mTitle": "Red Team",
       "mType": "Special"
     },
     {
-      "mCellId": 0,
+      "mCellId": 2,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
-        "cellType": "Special",
-        "cellUnit": 0,
-        "helpText": "",
+        "cellType": "Text",
+        "helpText": "Be Specific, More info is always better",
         "cellCategory": "Endgame",
         "helpPictureSelector": "None",
-        "helpTitle": "Helpful Stuff",
-        "cellSpecial": 3
+        "helpTitle": "Comments"
       },
-      "mTitle": "Team 4146",
-      "mType": "Special"
+      "mTitle": "Comments",
+      "mType": "Text"
     }
   ]
 }

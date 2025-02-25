@@ -187,53 +187,6 @@
   </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>
 
   <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
-      android:id="@+id/buttonGroup_special_position"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_gravity="center_horizontal"
-      android:layout_marginTop="8dp"
-      android:background="@color/white"
-      android:elevation="2dp"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toBottomOf="@+id/buttonGroup_role"
-      app:sb_rounded="true"
-      app:sbg_divider="@color/green_900"
-      app:sbg_dividerPadding="10dp"
-      app:sbg_dividerWidth="1dp"
-      app:sbg_position="0"
-      app:sbg_radius="20dp"
-      app:sbg_ripple="false"
-      app:sbg_selectedBackground="@color/green_900"
-      app:sbg_selectedButtonRadius="20dp"
-      app:sbg_selectionAnimationDuration="300"
-      app:sbg_selectionAnimationInterpolator="fastOutSlowIn"
-      >
-
-    <com.addisonelliott.segmentedbutton.SegmentedButton
-        android:layout_width="7dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:padding="8dp"
-        app:autoSizeTextType="uniform"
-        app:sb_selectedTextColor="@color/white"
-        app:sb_text="Blue"
-        app:sb_textColor="@color/black"
-        />
-
-    <com.addisonelliott.segmentedbutton.SegmentedButton
-        android:layout_width="7dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:padding="8dp"
-        app:autoSizeTextType="uniform"
-        app:sb_selectedTextColor="@color/white"
-        app:sb_text="Red"
-        app:sb_textColor="@color/black"
-        />
-  </com.addisonelliott.segmentedbutton.SegmentedButtonGroup>
-
-  <com.addisonelliott.segmentedbutton.SegmentedButtonGroup
       android:id="@+id/buttonGroup_role"
       android:layout_width="0dp"
       android:layout_height="wrap_content"

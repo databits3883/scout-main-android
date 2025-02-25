@@ -22,6 +22,7 @@ public class CellParam {
     private String helpText;
 
     private int cellSpecial;
+    private String cellSpecialTeamColor;
 
     public CellParam(String cellType) {
         this.cellType = cellType;
@@ -138,4 +139,8 @@ public class CellParam {
     public void setCellSpecial(int cellSpecial) {
         this.cellSpecial = cellSpecial;
     }
+
+    public  String getCellSpecialTeamColorTitle() {return cellSpecialTeamColor;}
+
+    public void setCellSpecialTeamColorTitle(String cellSpecialTeamColor) {this.cellSpecialTeamColor = cellSpecialTeamColor;}
 }
