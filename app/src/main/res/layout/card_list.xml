@@ -32,6 +32,7 @@
             android:id="@+id/help_button"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/help_icon_red"
             app:layout_constraintBottom_toTopOf="@+id/SpinnerUI"
             app:layout_constraintEnd_toEndOf="parent"
