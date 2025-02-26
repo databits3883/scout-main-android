@@ -3,14 +3,7 @@
     {
       "mCellId": 1,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegments": 0,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
         "cellType": "TeamSelect",
-        "cellUnit": 0,
         "helpText": "Select the team your currently scouting",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
@@ -22,9 +15,6 @@
     {
       "mCellId": 3,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
         "cellSegmentLabels": [
           "Tank",
           "Swerve",
@@ -32,10 +22,7 @@
           "Other"
         ],
         "cellSegments": 4,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
         "cellType": "Segment",
-        "cellUnit": 0,
         "helpText": "Default",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
@@ -47,19 +34,8 @@
     {
       "mCellId": 9,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegmentLabels": [
-          "Out of area",
-          "Parked",
-          "Climbed"
-        ],
-        "cellSegments": 3,
         "cellTextHidden": false,
-        "cellTotalEntries": 0,
         "cellType": "Text",
-        "cellUnit": 0,
         "helpText": "Be Specific, More info is always better",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
@@ -71,9 +47,6 @@
     {
       "mCellId": 3,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
         "cellSegmentLabels": [
           "None",
           "Feeder",
@@ -81,10 +54,7 @@
           "Both"
         ],
         "cellSegments": 4,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
         "cellType": "Segment",
-        "cellUnit": 1,
         "helpText": "Default",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
@@ -96,9 +66,6 @@
     {
       "mCellId": 3,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
         "cellSegmentLabels": [
           "None",
           "Reef",
@@ -106,10 +73,7 @@
           "Both"
         ],
         "cellSegments": 4,
-        "cellTextHidden": false,
-        "cellTotalEntries": 0,
         "cellType": "Segment",
-        "cellUnit": 1,
         "helpText": "Default",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
@@ -121,19 +85,8 @@
     {
       "mCellId": 10,
       "mParam": {
-        "cellDefault": 0,
-        "cellMax": 0,
-        "cellMin": 0,
-        "cellSegmentLabels": [
-          "Out of area",
-          "Parked",
-          "Climbed"
-        ],
-        "cellSegments": 3,
         "cellTextHidden": false,
-        "cellTotalEntries": 0,
         "cellType": "Text",
-        "cellUnit": 0,
         "helpText": "Be Specific, More info is always better",
         "cellCategory": "Auto",
         "helpPictureSelector": "None",
