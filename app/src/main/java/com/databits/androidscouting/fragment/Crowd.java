@@ -270,6 +270,9 @@ public class Crowd extends Fragment {
             Intent data = fileUtils.intentFileDialog();
             Intent.createChooser(data, "Select a layout.json file to import");
             importLauncher.launch(data);
+            binding.loadButton.setVisibility(View.INVISIBLE);
+            binding.importButton.setVisibility(View.INVISIBLE);
+            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
         });
 
         binding.loadButton.setOnClickListener(v1 -> {
