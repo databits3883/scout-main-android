@@ -2,64 +2,28 @@ package com.databits.androidscouting.util;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
-import com.databits.androidscouting.adapter.SimpleItemTouchHelperCallback;
-import com.databits.androidscouting.model.Cell;
-import com.databits.androidscouting.model.CellParam;
 import com.preference.PowerPreference;
 import com.preference.Preference;
-import com.skydoves.balloon.ArrowOrientation;
-import com.skydoves.balloon.ArrowPositionRules;
-import com.skydoves.balloon.Balloon;
-import com.skydoves.balloon.BalloonAnimation;
-import com.skydoves.balloon.BalloonSizeSpec;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
 import com.travijuu.numberpicker.library.NumberPicker;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 
 public class ScoutUtils {
-
-  String[] cellTypes = {"YesNo", "Counter","DoubleCounter", "Segment", "List", "Text", "Special"};
-  String[] cellTitles = {"YesNo_title", "Counter_Title", "DoubleCounter_Title", "Segment_Title", "List_Title", "Textbox_title"};
-
   public static final int REQUEST_CODE_PERMISSIONS = 10;
   public static final String[] REQUIRED_PERMISSIONS = { android.Manifest.permission.CAMERA };
 
-  Preference configPreference = PowerPreference.getFileByName("Config");
   Preference debugPreference = PowerPreference.getFileByName("Debug");
   Preference listPreference = PowerPreference.getFileByName("List");
 
   MatchInfo matchInfo;
   TeamInfo teamInfo;
-
-  List<Cell> cellList = new ArrayList<>();
 
   Context context;
 
@@ -164,151 +128,6 @@ public class ScoutUtils {
           .substring(1) + "," + teamInfo.getScouterName();
     }
     return cellData;
-  }
-
-  public List<Cell> testCells (int cells) {
-    for (int i = 0; i < cells; i++) {
-      String cellType = cellTypes[i];
-      CellParam cellParam = new CellParam(cellType);
-      switch (cellType) {
-        case "YesNo":
-          cellParam.setType(context.getString(R.string.YesNoType));
-          break;
-        case "Counter":
-          cellParam.setType(context.getString(R.string.CounterType));
-          cellParam.setDefault(3);
-          cellParam.setMax(5);
-          cellParam.setMin(0);
-          cellParam.setUnit(1);
-        case "Segment":
-          cellParam.setType(context.getString(R.string.SegmentType));
-          cellParam.setSegments(6);
-          cellParam.setSegmentLabels(
-              Arrays.asList("One", "2", "Three", "4", "Five", "6"));
-          break;
-        case "List":
-          cellParam.setType(context.getString(R.string.ListType));
-          cellParam.setTotalEntries(3);
-          cellParam.setEntryLabels(Arrays.asList("Java", "C++", "Labview"));
-          break;
-        case "Text":
-          cellParam.setType(context.getString(R.string.TextType));
-          cellParam.setTextHidden(false);
-          cellParam.setTextHint("Enter life here");
-          break;
-      }
-      Cell cell = new Cell(i, cellTitles[i], cellType, cellParam);
-      cellList.add(cell);
-    }
-    return cellList;
-  }
-
-  // import cells from json string
-  public void import_cells(String optional_json, RecyclerView mRecyclerView) {
-    Moshi moshi = new Moshi.Builder().build();
-    JsonAdapter<MultiviewTypeAdapter> jsonAdapter = moshi.adapter(MultiviewTypeAdapter.class);
-    MultiviewTypeAdapter mRecyclerViewAdapter;
-    try {
-      MultiviewTypeAdapter config = jsonAdapter.fromJson(optional_json);
-      mRecyclerViewAdapter = new MultiviewTypeAdapter(Objects.requireNonNull(config).mCell);
-      mRecyclerView.setAdapter(mRecyclerViewAdapter);
-      //Log.d("Dynamic", "import: " + optional_json);
-    } catch (IOException e) {
-      Log.e("Dynamic", "Error parsing JSON", e);
-      mRecyclerViewAdapter = new MultiviewTypeAdapter(Collections.emptyList());
-    }
-    mRecyclerViewAdapter.notifyDataSetChanged();
-    mRecyclerView.post(() -> {
-      setupTitle(mRecyclerView);
-    });
-  }
-
-  public void setupTitle(RecyclerView mRecyclerView) {
-    MultiviewTypeAdapter recyclerAdapter = (MultiviewTypeAdapter) mRecyclerView.getAdapter();
-    matchInfo = new MatchInfo();
-    teamInfo = new TeamInfo(context);
-    if (recyclerAdapter != null) {
-      if (recyclerAdapter.mCell.size() > 0) {
-        // Update the team number and match number in all "Title" cells
-        for (int i = 0; i < recyclerAdapter.mCell.size(); i++) {
-          if (Objects.equals(recyclerAdapter.mCell.get(i).getType(), "Title")) {
-            View v = mRecyclerView.getChildAt(i);
-            TextView teamNumber = v.findViewById(R.id.team_number);
-            TextView matchNumber = v.findViewById(R.id.match_number);
-
-            if (!teamInfo.teamsLoaded()) {
-              teamNumber.setText("No Team");
-            } else {
-              teamNumber.setText(String.valueOf(teamInfo.getTeam(matchInfo.getMatch())));
-            }
-            matchNumber.setText(String.valueOf(matchInfo.getMatch()));
-          }
-        }
-      }
-    }
-  }
-
-  private MultiviewTypeAdapter makeAdapter() {
-    Moshi moshi = new Moshi.Builder().build();
-    JsonAdapter<MultiviewTypeAdapter> jsonAdapter = moshi.adapter(MultiviewTypeAdapter.class);
-
-    MultiviewTypeAdapter myAdapter = new MultiviewTypeAdapter(testCells(0));
-    String init = jsonAdapter.toJson(myAdapter);
-
-    MultiviewTypeAdapter mRecyclerViewAdapter;
-    try {
-      MultiviewTypeAdapter config = jsonAdapter.fromJson(init);
-      mRecyclerViewAdapter = new MultiviewTypeAdapter(Objects.requireNonNull(config).mCell);
-      //Log.d("Dynamic", "import: " + init);
-    } catch (IOException e) {
-      Log.e("Dynamic", "Error parsing JSON", e);
-      mRecyclerViewAdapter = new MultiviewTypeAdapter(Collections.emptyList());
-    }
-    return mRecyclerViewAdapter;
-  }
-
-  public RecyclerView makeRecyclerView(Context context, View v, int viewId) {
-    MultiviewTypeAdapter mAdapter = makeAdapter();
-    ItemTouchHelper.Callback callback = new SimpleItemTouchHelperCallback(mAdapter);;
-    ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(callback);
-
-    RecyclerView mRecyclerView = v.findViewById(viewId);
-
-    // Turn on and off the ability to drag and drop
-    if (configPreference.getBoolean("reorder_cells_toggle", false)) {
-      mItemTouchHelper.attachToRecyclerView(mRecyclerView);
-    } else {
-      mItemTouchHelper.attachToRecyclerView(null);
-    }
-
-    // Turn on and off the grid layout based on the saved value
-    if (configPreference.getBoolean("grid_toggle", true)) {
-      mRecyclerView.setLayoutManager(new GridLayoutManager(context, 2) {
-        @Override
-        public boolean canScrollVertically() {
-          return true;
-        }
-      });
-    } else {
-      mRecyclerView.setLayoutManager(new LinearLayoutManager(context) {
-        @Override
-        public boolean canScrollVertically() {
-          return true;
-        }
-      });
-    }
-
-    RecyclerView.ItemDecoration itemDecoration = new
-        DividerItemDecoration(context, DividerItemDecoration.VERTICAL);
-    mRecyclerView.addItemDecoration(itemDecoration);
-    mRecyclerView.setAdapter(mAdapter);
-    mRecyclerView.getRecycledViewPool().setMaxRecycledViews(1,0);
-    return mRecyclerView;
-  }
-
-  public void layoutMaker(String import_json, View v, RecyclerView mRecyclerView) {
-    String layoutJson = import_json.split("\\^")[0];
-    import_cells(layoutJson, mRecyclerView);
   }
 
   public boolean allPermissionsGranted() {

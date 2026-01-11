@@ -1,8 +1,5 @@
 package com.databits.androidscouting.fragment;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -12,48 +9,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentCrowdScoutBinding;
-import com.databits.androidscouting.util.FileUtils;
-import com.databits.androidscouting.util.MatchInfo;
-import com.databits.androidscouting.util.ScoutUtils;
-import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
-import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class Crowd extends Fragment {
+public class Crowd extends BaseScoutFragment {
 
     private FragmentCrowdScoutBinding binding;
-
-    Preference configPreference = PowerPreference.getFileByName("Config");
-    Preference debugPreference = PowerPreference.getFileByName("Debug");
-    ScoutUtils scoutUtils;
-    FileUtils fileUtils;
-    MatchInfo matchInfo;
-    TeamInfo teamInfo;
     List<String> scouterList;
-    private RecyclerView mRecyclerView;
-    String fileName = "crowd_layout.json";
 
     @Override
     public View onCreateView(
@@ -138,7 +114,12 @@ public class Crowd extends Fragment {
                             // Save the team number to the preference
                             debugPreference.setBoolean("manual_team_override_toggle", true);
                             debugPreference.putInt("manual_team_override_value", teamNumber);
-                            mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
+                            mRecyclerView.post(() -> {
+                                com.databits.androidscouting.layout.LayoutPresenter presenter =
+                                    new com.databits.androidscouting.layout.LayoutPresenter(
+                                        requireContext(), matchInfo, teamInfo);
+                                presenter.updateTitleCells(mRecyclerView);
+                            });
                             refreshActionBar();
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -230,74 +211,25 @@ public class Crowd extends Fragment {
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
 
-        NavController controller = NavHostFragment.findNavController(
-            Crowd.this);
+        NavController controller = NavHostFragment.findNavController(Crowd.this);
 
         if (savedInstanceState != null) {
             controller.restoreState(savedInstanceState);
         }
 
-        // Go Full screen
-        //View decorView = requireActivity().getWindow().getDecorView();
-        //int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        //decorView.setSystemUiVisibility(uiOptions);
+        // Initialize base class dependencies
+        initializeDependencies();
 
-        // Helper Classes
-        scoutUtils = new ScoutUtils(requireContext());
-        fileUtils = new FileUtils(requireContext());
-        matchInfo = new MatchInfo();
-        teamInfo = new TeamInfo(requireContext());
+        // Setup RecyclerView using base class
+        setupRecyclerView(v);
 
-        configPreference.setBoolean("grid_toggle", true);
-
-        mRecyclerView = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view);
-
-        File layoutLoc = new File(requireContext().getFilesDir(), fileName);
-        if (fileUtils.fileExists(layoutLoc.toString())) {
-            scoutUtils.layoutMaker(fileUtils.readFile(layoutLoc), requireView(), mRecyclerView);
-        }
-
-        binding.importButton.setOnClickListener(v1 -> {
-            Intent data = fileUtils.intentFileDialog();
-            Intent.createChooser(data, "Select a layout.json file to import");
-            importLauncher.launch(data);
-        });
-
-        binding.loadButton.setOnClickListener(v1 -> {
-            String storedLayout = fileUtils.readTextFile(getResources().
-                openRawResource(R.raw.crowd_layout));
-            scoutUtils.layoutMaker(storedLayout, requireView(), mRecyclerView);
-            binding.loadButton.setVisibility(View.INVISIBLE);
-            binding.importButton.setVisibility(View.INVISIBLE);
-            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
-        });
-
-        binding.autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-            configPreference.putBoolean("auto_load_crowd_layout_toggle", isChecked));
-
-        if (configPreference.getBoolean("role_locked_toggle") ||
-            configPreference.getBoolean("auto_load_crowd_layout_toggle")) {
-            binding.loadButton.performClick();
-            binding.loadButton.setVisibility(View.INVISIBLE);
-            binding.importButton.setVisibility(View.INVISIBLE);
-            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
-        }
+        // Setup buttons using base class
+        setupButtons();
 
         refreshActionBar();
     }
 
-    ActivityResultLauncher<Intent> importLauncher = registerForActivityResult(
-        new ActivityResultContracts.StartActivityForResult(),
-        result -> {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                Intent data = result.getData();
-                if (data != null) {
-                    createLayout(data.getData());
-                }
-            }
-        }
-    );
-
+    @Override
     public void refreshActionBar() {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         assert activity != null;
@@ -310,17 +242,29 @@ public class Crowd extends Fragment {
         actionBar.setSubtitle(teamInfo.getScouterName() + " - " + positionArray[position]);
     }
 
-    public void createLayout(Uri uri) {
-        File layoutFile = new File(
-            Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri, fileName)));
-        scoutUtils.layoutMaker(fileUtils.readFile(layoutFile), requireView(), mRecyclerView);
+    @Override
+    protected String getLayoutFileName() {
+        return "crowd_layout.json";
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
-        refreshActionBar();
+    protected int getDefaultLayoutResourceId() {
+        return R.raw.crowd_layout;
+    }
+
+    @Override
+    protected String getAutoLoadPreferenceKey() {
+        return "auto_load_crowd_layout_toggle";
+    }
+
+    @Override
+    protected boolean useGridLayout() {
+        return true;
+    }
+
+    @Override
+    protected boolean shouldSaveWithSpecialFlag() {
+        return false;
     }
 
     @Override

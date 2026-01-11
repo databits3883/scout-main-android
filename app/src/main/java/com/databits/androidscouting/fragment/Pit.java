@@ -1,9 +1,6 @@
 package com.databits.androidscouting.fragment;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -13,53 +10,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentPitScoutBinding;
-import com.databits.androidscouting.util.FileUtils;
-import com.databits.androidscouting.util.MatchInfo;
-import com.databits.androidscouting.util.ScoutUtils;
-import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
-import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-public class Pit extends Fragment {
+public class Pit extends BaseScoutFragment {
 
     private FragmentPitScoutBinding binding;
-
-    Preference configPreference = PowerPreference.getFileByName("Config");
-    Preference debugPreference = PowerPreference.getFileByName("Debug");
-    Preference listPreference = PowerPreference.getFileByName("List");
-
-    ScoutUtils scoutUtils;
-    FileUtils fileUtils;
-    MatchInfo matchInfo;
-    TeamInfo teamInfo;
-    private RecyclerView mRecyclerView;
-    String fileName = "pit_layout.json";
     ArrayList<String> editedList;
-
     List<String> scouterList;
 
     @Override
@@ -150,7 +123,12 @@ public class Pit extends Fragment {
                             // Save the team number to the preference
                             debugPreference.setBoolean("manual_team_override_toggle", true);
                             debugPreference.putInt("manual_team_override_value", teamNumber);
-                            mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
+                            mRecyclerView.post(() -> {
+                                com.databits.androidscouting.layout.LayoutPresenter presenter =
+                                    new com.databits.androidscouting.layout.LayoutPresenter(
+                                        requireContext(), matchInfo, teamInfo);
+                                presenter.updateTitleCells(mRecyclerView);
+                            });
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
                             // Do nothing
@@ -249,72 +227,17 @@ public class Pit extends Fragment {
 
         NavController controller = NavHostFragment.findNavController(Pit.this);
 
-        // Helper Classes
-        scoutUtils = new ScoutUtils(requireContext());
-        fileUtils = new FileUtils(requireContext());
-        matchInfo = new MatchInfo();
-        teamInfo = new TeamInfo(requireContext());
+        // Initialize base class dependencies
+        initializeDependencies();
 
-        mRecyclerView = scoutUtils.makeRecyclerView(requireContext(),v, R.id.recycler_view);
+        // Setup RecyclerView using base class
+        setupRecyclerView(v);
 
-        configPreference.setBoolean("grid_toggle", true);
+        // Setup buttons using base class
+        setupButtons();
 
-        File layoutLoc = new File(requireContext().getFilesDir(), fileName);
-        if (fileUtils.fileExists(layoutLoc.toString())) {
-            scoutUtils.layoutMaker(fileUtils.readFile(layoutLoc), requireView(), mRecyclerView);
-        }
-
-        binding.importButton.setOnClickListener(v1 -> {
-            Intent data =  fileUtils.intentFileDialog();
-            Intent.createChooser(data, "Select a File to Import");
-            importLauncher.launch(data);
-        });
-
-        binding.loadButton.setOnClickListener(v1 -> {
-            String storedLayout;
-                storedLayout = fileUtils.readTextFile(getResources()
-                    .openRawResource(R.raw.pit_layout));
-
-            scoutUtils.layoutMaker(storedLayout, requireView(), mRecyclerView);
-            binding.loadButton.setVisibility(View.INVISIBLE);
-            binding.importButton.setVisibility(View.INVISIBLE);
-            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
-        });
-
-
-
-        Button testButton = v.findViewById(R.id.testButton);
-        testButton.setOnClickListener(view -> PowerPreference.showDebugScreen(true));
-
-        binding.autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-            configPreference.putBoolean("auto_load_pit_layout_toggle", isChecked));
-
-        if (configPreference.getBoolean("role_locked_toggle") ||
-            configPreference.getBoolean("auto_load_pit_layout_toggle")) {
-            binding.loadButton.performClick();
-            binding.loadButton.setVisibility(View.INVISIBLE);
-            binding.importButton.setVisibility(View.INVISIBLE);
-            binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
-        }
         refreshActionBar();
     }
-
-    ActivityResultLauncher<Intent> importLauncher = registerForActivityResult(
-        new ActivityResultContracts.StartActivityForResult(),
-        result -> {
-            if (result.getResultCode() == Activity.RESULT_OK) {
-                Intent data = result.getData();
-                if (data != null) {
-                    Uri uri = data.getData();
-                    File file = new File(
-                        Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri,
-                            fileName)));
-                    scoutUtils.saveData(requireView(), false);
-                    scoutUtils.layoutMaker(fileUtils.readFile(file), requireView(), mRecyclerView);
-                }
-            }
-        }
-    );
 
     public void teamSpinner(String team, boolean remove, Context context, View v) {
         String[] origList = context.getResources().getStringArray(R.array.team_list);
@@ -335,12 +258,6 @@ public class Pit extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
-        refreshActionBar();
-    }
-
     public void refreshActionBar() {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         assert activity != null;
@@ -348,6 +265,31 @@ public class Pit extends Fragment {
         Objects.requireNonNull(actionBar).setTitle(teamInfo.getScouterName() + " - " +
             "Pit Scout");
         actionBar.setSubtitle("");
+    }
+
+    @Override
+    protected String getLayoutFileName() {
+        return "pit_layout.json";
+    }
+
+    @Override
+    protected int getDefaultLayoutResourceId() {
+        return R.raw.pit_layout;
+    }
+
+    @Override
+    protected String getAutoLoadPreferenceKey() {
+        return "auto_load_pit_layout_toggle";
+    }
+
+    @Override
+    protected boolean useGridLayout() {
+        return true;
+    }
+
+    @Override
+    protected boolean shouldSaveWithSpecialFlag() {
+        return false;
     }
 
     @Override
