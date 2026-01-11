@@ -1,5 +1,6 @@
 package com.databits.androidscouting.fragment;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -31,10 +35,12 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
 import com.databits.androidscouting.model.QrCodeDrawable;
 import com.databits.androidscouting.model.QrCodeViewModel;
+import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.SheetsUpdateTask;
 import com.databits.androidscouting.util.TeamInfo;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
@@ -62,7 +68,7 @@ import java.util.concurrent.Executors;
 
 import static androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED;
 
-public class Scanner extends Fragment {
+public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     protected BarcodeScanner qrScanner;
     protected ExecutorService cameraExecutor;
@@ -84,6 +90,35 @@ public class Scanner extends Fragment {
     PreviewView preview;
 
     LifecycleCameraController camController;
+
+    private SheetsUpdateTask sheetsUpdateTask;
+    private ActivityResultLauncher<Intent> googleAuthLauncher;
+    private ActivityResultLauncher<Intent> authorizationLauncher;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        googleAuthLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                String accountName = result.getData().getStringExtra(GoogleAuthActivity.EXTRA_ACCOUNT_NAME);
+                configPreference.setString("google_account_name", accountName);
+                // Retry the upload after getting the account
+                call_sheets();
+            } else {
+                Toast.makeText(getContext(), "Google Authentication failed.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        authorizationLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                // Retry the upload after authorization
+                call_sheets();
+            } else {
+                Toast.makeText(getContext(), "Authorization was denied.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     @Override
     public View onCreateView(
@@ -131,6 +166,7 @@ public class Scanner extends Fragment {
         matchInfo = new MatchInfo();
         teamInfo = new TeamInfo(getContext());
         scoutUtils = new ScoutUtils(getContext());
+        sheetsUpdateTask = new SheetsUpdateTask(requireContext(), this);
 
         match = matchInfo.getMatch();
 
@@ -142,13 +178,7 @@ public class Scanner extends Fragment {
             .navigateUp());
 
         binding.buttonUpload.setOnClickListener(view1 -> {
-            //if (!new File(requireContext().getFilesDir() + "/" + "upload.csv").exists()) {
-            //    Toast.makeText(getContext(), "No Team Data to upload!",
-            //        Toast.LENGTH_SHORT).show();
-            //} else {
-            //call_sheets();
             call_sheets();
-            //}
         });
 
         binding.buttonGroupUploadMode.setOnPositionChangedListener(position -> {
@@ -555,10 +585,13 @@ public class Scanner extends Fragment {
         Runtime.getRuntime().exit(0);
     }
 
-    // Starts the AsyncTask to push the data to the Sheets API.
-    protected void call_sheets(){
-        SheetsUpdateTask task = new SheetsUpdateTask(requireActivity());
-        task.execute();
+    protected void call_sheets() {
+        if (configPreference.getString("google_account_name", null) == null) {
+            googleAuthLauncher.launch(GoogleAuthActivity.newIntent(requireContext()));
+        } else {
+            String spreadsheetId = configPreference.getString("workbook_id", "1ksCFboY3RF0d6eCQHtH2bdrPWFHXZXnicNJGz6pXndM");
+            sheetsUpdateTask.execute(spreadsheetId);
+        }
     }
 
     public void refreshActionBar() {
@@ -590,5 +623,30 @@ public class Scanner extends Fragment {
             binding.buttonGroupUploadMode.setVisibility(View.VISIBLE);
         }
 
+    }
+
+    @Override
+    public void onAuthorizationRequired(UserRecoverableAuthIOException e) {
+        authorizationLauncher.launch(e.getIntent());
+    }
+
+    @Override
+    public void onUploadSuccess(String updatedRange) {
+        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Upload successful: " + updatedRange, Toast.LENGTH_LONG).show());
+    }
+
+    @Override
+    public void onUploadFailed() {
+        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Upload failed. Please try again.", Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onNoDataToUpload() {
+        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "No data to upload.", Toast.LENGTH_SHORT).show());
+    }
+
+    @Override
+    public void onDuplicateData() {
+        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Data is a duplicate and was not uploaded.", Toast.LENGTH_SHORT).show());
     }
 }
