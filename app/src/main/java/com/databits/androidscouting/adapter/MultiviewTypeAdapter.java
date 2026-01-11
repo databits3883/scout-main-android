@@ -44,6 +44,11 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public List<Cell> mCell;
     List<String> entryLabels = new ArrayList<>();
+    private TeamInfo teamInfo;
+    private MatchInfo matchInfo;
+    private LayoutInflater inflater;
+    private Balloon.Builder helpBuilder;
+
 
     public static class YesNoTypeViewHolder extends RecyclerView.ViewHolder {
         TextView title;
@@ -177,6 +182,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         NumberPicker algaeMiss;
         NumberPicker algaeSuccess;
         NumberPicker algaeReturned;
+        final SegmentedButton[] specialSegmentedButtons;
 
         public SpecialTypeViewHolder(View itemView) {
             super(itemView);
@@ -187,6 +193,12 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             this.algaeMiss = itemView.findViewById(R.id.counterUI1).findViewById(R.id.number_counter_inside);
             this.algaeSuccess = itemView.findViewById(R.id.counterUI2).findViewById(R.id.number_counter_inside);
             this.algaeReturned = itemView.findViewById(R.id.counterUI3).findViewById(R.id.number_counter_inside);
+            this.specialSegmentedButtons = new SegmentedButton[]{
+                teamSelector.findViewById(R.id.button_one),
+                teamSelector.findViewById(R.id.button_two),
+                teamSelector.findViewById(R.id.button_three),
+                teamSelector.findViewById(R.id.button_four),
+            };
         }
     }
 
@@ -197,42 +209,63 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (inflater == null) {
+            Context context = parent.getContext();
+            inflater = LayoutInflater.from(context);
+            teamInfo = new TeamInfo(context);
+            matchInfo = new MatchInfo();
+            helpBuilder = new Balloon.Builder(context)
+                .setArrowSize(15)
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                .setArrowPosition(0.5f)
+                .setWidth(BalloonSizeSpec.WRAP)
+                .setHeight(BalloonSizeSpec.WRAP)
+                .setPadding(6)
+                .setTextSize(20f)
+                .setCornerRadius(4f)
+                .setTextColor(ContextCompat.getColor(context, R.color.white))
+                .setBalloonAnimation(BalloonAnimation.CIRCULAR)
+                .setLayout(R.layout.help_bubble_layout)
+                .setDismissWhenClicked(true)
+                .setBackgroundColor(ContextCompat.getColor(context, R.color.white));
+        }
         View view;
         switch (viewType) {
             case 0:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_yesno,
+                view = inflater.inflate(R.layout.card_yesno,
                     parent,false);
                 return new YesNoTypeViewHolder(view);
             case 1:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_textbox,
+                view = inflater.inflate(R.layout.card_textbox,
                     parent,false);
                 return new TextTypeViewHolder(view);
             case 2:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_counter,
+                view = inflater.inflate(R.layout.card_counter,
                     parent,false);
                 return new CounterTypeViewHolder(view);
             case 3:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_segment,
+                view = inflater.inflate(R.layout.card_segment,
                     parent,false);
                 return new SegmentTypeViewHolder(view);
             case 4:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_list,
+                view = inflater.inflate(R.layout.card_list,
                     parent,false);
                 return new ListTypeViewHolder(view);
             case 5:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_teamselect,
+                view = inflater.inflate(R.layout.card_teamselect,
                     parent,false);
                 return new TeamSelectTypeViewHolder(view);
             case 6:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_dualcounter,
+                view = inflater.inflate(R.layout.card_dualcounter,
                     parent,false);
                 return new DualCounterTypeViewHolder(view);
             case 7:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_special,
+                view = inflater.inflate(R.layout.card_special,
                     parent,false);
                 return new SpecialTypeViewHolder(view);
             case 8:
-                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_doublecounter,
+                view = inflater.inflate(R.layout.card_doublecounter,
                     parent,false);
                 return new DoubleCounterTypeViewHolder(view);
         }
@@ -265,6 +298,19 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
+    private void bindHelpBalloon(ImageButton helpButton, CellParam object, Drawable helpPicture) {
+        helpButton.setOnClickListener(view -> {
+            Balloon helpBalloon = helpBuilder.build();
+            TextView helpTitle = helpBalloon.getContentView().findViewById(R.id.help_title);
+            TextView helpContent = helpBalloon.getContentView().findViewById(R.id.help_content);
+            ImageView helpImage = helpBalloon.getContentView().findViewById(R.id.help_image);
+            helpTitle.setText(object.getHelpTitle());
+            helpContent.setText(object.getHelpText());
+            helpImage.setImageDrawable(helpPicture);
+            helpBalloon.showAlignBottom(helpButton);
+        });
+    }
+
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int listPosition) {
         CellParam object = mCell.get(listPosition).getParam();
@@ -272,28 +318,6 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         String title_text = mCell.get(listPosition).getTitle();
 
         Context mContext = holder.itemView.getContext();
-
-        TeamInfo teamInfo = new TeamInfo(mContext);
-        MatchInfo matchInfo = new MatchInfo();
-
-        Preference configPreference = PowerPreference.getFileByName("Config");
-
-        // Common Help balloon settings for all cells
-        Balloon.Builder helpBuilder = new Balloon.Builder(mContext)
-            .setArrowSize(15)
-            .setArrowOrientation(ArrowOrientation.TOP)
-            .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-            .setArrowPosition(0.5f)
-            .setWidth(BalloonSizeSpec.WRAP)
-            .setHeight(BalloonSizeSpec.WRAP)
-            .setPadding(6)
-            .setTextSize(20f)
-            .setCornerRadius(4f)
-            .setTextColor(ContextCompat.getColor(mContext, R.color.white))
-            .setBalloonAnimation(BalloonAnimation.CIRCULAR)
-            .setLayout(R.layout.help_bubble_layout)
-            .setDismissWhenClicked(true)
-            .setBackgroundColor(ContextCompat.getColor(mContext, R.color.white));
 
         int categoryColor = 0;
 
@@ -337,159 +361,98 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (object != null) {
             switch (object.getType()) {
                 case "YesNo":
-                    Balloon yesnoHelp = helpBuilder
-                        .build();
-
-                    TextView yesnoTitle = yesnoHelp.getContentView().findViewById(R.id.help_title);
-                    TextView yesnoContent = yesnoHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView yesnoImage = yesnoHelp.getContentView().findViewById(R.id.help_image);
-                    yesnoTitle.setText(object.getHelpTitle());
-                    yesnoContent.setText(object.getHelpText());
-                    yesnoImage.setImageDrawable(helpPicture);
-
-                    ((YesNoTypeViewHolder) holder).title.setText(title_text);
-                    ((YesNoTypeViewHolder) holder).help.setOnClickListener(view ->
-                        yesnoHelp.showAlignBottom(((YesNoTypeViewHolder) holder).help));
-                    ((YesNoTypeViewHolder) holder).group.setOnPositionChangedListener(position -> {
+                    YesNoTypeViewHolder yesnoHolder = (YesNoTypeViewHolder) holder;
+                    bindHelpBalloon(yesnoHolder.help, object, helpPicture);
+                    yesnoHolder.title.setText(title_text);
+                    yesnoHolder.group.setOnPositionChangedListener(position -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            ((YesNoTypeViewHolder) holder).group.performHapticFeedback(
+                            yesnoHolder.group.performHapticFeedback(
                                 HapticFeedbackConstants.CONFIRM);
                         } else {
-                            ((YesNoTypeViewHolder) holder).group.performHapticFeedback(
+                            yesnoHolder.group.performHapticFeedback(
                                 HapticFeedbackConstants.LONG_PRESS);
                         }
                     });
-                    ((YesNoTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    yesnoHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Text":
-                    Balloon textHelp = helpBuilder
-                        .build();
-
-                    TextView textTitle = textHelp.getContentView().findViewById(R.id.help_title);
-                    TextView textContent = textHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView textImage = textHelp.getContentView().findViewById(R.id.help_image);
-                    textTitle.setText(object.getHelpTitle());
-                    textContent.setText(object.getHelpText());
-                    textImage.setImageDrawable(helpPicture);
-
-                    ((TextTypeViewHolder) holder).title.setText(title_text);
-                    ((TextTypeViewHolder) holder).editText.setSingleLine(true);
-                    ((TextTypeViewHolder) holder).textInputLayout.setId(R.id.textbox_text_layout);
+                    TextTypeViewHolder textHolder = (TextTypeViewHolder) holder;
+                    bindHelpBalloon(textHolder.help, object, helpPicture);
+                    textHolder.title.setText(title_text);
+                    textHolder.editText.setSingleLine(true);
+                    textHolder.textInputLayout.setId(R.id.textbox_text_layout);
 
                     if (!object.isTextHidden()) {
-                        ((TextTypeViewHolder) holder).textInputLayout.setHint(object.getTextHint());
+                        textHolder.textInputLayout.setHint(object.getTextHint());
                     }
 
-                    ((TextTypeViewHolder) holder).help.setOnClickListener(view ->
-                        textHelp.showAlignBottom(((TextTypeViewHolder) holder).help));
-                    ((TextTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    textHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Counter":
-                    Balloon counterHelp = helpBuilder
-                        .build();
-
-                    TextView counterTitle = counterHelp.getContentView().findViewById(R.id.help_title);
-                    TextView counterContent = counterHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView counterImage = counterHelp.getContentView().findViewById(R.id.help_image);
-                    counterTitle.setText(object.getHelpTitle());
-                    counterContent.setText(object.getHelpText());
-                    counterImage.setImageDrawable(helpPicture);
-
-                    ((CounterTypeViewHolder) holder).title.setText(title_text);
-                    ((CounterTypeViewHolder) holder).help.setOnClickListener(view ->
-                        counterHelp.showAlignBottom(((CounterTypeViewHolder) holder).help));
-                    ((CounterTypeViewHolder) holder).currentPicker.setMax(object.getMax());
-                    ((CounterTypeViewHolder) holder).currentPicker.setMin(object.getMin());
-                    ((CounterTypeViewHolder) holder).currentPicker.setUnit(object.getUnit());
-                    ((CounterTypeViewHolder) holder).currentPicker.setValue(object.getDefault());
-                    ((CounterTypeViewHolder) holder).currentPicker.setFocusable(false);
-                    ((CounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    CounterTypeViewHolder counterHolder = (CounterTypeViewHolder) holder;
+                    bindHelpBalloon(counterHolder.help, object, helpPicture);
+                    counterHolder.title.setText(title_text);
+                    counterHolder.currentPicker.setMax(object.getMax());
+                    counterHolder.currentPicker.setMin(object.getMin());
+                    counterHolder.currentPicker.setUnit(object.getUnit());
+                    counterHolder.currentPicker.setValue(object.getDefault());
+                    counterHolder.currentPicker.setFocusable(false);
+                    counterHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "DoubleCounter":
-                    Balloon doublecounterHelp = helpBuilder
-                        .build();
+                    DoubleCounterTypeViewHolder doubleCounterHolder = (DoubleCounterTypeViewHolder) holder;
+                    bindHelpBalloon(doubleCounterHolder.help, object, helpPicture);
+                    doubleCounterHolder.title.setText(title_text);
+                    doubleCounterHolder.counterOne.setMax(object.getMax());
+                    doubleCounterHolder.counterOne.setMin(object.getMin());
+                    doubleCounterHolder.counterOne.setUnit(object.getUnit());
+                    doubleCounterHolder.counterOne.setValue(object.getDefault());
+                    doubleCounterHolder.counterOne.setFocusable(false);
 
-                    TextView doublecounterTitle = doublecounterHelp.getContentView().findViewById(R.id.help_title);
-                    TextView doublecounterContent = doublecounterHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView doublecounterImage = doublecounterHelp.getContentView().findViewById(R.id.help_image);
-                    doublecounterTitle.setText(object.getHelpTitle());
-                    doublecounterContent.setText(object.getHelpText());
-                    doublecounterImage.setImageDrawable(helpPicture);
-
-                    ((DoubleCounterTypeViewHolder) holder).title.setText(title_text);
-                    ((DoubleCounterTypeViewHolder) holder).help.setOnClickListener(view ->
-                        doublecounterHelp.showAlignBottom(((DoubleCounterTypeViewHolder) holder).help));
-                    ((DoubleCounterTypeViewHolder) holder).counterOne.setMax(object.getMax());
-                    ((DoubleCounterTypeViewHolder) holder).counterOne.setMin(object.getMin());
-                    ((DoubleCounterTypeViewHolder) holder).counterOne.setUnit(object.getUnit());
-                    ((DoubleCounterTypeViewHolder) holder).counterOne.setValue(object.getDefault());
-                    ((DoubleCounterTypeViewHolder) holder).counterOne.setFocusable(false);
-
-                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setMax(object.getMax());
-                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setMin(object.getMin());
-                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setUnit(object.getUnit());
-                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setValue(object.getDefault());
-                    ((DoubleCounterTypeViewHolder) holder).counterTwo.setFocusable(false);
-                    ((DoubleCounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    doubleCounterHolder.counterTwo.setMax(object.getMax());
+                    doubleCounterHolder.counterTwo.setMin(object.getMin());
+                    doubleCounterHolder.counterTwo.setUnit(object.getUnit());
+                    doubleCounterHolder.counterTwo.setValue(object.getDefault());
+                    doubleCounterHolder.counterTwo.setFocusable(false);
+                    doubleCounterHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "DualCounter":
-                    Balloon dualCounterHelp = helpBuilder
-                        .build();
+                    DualCounterTypeViewHolder dualCounterHolder = (DualCounterTypeViewHolder) holder;
+                    bindHelpBalloon(dualCounterHolder.help, object, helpPicture);
+                    dualCounterHolder.title.setText(title_text);
+                    dualCounterHolder.counterOne.setMax(object.getMax());
+                    dualCounterHolder.counterOne.setMin(object.getMin());
+                    dualCounterHolder.counterOne.setUnit(object.getUnit());
+                    dualCounterHolder.counterOne.setValue(object.getDefault());
+                    dualCounterHolder.counterOne.setFocusable(false);
 
-                    TextView dualcounterTitle = dualCounterHelp.getContentView().findViewById(R.id.help_title);
-                    TextView dualcounterContent = dualCounterHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView dualcounterImage = dualCounterHelp.getContentView().findViewById(R.id.help_image);
-                    dualcounterTitle.setText(object.getHelpTitle());
-                    dualcounterContent.setText(object.getHelpText());
-                    dualcounterImage.setImageDrawable(helpPicture);
-
-                    ((DualCounterTypeViewHolder) holder).title.setText(title_text);
-                    ((DualCounterTypeViewHolder) holder).help.setOnClickListener(view ->
-                        dualCounterHelp.showAlignBottom(((DualCounterTypeViewHolder) holder).help));
-                    ((DualCounterTypeViewHolder) holder).counterOne.setMax(object.getMax());
-                    ((DualCounterTypeViewHolder) holder).counterOne.setMin(object.getMin());
-                    ((DualCounterTypeViewHolder) holder).counterOne.setUnit(object.getUnit());
-                    ((DualCounterTypeViewHolder) holder).counterOne.setValue(object.getDefault());
-                    ((DualCounterTypeViewHolder) holder).counterOne.setFocusable(false);
-
-                    ((DualCounterTypeViewHolder) holder).counterTwo.setMax(object.getMax());
-                    ((DualCounterTypeViewHolder) holder).counterTwo.setMin(object.getMin());
-                    ((DualCounterTypeViewHolder) holder).counterTwo.setUnit(object.getUnit());
-                    ((DualCounterTypeViewHolder) holder).counterTwo.setValue(object.getDefault());
-                    ((DualCounterTypeViewHolder) holder).counterTwo.setFocusable(false);
-                    ((DualCounterTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    dualCounterHolder.counterTwo.setMax(object.getMax());
+                    dualCounterHolder.counterTwo.setMin(object.getMin());
+                    dualCounterHolder.counterTwo.setUnit(object.getUnit());
+                    dualCounterHolder.counterTwo.setValue(object.getDefault());
+                    dualCounterHolder.counterTwo.setFocusable(false);
+                    dualCounterHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "Segment":
-                    Balloon segmentHelp = helpBuilder
-                        .build();
-
-                    TextView segmentTitle = segmentHelp.getContentView().findViewById(R.id.help_title);
-                    TextView segmentContent = segmentHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView segmentImage = segmentHelp.getContentView().findViewById(R.id.help_image);
-                    segmentTitle.setText(object.getHelpTitle());
-                    segmentContent.setText(object.getHelpText());
-                    segmentImage.setImageDrawable(helpPicture);
-
-                    ((SegmentTypeViewHolder) holder).title.setText(title_text);
-                    ((SegmentTypeViewHolder) holder).help.setOnClickListener(view ->
-                        segmentHelp.showAlignBottom(((SegmentTypeViewHolder) holder).help));
+                    SegmentTypeViewHolder segmentHolder = (SegmentTypeViewHolder) holder;
+                    bindHelpBalloon(segmentHolder.help, object, helpPicture);
+                    segmentHolder.title.setText(title_text);
 
                     int segmentCount = object.getSegments();
 
                     SegmentedButton[] segmentedButtons = {
-                        ((SegmentTypeViewHolder) holder).one,
-                        ((SegmentTypeViewHolder) holder).two,
-                        ((SegmentTypeViewHolder) holder).three,
-                        ((SegmentTypeViewHolder) holder).four,
-                        ((SegmentTypeViewHolder) holder).five,
-                        ((SegmentTypeViewHolder) holder).six
+                        segmentHolder.one,
+                        segmentHolder.two,
+                        segmentHolder.three,
+                        segmentHolder.four,
+                        segmentHolder.five,
+                        segmentHolder.six
                     };
-
 
                     int visibleSegmentCount = Math.min(object.getSegmentLabels().size(), segmentCount);
 
@@ -503,29 +466,19 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     }
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        ((SegmentTypeViewHolder) holder).group.performHapticFeedback(
+                        segmentHolder.group.performHapticFeedback(
                             HapticFeedbackConstants.CONFIRM);
                     } else {
-                        ((SegmentTypeViewHolder) holder).group.performHapticFeedback(
+                        segmentHolder.group.performHapticFeedback(
                             HapticFeedbackConstants.LONG_PRESS);
                     }
-                    ((SegmentTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    segmentHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "List":
-                    Balloon listHelp = helpBuilder
-                        .build();
-
-                    TextView listTitle = listHelp.getContentView().findViewById(R.id.help_title);
-                    TextView listContent = listHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView listImage = listHelp.getContentView().findViewById(R.id.help_image);
-                    listTitle.setText(object.getHelpTitle());
-                    listContent.setText(object.getHelpText());
-                    listImage.setImageDrawable(helpPicture);
-
-                    ((ListTypeViewHolder) holder).title.setText(title_text);
-                    ((ListTypeViewHolder) holder).help.setOnClickListener(view ->
-                        listHelp.showAlignBottom(((ListTypeViewHolder) holder).help));
+                    ListTypeViewHolder listHolder = (ListTypeViewHolder) holder;
+                    bindHelpBalloon(listHolder.help, object, helpPicture);
+                    listHolder.title.setText(title_text);
 
                     // Loop through add each item to entryLabels
                     for (int i = 0; i < object.getTotalEntries(); i++) {
@@ -535,35 +488,26 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         android.R.layout.simple_spinner_item, entryLabels);
                     listspinnerArrayAdapter.setDropDownViewResource(
                         android.R.layout.simple_spinner_dropdown_item);
-                    ((ListTypeViewHolder) holder).spinner.setAdapter(listspinnerArrayAdapter);
-                    ((ListTypeViewHolder) holder).spinner.setTag("Spinner");
-                    ((ListTypeViewHolder) holder).spinner.setOnItemClickListener((parent, view, position, id) -> {
+                    listHolder.spinner.setAdapter(listspinnerArrayAdapter);
+                    listHolder.spinner.setTag("Spinner");
+                    listHolder.spinner.setOnItemClickListener((parent, view, position, id) -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
                         } else {
                             view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                         }
                     });
-                    ((ListTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    listHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "TeamSelect":
-                    Balloon teamSelectHelp = helpBuilder
-                        .build();
                     Preference listPreference = PowerPreference.getFileByName("List");
-                    TextView teamSelectTitle = teamSelectHelp.getContentView().findViewById(R.id.help_title);
-                    TextView teamSelectContent = teamSelectHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView teamSelectImage = teamSelectHelp.getContentView().findViewById(R.id.help_image);
-                    teamSelectTitle.setText(object.getHelpTitle());
-                    teamSelectContent.setText(object.getHelpText());
-                    teamSelectImage.setImageDrawable(helpPicture);
+                    TeamSelectTypeViewHolder teamSelectHolder = (TeamSelectTypeViewHolder) holder;
+                    bindHelpBalloon(teamSelectHolder.help, object, helpPicture);
 
-                    ((TeamSelectTypeViewHolder) holder).title.setText(R.string.select_team_title);
-                    ((TeamSelectTypeViewHolder) holder).help.setOnClickListener(view ->
-                        teamSelectHelp.showAlignBottom(((TeamSelectTypeViewHolder) holder)
-                            .help));
+                    teamSelectHolder.title.setText(R.string.select_team_title);
 
-                    ((TeamSelectTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    teamSelectHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
 
                     ArrayList<String> remainingList = listPreference.getObject(
@@ -575,55 +519,28 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                             R.array.team_list));;
                     }
 
-                    ((TeamSelectTypeViewHolder) holder).spinner.setTag("TeamSpinner");
+                    teamSelectHolder.spinner.setTag("TeamSpinner");
 
                     ArrayAdapter<String> teamselectspinnerArrayAdapter = new ArrayAdapter<>(mContext,
                         android.R.layout.simple_spinner_item, entryLabels);
                     teamselectspinnerArrayAdapter.setDropDownViewResource(
                         android.R.layout.simple_spinner_dropdown_item);
-                    ((TeamSelectTypeViewHolder) holder).spinner.setAdapter(
+                    teamSelectHolder.spinner.setAdapter(
                         teamselectspinnerArrayAdapter);
-                    //((TeamSelectTypeViewHolder) holder).spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    //    @Override
-                    //    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    //            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
-                    //        } else {
-                    //            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                    //        }                        }
-
-                        //@Override
-                        //public void onNothingSelected(AdapterView<?> parent) {
-                        //
-                        //}
-                    //});
                     break;
                 case "Special":
+                    SpecialTypeViewHolder specialHolder = (SpecialTypeViewHolder) holder;
+                    bindHelpBalloon(specialHolder.help, object, helpPicture);
 
-                    Balloon specialHelp = helpBuilder
-                        .build();
-
-                    TextView specialTitle = specialHelp.getContentView().findViewById(R.id.help_title);
-                    TextView specialContent = specialHelp.getContentView().findViewById(R.id.help_content);
-                    ImageView specialImage = specialHelp.getContentView().findViewById(R.id.help_image);
-                    specialTitle.setText(object.getHelpTitle());
-                    specialContent.setText(object.getHelpText());
-                    specialImage.setImageDrawable(helpPicture);
-                    ((SpecialTypeViewHolder) holder).categoryColor.setBackgroundColor(
+                    specialHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
 
-                    ((SpecialTypeViewHolder) holder).algaeMiss.setValue(0);
-                    ((SpecialTypeViewHolder) holder).algaeSuccess.setValue(0);
-                    ((SpecialTypeViewHolder) holder).algaeReturned.setValue(0);
+                    specialHolder.algaeMiss.setValue(0);
+                    specialHolder.algaeSuccess.setValue(0);
+                    specialHolder.algaeReturned.setValue(0);
 
                     int specialSegmentCount = object.getSegments();
-
-                    SegmentedButton[] specialSegmentedButtons = {
-                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_one),
-                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_two),
-                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_three),
-                        ((SpecialTypeViewHolder) holder).teamSelector.findViewById(R.id.button_four),
-                    };
+                    SegmentedButton[] specialSegmentedButtons = specialHolder.specialSegmentedButtons;
 
 
                     int visibleSpecialSegmentCount = Math.min(object.getSegmentLabels().size(),
@@ -638,7 +555,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         specialSegmentedButtons[i].setVisibility(View.GONE);
                     }
 
-                    ((SpecialTypeViewHolder) holder).teamSelector.setPosition(3,false);
+                    specialHolder.teamSelector.setPosition(3,false);
                     String teamColor = object.getCellSpecialTeamColorTitle();
 
                     String teamNumberOne;
@@ -662,11 +579,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     specialSegmentedButtons[2].setText(teamNumberThree);
                     specialSegmentedButtons[3].setText(teamNumberFour);
 
-                    ((SpecialTypeViewHolder) holder).title.setText(
+                    specialHolder.title.setText(
                         String.format("%s Team", teamColor));
-                    ((SpecialTypeViewHolder) holder).help.setOnClickListener(view ->
-                        specialHelp.showAlignBottom(((SpecialTypeViewHolder) holder)
-                            .help));
                     break;
 
             }
