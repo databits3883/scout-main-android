@@ -12,8 +12,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -48,15 +46,8 @@ import java.util.Objects;
 
 public class ScoutUtils {
 
-  public static final int NONE = 0;
-  public static final int AUTO = 1;
-  public static final int TELEOP = 2;
-  public static final int BOTH = 3;
-
   String[] cellTypes = {"YesNo", "Counter","DoubleCounter", "Segment", "List", "Text", "Special"};
   String[] cellTitles = {"YesNo_title", "Counter_Title", "DoubleCounter_Title", "Segment_Title", "List_Title", "Textbox_title"};
-  String[] topTitles = { "Left\nSide", "Autonomous\nCenter Side", "Right\nSide" };
-  String[] botTitles = { "Left\nSide", "Teleop\nCenter Side", "Right\nSide" };
 
   public static final int REQUEST_CODE_PERMISSIONS = 10;
   public static final String[] REQUIRED_PERMISSIONS = { android.Manifest.permission.CAMERA };
@@ -68,8 +59,6 @@ public class ScoutUtils {
   MatchInfo matchInfo;
   TeamInfo teamInfo;
 
-  TableLayout[] tables;
-
   List<Cell> cellList = new ArrayList<>();
 
   Context context;
@@ -78,21 +67,6 @@ public class ScoutUtils {
     this.context = context;
   }
 
-  private TableLayout[] provideTables (View v) {
-    View[] topTables = {v.findViewById(R.id.left_table), v.findViewById(R.id.center_table), v.findViewById(R.id.right_table)};
-    View[] botTables = {v.findViewById(R.id.bot_left_table), v.findViewById(R.id.bot_center_table), v.findViewById(R.id.bot_right_table)};
-
-    tables = new TableLayout[]{
-        botTables[0].findViewById(R.id.inner_table),
-        botTables[1].findViewById(R.id.inner_table),
-        botTables[2].findViewById(R.id.inner_table),
-        topTables[0].findViewById(R.id.inner_table),
-        topTables[1].findViewById(R.id.inner_table),
-        topTables[2].findViewById(R.id.inner_table),
-    };
-
-    return tables;
-  }
   public String exportCell(RecyclerView recyclerView) {
     MultiviewTypeAdapter recyclerAdapter = (MultiviewTypeAdapter) recyclerView.getAdapter();
     StringBuilder finalString = new StringBuilder();
@@ -166,44 +140,6 @@ public class ScoutUtils {
     return finalString.toString();
   }
 
-  public String exportTable(View v) {
-    // Get the tables
-    tables = provideTables(v);
-
-    // Export the table as a string
-    StringBuilder export = new StringBuilder();
-    for (TableLayout table : tables) {
-      // 0 is the title row, so start at 1
-      for (int i = 1; i < table.getChildCount(); i++) {
-        TableRow row = (TableRow) table.getChildAt(i);
-        for (int j = 0; j < row.getChildCount(); j++) {
-          ImageButton button = (ImageButton) row.getChildAt(j);
-          Drawable.ConstantState curDraw = button.getDrawable().getConstantState();
-          int id = 0;
-          // Loop through all buttons and set id based on which drawable is currently set
-          if (!curDraw.equals(
-              ContextCompat.getDrawable(context, R.drawable.android_x).getConstantState())) {
-            if (curDraw.equals(ContextCompat.getDrawable(context, R.drawable.red_cube44).getConstantState())
-                || curDraw.equals(ContextCompat.getDrawable(context, R.drawable.cube44).getConstantState())) {
-              id = 1;
-            } else if (curDraw.equals(ContextCompat.getDrawable(context, R.drawable.red_cone44).getConstantState())
-                || curDraw.equals(ContextCompat.getDrawable(context, R.drawable.cone44).getConstantState())) {
-              id = 2;
-            }
-          }
-
-          // Append the id to the export string with a comma separator except for the last table in the list
-          if (table == tables[tables.length - 1] && i == table.getChildCount() - 1 && j == row.getChildCount() - 1) {
-            export.append(id);
-          } else {
-            export.append(id).append(",");
-          }
-        }
-      }
-    }
-    return export.toString();
-  }
-
   // Save the table and cell data to a string
   public String saveData(View v, boolean special) {
     String cellData;
@@ -218,219 +154,16 @@ public class ScoutUtils {
 
     //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
     if (listPreference.getBoolean("pit_remove_enabled")) {
-      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) + "," +
+      cellData = exportCell(v.findViewById(R.id.recycler_view)).substring(1) + "," +
           teamInfo.getScouterName();
     } else if (special){
-      cellData = exportCell(v.findViewById(R.id.recycler_view_top)).substring(1) + "," +
+      cellData = exportCell(v.findViewById(R.id.recycler_view)).substring(1) + "," +
           teamInfo.getScouterName();
     } else {
-      cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view_top))
+      cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view))
           .substring(1) + "," + teamInfo.getScouterName();
     }
     return cellData;
-  }
-
-  public void tableSorter(int table_status, View v, RecyclerView mRecyclerViewTop,
-      RecyclerView mRecyclerViewBot) {
-    RecyclerView recyclerViewTop = v.findViewById(R.id.recycler_view_top);
-    ViewGroup.LayoutParams topParam = recyclerViewTop.getLayoutParams();
-    ConstraintLayout constraintLayout = v.findViewById(R.id.Dynamic_layout);
-    ConstraintSet constraintSet = new ConstraintSet();
-    constraintSet.clone(constraintLayout);
-
-    // Get the tables
-    tables = provideTables(v);
-
-    TextView title;
-    //Switch statement to sort the tables based on the table status
-    switch (table_status) {
-      case NONE:
-        // recyclerViewTop attached to parent top
-        // recyclerViewBot GONE
-        constraintSet.connect(R.id.recycler_view_top, ConstraintSet.TOP, ConstraintSet.PARENT_ID,
-            ConstraintSet.TOP, 0);
-        constraintSet.setVisibility(R.id.recycler_view_bot, View.VISIBLE);
-        topParam.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-
-        for (int j = 0; j < 6; j++) {
-          tables[j].setVisibility(View.GONE);
-        }
-        title = tables[4].getChildAt(0).findViewById(R.id.table_title);
-        title.setText("Auto\nCenter Side");
-        mRecyclerViewTop.setVisibility(View.VISIBLE);
-        mRecyclerViewBot.setVisibility(View.GONE);
-        break;
-      case AUTO:
-        // recyclerViewTop attached to parent top
-        // recyclerViewBot GONE
-        constraintSet.connect(R.id.recycler_view_top, ConstraintSet.TOP, R.id.bot_center_table,
-            ConstraintSet.BOTTOM, 0);
-        constraintSet.setVisibility(R.id.recycler_view_bot, View.GONE);
-        topParam.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        for (int j = 3; j < 6; j++) {
-          tables[j].setVisibility(View.GONE);
-          for (int k = 0; k < 3; k++) {
-            tables[k].setVisibility(View.VISIBLE);
-          }
-          title = tables[4].getChildAt(0).findViewById(R.id.table_title);
-          title.setText("Auto\nCenter Side");
-          mRecyclerViewTop.setVisibility(View.VISIBLE);
-          mRecyclerViewBot.setVisibility(View.GONE);
-        }
-        break;
-      case TELEOP:
-        // recyclerViewTop attached to parent top
-        // recyclerViewBot GONE
-        constraintSet.connect(R.id.recycler_view_top, ConstraintSet.TOP, R.id.bot_center_table,
-            ConstraintSet.BOTTOM, 0);
-        constraintSet.setVisibility(R.id.recycler_view_bot, View.GONE);
-        topParam.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        for (int j = 3; j < 6; j++) {
-          tables[j].setVisibility(View.GONE);
-          for (int k = 0; k < 3; k++) {
-            tables[k].setVisibility(View.VISIBLE);
-          }
-          title = tables[4].getChildAt(0).findViewById(R.id.table_title);
-          title.setText("Teleop\nCenter Side");
-          mRecyclerViewTop.setVisibility(View.VISIBLE);
-          mRecyclerViewBot.setVisibility(View.GONE);
-        }
-        break;
-      case BOTH:
-        // recyclerViewTop attached to parent top
-        // recyclerViewBot attached to center_table
-        constraintSet.connect(R.id.recycler_view_top, ConstraintSet.TOP, R.id.center_table,
-            ConstraintSet.BOTTOM, 0);
-        constraintSet.connect(R.id.recycler_view_bot, ConstraintSet.TOP, R.id.bot_center_table,
-            ConstraintSet.BOTTOM, 0);
-        //FIXME Do not tie directly to crowdScoutFragment and remove table support
-        constraintSet.connect(R.id.inner_table, ConstraintSet.TOP, R.id.crowdScoutFragment,
-            ConstraintSet.TOP, 0);
-        constraintSet.setVisibility(R.id.recycler_view_top, View.VISIBLE);
-        constraintSet.setVisibility(R.id.recycler_view_bot, View.VISIBLE);
-        topParam.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        for (int j = 0; j < 6; j++) {
-          tables[j].setVisibility(View.VISIBLE);
-        }
-        mRecyclerViewTop.setVisibility(View.VISIBLE);
-        mRecyclerViewBot.setVisibility(View.VISIBLE);
-        break;
-    }
-  }
-
-  public void setupTables(View v) {
-    View[] topTables = {
-        v.findViewById(R.id.left_table), v.findViewById(R.id.center_table),
-        v.findViewById(R.id.right_table)
-    };
-    View[] botTables = {
-        v.findViewById(R.id.bot_left_table), v.findViewById(R.id.bot_center_table),
-        v.findViewById(R.id.bot_right_table)
-    };
-
-    tables = new TableLayout[] {
-        topTables[0].findViewById(R.id.inner_table),
-        topTables[1].findViewById(R.id.inner_table),
-        topTables[2].findViewById(R.id.inner_table),
-        botTables[0].findViewById(R.id.inner_table),
-        botTables[1].findViewById(R.id.inner_table),
-        botTables[2].findViewById(R.id.inner_table),
-    };
-
-    // Set Table Auto/Teleop titles
-    for (int i = 0; i < 3; i++) {
-      TextView topText = topTables[i].findViewById(R.id.table_title);
-      TextView botText = botTables[i].findViewById(R.id.table_title);
-      topText.setTextSize(20);
-      topText.setTextColor(Color.WHITE);
-      botText.setTextSize(20);
-      botText.setTextColor(Color.WHITE);
-      topText.setText(topTitles[i]);
-      botText.setText(botTitles[i]);
-    }
-
-    // Set on click listeners for all buttons to cycle between icons
-    // Uses the team color to determine which icon to use
-    for (TableLayout table : tables) {
-      if (debugPreference.getBoolean("isRedteam")) {
-        updateTableColor(table, android.R.color.holo_red_dark);
-      } else {
-        updateTableColor(table, R.color.map_blue);
-      }
-      for (int i = 1; i < table.getChildCount(); i++) {
-        TableRow row = (TableRow) table.getChildAt(i);
-        for (int j = 0; j < row.getChildCount(); j++) {
-          ImageButton button = (ImageButton) row.getChildAt(j);
-
-          if (i == 3) {
-            button.setTag("Both");
-          } else {
-            if (j == 0) {
-              button.setTag("Cone");
-            } else if (j == 1) {
-              button.setTag("Cube");
-            } else if (j == 2) {
-              button.setTag("Cone");
-            }
-          }
-
-          button.setImageResource(R.drawable.android_x);
-          final int[] counter = { 1 };
-          button.setOnClickListener(v1 -> {
-            boolean red = debugPreference.getBoolean("isRedteam");
-            String curTag = String.valueOf(button.getTag());
-            switch (curTag) {
-              case "Both":
-                if (counter[0] == 0) {
-                  button.setImageResource(R.drawable.android_x);
-                  counter[0]++;
-                } else if (counter[0] == 1) {
-                  if (red) {
-                    button.setImageResource(R.drawable.red_cube44);
-                  } else {
-                    button.setImageResource(R.drawable.cube44);
-                  }
-                  counter[0]++;
-                } else if (counter[0] == 2) {
-                  if (red) {
-                    button.setImageResource(R.drawable.red_cone44);
-                  } else {
-                    button.setImageResource(R.drawable.cone44);
-                  }
-                  counter[0] = 0;
-                }
-                break;
-              case "Cone":
-                if (counter[0] == 0) {
-                  button.setImageResource(R.drawable.android_x);
-                  counter[0]++;
-                } else if (counter[0] == 1) {
-                  if (red) {
-                    button.setImageResource(R.drawable.red_cone44);
-                  } else {
-                    button.setImageResource(R.drawable.cone44);
-                  }
-                  counter[0] = 0;
-                }
-                break;
-              case "Cube":
-                if (counter[0] == 0) {
-                  button.setImageResource(R.drawable.android_x);
-                  counter[0]++;
-                } else if (counter[0] == 1) {
-                  if (red) {
-                    button.setImageResource(R.drawable.red_cube44);
-                  } else {
-                    button.setImageResource(R.drawable.cube44);
-                  }
-                  counter[0] = 0;
-                }
-                break;
-            }
-          });
-        }
-      }
-    }
   }
 
   public List<Cell> testCells (int cells) {
@@ -487,35 +220,6 @@ public class ScoutUtils {
     mRecyclerViewAdapter.notifyDataSetChanged();
     mRecyclerView.post(() -> {
       setupTitle(mRecyclerView);
-    });
-  }
-
-  public void updateTableColor(TableLayout table, int colorResId) {
-    // All row background color set
-    TableRow row = (TableRow) table.getChildAt(0);
-    row.setBackgroundColor(ContextCompat.getColor(context, colorResId));
-
-    // Title in top row
-    TextView title = row.findViewById(R.id.table_title);
-    title.setTextColor(ContextCompat.getColor(context, R.color.white));
-
-    ImageView icon = row.findViewById(R.id.table_image);
-    icon.setOnClickListener(v -> {
-      Balloon.Builder helpBuilder = new Balloon.Builder(context)
-          .setArrowSize(10)
-          .setArrowOrientation(ArrowOrientation.TOP)
-          .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-          .setArrowPosition(0.5f)
-          .setWidth(BalloonSizeSpec.WRAP)
-          .setHeight(BalloonSizeSpec.WRAP)
-          .setPadding(6)
-          .setTextSize(20f)
-          .setCornerRadius(4f)
-          .setAlpha(0.8f)
-          .setTextColor(ContextCompat.getColor(context, R.color.white))
-          .setBalloonAnimation(BalloonAnimation.FADE)
-          .setText("This is the top side where the drivers stand");
-       helpBuilder.build().showAlignBottom(icon);
     });
   }
 
@@ -602,32 +306,9 @@ public class ScoutUtils {
     return mRecyclerView;
   }
 
-  public void layoutMaker(int table_status, String import_json, View v, RecyclerView mRecyclerViewTop, RecyclerView mRecyclerViewBot) {
-    String top;
-    String bot;
-
-    tableSorter(table_status, v, mRecyclerViewTop, mRecyclerViewBot);
-
-    if (table_status == NONE || table_status == AUTO || table_status == TELEOP) {
-      top = import_json.split("\\^")[0];
-      import_cells(top, mRecyclerViewTop);
-    } else {
-      top = import_json.split("\\^")[0];
-      bot = import_json.split("\\^")[1];
-      import_cells(top, mRecyclerViewTop);
-      import_cells(bot, mRecyclerViewBot);
-    }
-
-    Button importButton = v.findViewById(R.id.importButton);
-    Button loadButton = v.findViewById(R.id.loadButton);
-    //if (!import_json.equals("")) {
-    //  importButton.setVisibility(View.GONE);
-    //  loadButton.setVisibility(View.GONE);
-    //
-    //} else {
-    //  importButton.setVisibility(View.VISIBLE);
-    //  loadButton.setVisibility(View.VISIBLE);
-    //}
+  public void layoutMaker(String import_json, View v, RecyclerView mRecyclerView) {
+    String layoutJson = import_json.split("\\^")[0];
+    import_cells(layoutJson, mRecyclerView);
   }
 
   public boolean allPermissionsGranted() {

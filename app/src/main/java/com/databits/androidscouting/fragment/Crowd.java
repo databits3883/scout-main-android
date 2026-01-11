@@ -52,8 +52,7 @@ public class Crowd extends Fragment {
     MatchInfo matchInfo;
     TeamInfo teamInfo;
     List<String> scouterList;
-    private RecyclerView mRecyclerViewTop;
-    private RecyclerView mRecyclerViewBot;
+    private RecyclerView mRecyclerView;
     String fileName = "crowd_layout.json";
 
     @Override
@@ -139,8 +138,7 @@ public class Crowd extends Fragment {
                             // Save the team number to the preference
                             debugPreference.setBoolean("manual_team_override_toggle", true);
                             debugPreference.putInt("manual_team_override_value", teamNumber);
-                            mRecyclerViewTop.post(() -> scoutUtils.setupTitle(mRecyclerViewTop));
-                            mRecyclerViewBot.post(() -> scoutUtils.setupTitle(mRecyclerViewBot));
+                            mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
                             refreshActionBar();
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -252,18 +250,11 @@ public class Crowd extends Fragment {
 
         configPreference.setBoolean("grid_toggle", true);
 
-        mRecyclerViewTop = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view_top);
-        mRecyclerViewBot = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view_bot);
-
-        //Sorts the tables based on saved Table Status
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
-        scoutUtils.tableSorter(table_status, requireView(), mRecyclerViewTop, mRecyclerViewBot);
-        scoutUtils.setupTables(requireView());
+        mRecyclerView = scoutUtils.makeRecyclerView(requireContext(), v, R.id.recycler_view);
 
         File layoutLoc = new File(requireContext().getFilesDir(), fileName);
         if (fileUtils.fileExists(layoutLoc.toString())) {
-            scoutUtils.layoutMaker(table_status, fileUtils.readFile(layoutLoc),
-                requireView(), mRecyclerViewTop, mRecyclerViewBot);
+            scoutUtils.layoutMaker(fileUtils.readFile(layoutLoc), requireView(), mRecyclerView);
         }
 
         binding.importButton.setOnClickListener(v1 -> {
@@ -275,8 +266,7 @@ public class Crowd extends Fragment {
         binding.loadButton.setOnClickListener(v1 -> {
             String storedLayout = fileUtils.readTextFile(getResources().
                 openRawResource(R.raw.crowd_layout));
-            scoutUtils.layoutMaker(table_status, storedLayout, requireView(),
-                mRecyclerViewTop, mRecyclerViewBot);
+            scoutUtils.layoutMaker(storedLayout, requireView(), mRecyclerView);
             binding.loadButton.setVisibility(View.INVISIBLE);
             binding.importButton.setVisibility(View.INVISIBLE);
             binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
@@ -321,18 +311,15 @@ public class Crowd extends Fragment {
     }
 
     public void createLayout(Uri uri) {
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
         File layoutFile = new File(
             Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri, fileName)));
-        scoutUtils.layoutMaker(table_status,fileUtils.readFile(layoutFile), requireView(),
-            mRecyclerViewTop, mRecyclerViewBot);
+        scoutUtils.layoutMaker(fileUtils.readFile(layoutFile), requireView(), mRecyclerView);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mRecyclerViewTop.post(() -> scoutUtils.setupTitle(mRecyclerViewTop));
-        mRecyclerViewBot.post(() -> scoutUtils.setupTitle(mRecyclerViewBot));
+        mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
         refreshActionBar();
     }
 

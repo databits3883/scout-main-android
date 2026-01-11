@@ -56,8 +56,7 @@ public class Pit extends Fragment {
     FileUtils fileUtils;
     MatchInfo matchInfo;
     TeamInfo teamInfo;
-    private RecyclerView mRecyclerViewTop;
-    private RecyclerView mRecyclerViewBot;
+    private RecyclerView mRecyclerView;
     String fileName = "pit_layout.json";
     ArrayList<String> editedList;
 
@@ -151,8 +150,7 @@ public class Pit extends Fragment {
                             // Save the team number to the preference
                             debugPreference.setBoolean("manual_team_override_toggle", true);
                             debugPreference.putInt("manual_team_override_value", teamNumber);
-                            mRecyclerViewTop.post(() -> scoutUtils.setupTitle(mRecyclerViewTop));
-                            mRecyclerViewBot.post(() -> scoutUtils.setupTitle(mRecyclerViewBot));
+                            mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
                             // Do nothing
@@ -257,18 +255,13 @@ public class Pit extends Fragment {
         matchInfo = new MatchInfo();
         teamInfo = new TeamInfo(requireContext());
 
-        mRecyclerViewTop = scoutUtils.makeRecyclerView(requireContext(),v, R.id.recycler_view_top);
-        mRecyclerViewBot = scoutUtils.makeRecyclerView(requireContext(),v, R.id.recycler_view_bot);
+        mRecyclerView = scoutUtils.makeRecyclerView(requireContext(),v, R.id.recycler_view);
 
         configPreference.setBoolean("grid_toggle", true);
 
-        //Sorts the tables based on saved Table Status
-        int table_status = configPreference.getInt("table_mode", ScoutUtils.NONE);
-
         File layoutLoc = new File(requireContext().getFilesDir(), fileName);
         if (fileUtils.fileExists(layoutLoc.toString())) {
-            scoutUtils.layoutMaker(table_status,fileUtils.readFile(layoutLoc),
-                requireView(), mRecyclerViewTop, mRecyclerViewBot);
+            scoutUtils.layoutMaker(fileUtils.readFile(layoutLoc), requireView(), mRecyclerView);
         }
 
         binding.importButton.setOnClickListener(v1 -> {
@@ -282,8 +275,7 @@ public class Pit extends Fragment {
                 storedLayout = fileUtils.readTextFile(getResources()
                     .openRawResource(R.raw.pit_layout));
 
-            scoutUtils.layoutMaker(ScoutUtils.NONE, storedLayout, requireView(),
-                mRecyclerViewTop, mRecyclerViewBot);
+            scoutUtils.layoutMaker(storedLayout, requireView(), mRecyclerView);
             binding.loadButton.setVisibility(View.INVISIBLE);
             binding.importButton.setVisibility(View.INVISIBLE);
             binding.autoLoadCheckBox.setVisibility(View.INVISIBLE);
@@ -318,8 +310,7 @@ public class Pit extends Fragment {
                         Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri,
                             fileName)));
                     scoutUtils.saveData(requireView(), false);
-                    scoutUtils.layoutMaker(ScoutUtils.NONE,fileUtils.readFile(file), requireView(),
-                        mRecyclerViewTop, mRecyclerViewBot);
+                    scoutUtils.layoutMaker(fileUtils.readFile(file), requireView(), mRecyclerView);
                 }
             }
         }
@@ -340,14 +331,13 @@ public class Pit extends Fragment {
             editedList.remove(team);
             listPreference.setObject("pit_teams_remaining_list", editedList);
         }
-        Objects.requireNonNull(mRecyclerViewTop.getAdapter()).notifyItemChanged(1);
+        Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemChanged(1);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mRecyclerViewTop.post(() -> scoutUtils.setupTitle(mRecyclerViewTop));
-        mRecyclerViewBot.post(() -> scoutUtils.setupTitle(mRecyclerViewBot));
+        mRecyclerView.post(() -> scoutUtils.setupTitle(mRecyclerView));
         refreshActionBar();
     }
 

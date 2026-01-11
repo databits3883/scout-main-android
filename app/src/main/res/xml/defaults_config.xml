@@ -56,11 +56,6 @@
   </entry>
 
   <entry>
-    <key>table_mode</key>
-    <value>3</value>
-  </entry>
-
-  <entry>
     <key>upload_unique_toggle</key>
     <value>true</value>
   </entry>
