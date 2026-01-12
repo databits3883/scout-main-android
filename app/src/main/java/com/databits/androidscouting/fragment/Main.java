@@ -23,11 +23,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentMainBinding;
 import com.databits.androidscouting.util.FileUtils;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 import java.io.File;
 import java.util.Objects;
 
@@ -35,8 +35,7 @@ public class Main extends Fragment {
 
     private FragmentMainBinding binding;
 
-    Preference configPreference = PowerPreference.getFileByName("Config");
-    Preference debugPreference = PowerPreference.getFileByName("Debug");
+    private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
 
     TeamInfo teamInfo;
     FileUtils fileUtils;
@@ -51,8 +50,8 @@ public class Main extends Fragment {
             Bundle savedInstanceState
     ) {
         // Set Sane Defaults to enable debugging and new install demo
-        configPreference.setDefaults(R.xml.defaults_config);
-        debugPreference.setDefaults(R.xml.defaults_debug);
+        repository.setConfigDefaults(R.xml.defaults_config);
+        repository.setDebugDefaults(R.xml.defaults_debug);
         binding = FragmentMainBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
@@ -61,15 +60,15 @@ public class Main extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        role = configPreference.getString("device_role");
+        role = repository.getDeviceRole();
 
-        lock = configPreference.getBoolean("role_locked_toggle", false);
+        lock = repository.isRoleLocked();
 
         refreshActionBar();
 
-        int pos = configPreference.getInt("crowd_position", 0);
+        int pos = repository.getCrowdPosition();
 
-        debugPreference.setBoolean("isRedteam", pos != 1 && pos != 2 && pos != 3);
+        repository.setRedTeam(pos != 1 && pos != 2 && pos != 3);
 
         teamInfo = new TeamInfo(requireContext());
         fileUtils = new FileUtils(requireContext());

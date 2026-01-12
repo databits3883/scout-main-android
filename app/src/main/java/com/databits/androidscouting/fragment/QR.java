@@ -40,15 +40,14 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentQRBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
-import com.databits.androidscouting.util.PreferenceManager;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.QrCsvParser;  // Robust CSV parser that trims spaces and supports various separators
 import com.databits.androidscouting.util.TeamInfo;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 import java.util.ArrayList;
@@ -90,11 +89,8 @@ public class QR extends Fragment {
     private int team = 0;
     private int matchCounter = 1; // Initialized to 1
 
-    // Local preferences using PowerPreference.
-    private final Preference debugPreference = PowerPreference.getFileByName("Debug");
-    private final Preference matchPreference = PowerPreference.getFileByName("Match");
-    private final Preference listPreference = PowerPreference.getFileByName("List");
-    private final Preference pitDataPreference = PowerPreference.getFileByName("PitData");
+    // Repository for centralized preference access
+    private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
 
     // Handler for cycle button animation
     private Handler cycleHandler;
@@ -173,7 +169,7 @@ public class QR extends Fragment {
             // Optionally, store special data.
             ArrayList<String> specialData = new ArrayList<>();
             specialData.add(data);
-            listPreference.setObject("special_scout", specialData);
+            repository.setSpecialScoutData(specialData);
         } else {
             Log.d("QR", "No QR data received; setting default values.");
             updateUI();
@@ -189,9 +185,9 @@ public class QR extends Fragment {
         });
 
         binding.buttonNext.setOnClickListener(v -> {
-            debugPreference.setBoolean("manual_team_override_toggle", false);
-            debugPreference.setBoolean("manual_match_override_toggle", false);
-            debugPreference.remove("manual_team_override_value");
+            repository.setManualTeamOverride(false);
+            repository.setManualMatchOverride(false);
+            repository.removeManualTeamOverrideValue();
             matchInfo.incrementMatch();
             matchInfo.setTempMatch(matchInfo.getMatch());
             controller.navigateUp();
@@ -210,7 +206,7 @@ public class QR extends Fragment {
 
         binding.cycleButton.setOnClickListener(v -> {
             NumberPicker matchPicker = requireView().findViewById(R.id.number_counter_inside);
-            debugPreference.setInt("match_backup", matchInfo.getMatch());
+            repository.setMatchBackup(matchInfo.getMatch());
             matchPicker.setValue(1);
             matchInfo.setMatch(1);
             matchInfo.setTempMatch(1);
@@ -221,8 +217,8 @@ public class QR extends Fragment {
                 cycleHandler.removeCallbacksAndMessages(null);
             }
             cycleHandler = new Handler();
-            Map<String, ?> pitData = pitDataPreference.getData();
-            Map<String, ?> matchData = matchPreference.getData();
+            Map<String, ?> pitData = repository.getAllPitData();
+            Map<String, ?> matchData = repository.getAllMatchData();
             cycleHandler.postDelayed(new Runnable() {
                 int i = 0;
                 public void run() {
@@ -235,7 +231,7 @@ public class QR extends Fragment {
                     } else {
                         if (matchData != null && i == matchData.size()) {
                             cycleHandler.removeCallbacks(this);
-                            matchInfo.setMatch(debugPreference.getInt("match_backup"));
+                            matchInfo.setMatch(repository.getMatchBackup());
                         }
                     }
                     i++;
@@ -378,10 +374,10 @@ public class QR extends Fragment {
             binding.qrMatchText.setText(String.format(Locale.US, "Match: %d", value));
             setTeamText(false, 0);
             String matchData;
-            if (listPreference.getBoolean("pit_remove_enabled")) {
-                matchData = pitDataPreference.getString(String.format(Locale.US, "Match%d", value), "No Data");
+            if (repository.isPitRemoveEnabled()) {
+                matchData = repository.getPitMatchData(value);
             } else {
-                matchData = matchPreference.getString(String.format(Locale.US, "Match%d", value), "No Data");
+                matchData = repository.getMatchData(value);
             }
             if ("No Data".equals(matchData)) {
                 binding.qrImg.setImageBitmap(textAsBitmap("No Data", 100, R.color.green_900));
@@ -424,7 +420,7 @@ public class QR extends Fragment {
     private void saveData(String data, boolean mode) {
         try {
             if (mode) {
-                pitDataPreference.setString(String.format(Locale.US, "Match%d", matchInfo.getTempMatch()), data);
+                repository.setPitMatchData(matchInfo.getTempMatch(), data);
                 // Parse team number from CSV data.
                 String[] fields = QrCsvParser.parseCsv(data, 1);
                 if (fields != null && fields.length > 0) {
@@ -433,7 +429,7 @@ public class QR extends Fragment {
                     Log.e("QR", "Failed to parse team number from data");
                 }
             } else {
-                matchPreference.setString(String.format(Locale.US, "Match%d", matchInfo.getTempMatch()), data);
+                repository.setMatchData(matchInfo.getTempMatch(), data);
             }
         } catch (Exception e) {
             Log.e("QR", "Error saving data: " + e.getMessage());

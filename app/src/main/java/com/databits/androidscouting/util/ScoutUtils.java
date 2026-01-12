@@ -11,16 +11,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
-import com.preference.PowerPreference;
-import com.preference.Preference;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class ScoutUtils {
   public static final int REQUEST_CODE_PERMISSIONS = 10;
   public static final String[] REQUIRED_PERMISSIONS = { android.Manifest.permission.CAMERA };
 
-  Preference debugPreference = PowerPreference.getFileByName("Debug");
-  Preference listPreference = PowerPreference.getFileByName("List");
+  private final PreferenceRepository repository;
 
   MatchInfo matchInfo;
   TeamInfo teamInfo;
@@ -29,6 +28,8 @@ public class ScoutUtils {
 
   public ScoutUtils(Context context) {
     this.context = context;
+    // Use repository for centralized preference access
+    this.repository = PowerPreferenceRepository.getInstance();
   }
 
   public String exportCell(RecyclerView recyclerView) {
@@ -110,14 +111,14 @@ public class ScoutUtils {
 
     int match = matchInfo.getMatch();
     int team = 9999;
-    if (debugPreference.getBoolean("manual_team_override_toggle")) {
-      team = debugPreference.getInt("manual_team_override_value");
-    } else if (teamInfo.teamsLoaded() || listPreference.getBoolean("pit_remove_enabled")) {
+    if (repository.isManualTeamOverrideEnabled()) {
+      team = repository.getManualTeamOverrideValue();
+    } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
       team = teamInfo.getTeam(match);
     }
 
     //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
-    if (listPreference.getBoolean("pit_remove_enabled")) {
+    if (repository.isPitRemoveEnabled()) {
       cellData = exportCell(v.findViewById(R.id.recycler_view)).substring(1) + "," +
           teamInfo.getScouterName();
     } else if (special){

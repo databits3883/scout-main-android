@@ -20,14 +20,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButton;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellParam;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 import com.skydoves.balloon.ArrowOrientation;
 import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
@@ -46,6 +46,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     List<String> entryLabels = new ArrayList<>();
     private TeamInfo teamInfo;
     private MatchInfo matchInfo;
+    private PreferenceRepository repository;
     private LayoutInflater inflater;
     private Balloon.Builder helpBuilder;
 
@@ -214,6 +215,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             inflater = LayoutInflater.from(context);
             teamInfo = new TeamInfo(context);
             matchInfo = new MatchInfo();
+            repository = PowerPreferenceRepository.getInstance();
             helpBuilder = new Balloon.Builder(context)
                 .setArrowSize(15)
                 .setArrowOrientation(ArrowOrientation.TOP)
@@ -501,7 +503,6 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
                 case "TeamSelect":
-                    Preference listPreference = PowerPreference.getFileByName("List");
                     TeamSelectTypeViewHolder teamSelectHolder = (TeamSelectTypeViewHolder) holder;
                     bindHelpBalloon(teamSelectHolder.help, object, helpPicture);
 
@@ -510,9 +511,9 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     teamSelectHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
 
-                    ArrayList<String> remainingList = listPreference.getObject(
-                        "pit_teams_remaining_list", ArrayList.class);
-                    if (listPreference.getBoolean("pit_remove_enabled")) {
+                    // Use cached repository instead of creating new Preference on every bind
+                    ArrayList<String> remainingList = repository.getPitTeamsRemainingList();
+                    if (repository.isPitRemoveEnabled()) {
                         entryLabels = remainingList;
                     } else {
                         entryLabels = Arrays.asList(mContext.getResources().getStringArray(

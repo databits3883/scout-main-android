@@ -25,6 +25,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.anggrayudi.storage.SimpleStorageHelper;
 import com.databits.androidscouting.MainActivity;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentSettingsDashboardBinding;
 import com.databits.androidscouting.databinding.UiStatusIndicatorBinding;
 import com.databits.androidscouting.util.FileUtils;
@@ -32,7 +34,6 @@ import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
 import com.preference.PowerPreference;
-import com.preference.Preference;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +43,11 @@ import static android.content.ContentValues.TAG;
 
 public class Dashboard extends Fragment {
   private FragmentSettingsDashboardBinding binding;
+  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
   MatchInfo matchInfo;
   TeamInfo teamInfo;
-
-  Preference configPreference = PowerPreference.getFileByName("Config");
-  Preference debugPreference = PowerPreference.getFileByName("Debug");
 
   SimpleStorageHelper storageHelper = new SimpleStorageHelper(this);
 
@@ -136,7 +135,7 @@ public class Dashboard extends Fragment {
           .create();
       TextView text = dialogView.findViewById(R.id.data_view);
       text.setMovementMethod(new ScrollingMovementMethod());
-      List<String> scouterList = debugPreference.getObject("scouter_list", List.class);
+      List<String> scouterList = repository.getScouterList();
       if (scouterList == null) {
         scouterList = new ArrayList<>();
       }
@@ -220,17 +219,21 @@ public class Dashboard extends Fragment {
         "Online", "Offline");
 
     setStatusIndicator(binding.matchListStatusIndicator, "Match List",
-        debugPreference.getInt("team_match_list_size") > 0 ||
+        repository.getTeamMatchListSize() > 0 ||
         fileUtils.fileExists(String.valueOf(
             new File(requireContext().getFilesDir() + "/" + "match.csv"))),
         "Loaded", "Not Loaded");
 
+    List<String> scouterList = repository.getScouterList();
     setStatusIndicator(binding.scouterListStatusIndicator, "Scouter List",
         fileUtils.fileExists(String.valueOf(
-            new File(requireContext().getFilesDir() + "/" + "scouter_list.txt"))) && !debugPreference.getString("scouter_list").isEmpty(),
+            new File(requireContext().getFilesDir() + "/" + "scouter_list.txt"))) &&
+        scouterList != null && !scouterList.isEmpty(),
         "Loaded", "Not Loaded");
 
-    setStatusIndicator(binding.googleStatusIndicator, "Google", !configPreference.getString("google_account_name").isEmpty(),
+    String googleAccountName = repository.getGoogleAccountName();
+    setStatusIndicator(binding.googleStatusIndicator, "Google",
+        googleAccountName != null && !googleAccountName.isEmpty(),
         "Logged in", "Logged out");
 
     setStatusIndicator(binding.permissionStatusIndicator, "Permissions",
@@ -272,7 +275,7 @@ public class Dashboard extends Fragment {
             assert path != null;
             File file1 = new File(path);
             ArrayList<String> studentList = fileUtils.readList(file1);
-            debugPreference.setObject("scouter_list", studentList);
+            repository.setScouterList(studentList);
 
           }
         }

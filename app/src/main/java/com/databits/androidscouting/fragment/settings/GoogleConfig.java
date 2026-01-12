@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentSettingsGoogleconfigBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.GoogleAuthActivity;
@@ -22,8 +24,6 @@ import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.textfield.TextInputEditText;
 import com.opencsv.CSVReader;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -32,8 +32,7 @@ import java.util.Objects;
 
 public class GoogleConfig extends Fragment {
   private FragmentSettingsGoogleconfigBinding binding;
-  Preference configPreference = PowerPreference.getFileByName("Config");
-  Preference listPreference = PowerPreference.getFileByName("List");
+  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
   MatchInfo matchInfo;
@@ -94,10 +93,10 @@ public class GoogleConfig extends Fragment {
 
   private void updateID(boolean save) {
     TextInputEditText editText = requireView().findViewById(R.id.google_id_text_edit);
-    String sheet = configPreference.getString("workbook_id","");
+    String sheet = repository.getWorkbookId();
+    if (sheet == null) sheet = "";
     if (sheet.isEmpty() || save) {
-      configPreference.setString("workbook_id", Objects.requireNonNull(
-          editText.getText()).toString());
+      repository.setWorkbookId(Objects.requireNonNull(editText.getText()).toString());
     } else {
       editText.setText(sheet);
     }
@@ -128,12 +127,33 @@ public class GoogleConfig extends Fragment {
           lower.getText()) + ":" +
           Objects.requireNonNull(upper.getText());
 
-      // Set configPreference string to the range based on id_prefix
-      configPreference.setString(id_prefix + "_range", range);
+      // Set range based on id_prefix
+      switch (id_prefix) {
+        case "Crowd":
+          repository.setCrowdRange(range);
+          break;
+        case "Pit":
+          repository.setPitRange(range);
+          break;
+        case "Specialty":
+          repository.setSpecialtyRange(range);
+          break;
+      }
     } else {
-      // Get the range from configPreference and set the name, lower, and upper text fields
-      String range = configPreference.getString(id_prefix + "_range","");
-      if (!range.isEmpty()) {
+      // Get the range and set the name, lower, and upper text fields
+      String range = "";
+      switch (id_prefix) {
+        case "Crowd":
+          range = repository.getCrowdRange();
+          break;
+        case "Pit":
+          range = repository.getPitRange();
+          break;
+        case "Specialty":
+          range = repository.getSpecialtyRange();
+          break;
+      }
+      if (range != null && !range.isEmpty()) {
         String[] split = range.split("!");
         name.setText(split[0]);
         split = split[1].split(":");
@@ -161,8 +181,9 @@ public class GoogleConfig extends Fragment {
       googleConfigDialog.show();
     });
 
+    String accountName = repository.getGoogleAccountName();
     scoutUtils.setButtonStatus(binding.googleButton,
-        !configPreference.getString("google_account_name").isEmpty(),
+        accountName != null && !accountName.isEmpty(),
         "Logged into Google", "Sign into Google");
 
     binding.googleButton.setOnClickListener(view1 -> {
@@ -199,16 +220,16 @@ public class GoogleConfig extends Fragment {
               dataArr = new String[size][];
               dataArr = list.toArray(dataArr);
               for (String[] row : dataArr) {
-                configPreference.setString("workbook_id", row[0]);
-                configPreference.setString("Crowd_range", row[1]);
-                configPreference.setString("Pit_range", row[2]);
-                configPreference.setString("Specialty_range", row[3]);
+                repository.setWorkbookId(row[0]);
+                repository.setCrowdRange(row[1]);
+                repository.setPitRange(row[2]);
+                repository.setSpecialtyRange(row[3]);
               }
               updateRange(binding.crowdSheetLocation.getRoot(), "Crowd", false);
               updateRange(binding.pitSheetLocation.getRoot(), "Pit", false);
               updateRange(binding.specialtySheetLocation.getRoot(), "Specialty", false);
               updateID(false);
-              listPreference.setObject("google_config", dataArr);
+              repository.setGoogleConfig(dataArr);
             } catch (IOException e) {
               e.printStackTrace();
             }

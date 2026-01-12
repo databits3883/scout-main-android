@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.factory.RecyclerViewConfig;
 import com.databits.androidscouting.factory.RecyclerViewFactory;
 import com.databits.androidscouting.layout.LayoutManager;
@@ -22,8 +24,6 @@ import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 import java.io.File;
 import java.util.Objects;
 
@@ -33,9 +33,7 @@ import java.util.Objects;
  */
 public abstract class BaseScoutFragment extends Fragment {
     protected RecyclerView mRecyclerView;
-    protected Preference configPreference;
-    protected Preference debugPreference;
-    protected Preference listPreference;
+    protected PreferenceRepository repository;
 
     // Dependencies
     protected LayoutManager layoutManager;
@@ -55,10 +53,8 @@ public abstract class BaseScoutFragment extends Fragment {
      * Called from onViewCreated before setupRecyclerView.
      */
     protected void initializeDependencies() {
-        // Preferences
-        configPreference = PowerPreference.getFileByName("Config");
-        debugPreference = PowerPreference.getFileByName("Debug");
-        listPreference = PowerPreference.getFileByName("List");
+        // Repository
+        repository = PowerPreferenceRepository.getInstance();
 
         // Utilities
         fileUtils = new FileUtils(requireContext());
@@ -67,7 +63,7 @@ public abstract class BaseScoutFragment extends Fragment {
         teamInfo = new TeamInfo(requireContext());
 
         // Set grid toggle based on fragment requirements
-        configPreference.setBoolean("grid_toggle", useGridLayout());
+        repository.setGridToggle(useGridLayout());
 
         // Create layout system
         LayoutParser parser = new LayoutParser();
@@ -75,7 +71,7 @@ public abstract class BaseScoutFragment extends Fragment {
         layoutManager = new LayoutManager(parser, presenter, fileUtils);
 
         // Create RecyclerView factory
-        RecyclerViewConfig rvConfig = RecyclerViewConfig.fromPreferences(configPreference);
+        RecyclerViewConfig rvConfig = RecyclerViewConfig.fromRepository(repository);
         recyclerViewFactory = new RecyclerViewFactory(requireContext(), rvConfig);
     }
 
@@ -115,8 +111,12 @@ public abstract class BaseScoutFragment extends Fragment {
         }
 
         if (autoLoadCheckBox != null) {
-            autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) ->
-                configPreference.putBoolean(getAutoLoadPreferenceKey(), isChecked));
+            autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                // Use synchronous set since this is a critical UI state
+                if ("auto_load_crowd_layout_toggle".equals(getAutoLoadPreferenceKey())) {
+                    repository.setAutoLoadCrowdLayout(isChecked);
+                }
+            });
         }
 
         // Auto-load if configured
@@ -172,8 +172,15 @@ public abstract class BaseScoutFragment extends Fragment {
      * Check if layout should be auto-loaded on fragment creation
      */
     protected boolean shouldAutoLoad() {
-        return configPreference.getBoolean("role_locked_toggle") ||
-               configPreference.getBoolean(getAutoLoadPreferenceKey());
+        boolean roleLocked = repository.isRoleLocked();
+        boolean autoLoadEnabled = false;
+
+        // Check specific auto-load preference based on fragment type
+        if ("auto_load_crowd_layout_toggle".equals(getAutoLoadPreferenceKey())) {
+            autoLoadEnabled = repository.isAutoLoadCrowdLayoutEnabled();
+        }
+
+        return roleLocked || autoLoadEnabled;
     }
 
     /**

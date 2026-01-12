@@ -16,17 +16,17 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentDrawingMapBinding;
 import com.github.dhaval2404.colorpicker.ColorPickerDialog;
 import com.github.dhaval2404.colorpicker.model.ColorShape;
 import com.mihir.drawingcanvas.drawingView;
-import com.preference.PowerPreference;
-import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
 import java.util.Objects;
 
 public class Drawing extends Fragment {
-  Preference debugPreference = PowerPreference.getFileByName("Debug");
+  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
 
   private FragmentDrawingMapBinding binding;
 
@@ -83,7 +83,7 @@ public class Drawing extends Fragment {
     // Configure Drawing
     mDrawView.setBrushAlpha(255);// values from 0-255
     mDrawView.setBrushColor(R.color.green_900);
-    mDrawView.setSizeForBrush(debugPreference.getInt("map_brush_size", 15));
+    mDrawView.setSizeForBrush(repository.getMapBrushSize());
     mDrawView.setSizeForBrush(15); // takes value from 0-200
   }
 
@@ -165,7 +165,7 @@ public class Drawing extends Fragment {
           NumberPicker picker = ((AlertDialog) dialog).findViewById(R.id.brush_size_picker);
           assert picker != null;
           mDrawView.setSizeForBrush(picker.getValue());
-          debugPreference.putInt("map_brush_size", picker.getValue());
+          repository.setMapBrushSize(picker.getValue());
         })
         .setNegativeButton("Cancel", (dialog, which) -> {
           // Do Nothing Cancel

@@ -1,37 +1,44 @@
 package com.databits.androidscouting.util;
 
-import com.preference.PowerPreference;
-import com.preference.Preference;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class MatchInfo {
-  Preference configPreference = PowerPreference.getFileByName("Config");
-  Preference debugPreference = PowerPreference.getFileByName("Debug");
+  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
 
-  int match = configPreference.getInt("current_match", 1);
+  // Lazy-loaded to avoid premature preference access during field initialization
+  private Integer match = null;
 
   public int getMatch() {
-    if (debugPreference.getBoolean("manual_match_override_toggle")) {
-      return debugPreference.getInt("manual_match_override_value");
+    if (repository.isManualMatchOverrideEnabled()) {
+      return repository.getManualMatchOverrideValue();
     } else {
+      // Lazy load match value on first access
+      if (match == null) {
+        match = repository.getCurrentMatch();
+      }
       return match;
     }
   }
 
   public void setMatch(int val) {
-    configPreference.setInt("current_match", val);
+    match = val; // Update cached value
+    repository.setCurrentMatch(val);
   }
 
   public void incrementMatch() {
-    configPreference.setInt("current_match", configPreference.getInt("current_match", 1) + 1);
+    int newValue = repository.getCurrentMatch() + 1;
+    match = newValue; // Update cached value
+    repository.setCurrentMatch(newValue);
   }
 
   public void setTempMatch(int val) {
-    debugPreference.setInt("debug_match", val);
+    repository.setDebugMatch(val);
   }
 
   public int getTempMatch() {
-    return debugPreference.getInt("debug_match", getMatch());
+    return repository.getDebugMatch();
   }
 
   // Default configuration for the match number picker

@@ -16,7 +16,8 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.preference.Preference;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,9 +35,7 @@ public class SheetsUpdateTask {
   private final ExecutorService executor;
   private final Handler mainHandler;
   private final SheetsUpdateTask.UiCallback uiCallback;
-  private final Preference configPreference;
-  private final Preference matchPreference;
-  private final Preference debugPreference;
+  private final PreferenceRepository repository;
 
   public interface UiCallback {
     void onAuthorizationRequired(UserRecoverableAuthIOException e);
@@ -51,14 +50,12 @@ public class SheetsUpdateTask {
     this.executor = Executors.newSingleThreadExecutor();
     this.mainHandler = new Handler(Looper.getMainLooper());
 
-    this.configPreference = PreferenceManager.getInstance().getConfigPreference();
-    this.matchPreference = PreferenceManager.getInstance().getMatchPreference();
-    this.debugPreference = PreferenceManager.getInstance().getDebugPreference();
+    this.repository = PowerPreferenceRepository.getInstance();
 
     GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
             context, Arrays.asList(SheetsScopes.SPREADSHEETS))
         .setBackOff(new ExponentialBackOff());
-    String accountName = configPreference.getString("google_account_name", null);
+    String accountName = repository.getGoogleAccountName();
     credential.setSelectedAccountName(accountName);
 
     HttpTransport transport = AndroidHttp.newCompatibleTransport();
@@ -93,7 +90,7 @@ public class SheetsUpdateTask {
   }
 
   private SheetsUpdateTask.UploadData prepareUploadData() {
-    String uploadMode = configPreference.getString("uploadMode", "");
+    String uploadMode = repository.getUploadMode();
     List<List<String>> columnData = getColumnData(uploadMode);
 
     if (columnData == null || columnData.isEmpty()) {
@@ -112,11 +109,17 @@ public class SheetsUpdateTask {
   private List<List<String>> getColumnData(String uploadMode) {
     switch (uploadMode) {
       case "Crowd":
-        return new ArrayList<>(matchPreference.getObject("upload_data", ArrayList.class, new ArrayList<>()));
+        @SuppressWarnings("unchecked")
+        List<List<String>> crowdData = (List<List<String>>) (List<?>) repository.getUploadData();
+        return crowdData != null ? crowdData : new ArrayList<>();
       case "Pit":
-        return new ArrayList<>(matchPreference.getObject("pit_upload_data", ArrayList.class, new ArrayList<>()));
+        @SuppressWarnings("unchecked")
+        List<List<String>> pitData = (List<List<String>>) (List<?>) repository.getPitUploadData();
+        return pitData != null ? pitData : new ArrayList<>();
       case "Specialty":
-        return new ArrayList<>(matchPreference.getObject("special_upload_data", ArrayList.class, new ArrayList<>()));
+        @SuppressWarnings("unchecked")
+        List<List<String>> specialtyData = (List<List<String>>) (List<?>) repository.getSpecialUploadData();
+        return specialtyData != null ? specialtyData : new ArrayList<>();
       default:
         Log.d(TAG, "No valid upload mode set.");
         return null;
@@ -126,11 +129,11 @@ public class SheetsUpdateTask {
   private String getRangeForUploadMode(String uploadMode) {
     switch (uploadMode) {
       case "Crowd":
-        return configPreference.getString("Crowd_range", "Sheet1!A1");
+        return repository.getCrowdRange();
       case "Pit":
-        return configPreference.getString("Pit_range", "Sheet1!A1");
+        return repository.getPitRange();
       case "Specialty":
-        return configPreference.getString("Specialty_range", "'SuperRawDatabase'!A1:AA997");
+        return repository.getSpecialtyRange();
       default:
         return "Sheet1!A1";
     }
@@ -148,7 +151,7 @@ public class SheetsUpdateTask {
       try {
         if (performUpload(spreadsheetId, uploadData)) {
           // Post preference clear to main thread for thread safety
-          mainHandler.post(() -> matchPreference.clear());
+          mainHandler.post(() -> repository.clearUploadData());
         } else {
           handleUploadFailure(attempt.getAndIncrement(), spreadsheetId, uploadData);
         }

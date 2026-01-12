@@ -32,7 +32,10 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
+import com.preference.Preference;
 import com.databits.androidscouting.model.QrCodeDrawable;
 import com.databits.androidscouting.model.QrCodeViewModel;
 import com.databits.androidscouting.util.GoogleAuthActivity;
@@ -47,7 +50,6 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.opencsv.CSVWriter;
 import com.preference.PowerPreference;
-import com.preference.Preference;
 import com.travijuu.numberpicker.library.NumberPicker;
 import java.io.File;
 import java.io.FileWriter;
@@ -58,6 +60,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -75,11 +78,11 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     private FragmentScannerBinding binding;
 
-    Preference configPreference = PowerPreference.getFileByName("Config");
-    Preference debugPreference = PowerPreference.getFileByName("Debug");
-    Preference listPreference = PowerPreference.getFileByName("List");
-    Preference matchPreference = PowerPreference.getFileByName("Match");
-    Preference defaultPreference = PowerPreference.getDefaultFile();
+    private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+
+    // Direct preference access for dynamic keys that don't fit repository pattern
+    private Preference matchPreference;
+    private Preference listPreference;
 
     MatchInfo matchInfo;
     TeamInfo teamInfo;
@@ -102,7 +105,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         googleAuthLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 String accountName = result.getData().getStringExtra(GoogleAuthActivity.EXTRA_ACCOUNT_NAME);
-                configPreference.setString("google_account_name", accountName);
+                repository.setGoogleAccountName(accountName);
                 // Retry the upload after getting the account
                 call_sheets();
             } else {
@@ -137,8 +140,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 int id = menuItem.getItemId();
 
                 if (id == R.id.action_change_view) {
-                    debugPreference.setBoolean("isMaster", !debugPreference.getBoolean(
-                        "isMaster", false));
+                    repository.setMaster(!repository.isMaster());
                     refreshUI();
                 }
 
@@ -158,6 +160,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize direct preference access for dynamic keys
+        matchPreference = PowerPreference.getFileByName("Match");
+        listPreference = PowerPreference.getFileByName("List");
+
         // Go Full screen
         View decorView = requireActivity().getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
@@ -170,7 +176,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         match = matchInfo.getMatch();
 
-        String role = configPreference.getString("device_role");
+        String role = repository.getDeviceRole();
 
         NavController controller = NavHostFragment.findNavController(Scanner.this);
 
@@ -184,13 +190,13 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         binding.buttonGroupUploadMode.setOnPositionChangedListener(position -> {
             switch (position) {
                 case 0:
-                    configPreference.setString("uploadMode", "Crowd");
+                    repository.setUploadMode("Crowd");
                     break;
                 case 1:
-                    configPreference.setString("uploadMode","Speciality");
+                    repository.setUploadMode("Speciality");
                     break;
                 case 2:
-                    configPreference.setString("uploadMode","Pit");
+                    repository.setUploadMode("Pit");
                     break;
 
             }
@@ -203,7 +209,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         matchCounter = matchInfo.configurePicker(matchCounter);
 
-        if (listPreference.getObject("team_match",String[][].class) == null) {
+        if (repository.getTeamMatchData() == null) {
             teamInfo.read_teams();
         }
 
@@ -217,10 +223,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             setupTeamDisplay(value);
         });
 
-        if (configPreference.getBoolean("role_locked_toggle") && (!role.equals("master"))) {
-            debugPreference.setBoolean("isMaster", false);
+        if (repository.isRoleLocked() && (!role.equals("master"))) {
+            repository.setMaster(false);
         } else if (role.equals("master")) {
-            debugPreference.setBoolean("isMaster", true);
+            repository.setMaster(true);
             binding.buttonBack.setVisibility(View.INVISIBLE);
         }
 
@@ -283,18 +289,20 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
                 if (bar_string.startsWith("ScoutData")) {
                     String[] scouterList = bar_string.split(",");
-                    debugPreference.setObject("scouter_list", scouterList);
+                    repository.setScouterList(Arrays.asList(scouterList));
                 }  else if (bar_string.startsWith("GoogleConfig")) {
                     String[] parts = bar_string.split(",");
                     // parts[0] is "GoogleConfig"
-                    configPreference.setString("workbook_id", parts[1]);
-                    configPreference.setString("crowd_range", parts[2]);
-                    configPreference.setString("pit_range", parts[3]);
-                    configPreference.setString("specialty_range", parts[4]);
+                    repository.setWorkbookId(parts[1]);
+                    repository.setCrowdRange(parts[2]);
+                    repository.setPitRange(parts[3]);
+                    repository.setSpecialtyRange(parts[4]);
                 } else if (bar_string.startsWith("MatchData")) {
                     List<String[]> matchData = splitMatchData(bar_string);
-                    String[][] originalMatchData = listPreference.getObject("team_match",
-                        String[][].class, new String[0][0]);
+                    String[][] originalMatchData = repository.getTeamMatchData();
+                    if (originalMatchData == null) {
+                        originalMatchData = new String[0][0];
+                    }
                     // Combine matchData with originalMatchData and delete duplicates
                     String[][] combinedMatchData = new String[originalMatchData.length +
                         matchData.size()][];
@@ -302,7 +310,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                         originalMatchData.length);
                     System.arraycopy(matchData.toArray(new String[0][0]), 0, combinedMatchData,
                         originalMatchData.length, matchData.size());
-                    listPreference.setObject("team_match", combinedMatchData);
+                    repository.setTeamMatchData(combinedMatchData);
 
                     // Sort/Organize combinedMatchData entries in the array by match number
                     // Handle the case where the Int is not a number
@@ -335,8 +343,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     System.arraycopy(combinedMatchData, 0, uniqueMatchData, 0, newLength);
 
                     // Save size and match info for use elsewhere
-                    debugPreference.setInt("team_match_list_size", newLength);
-                    listPreference.setObject("team_match", uniqueMatchData);
+                    repository.setTeamMatchListSize(newLength);
+                    repository.setTeamMatchData(uniqueMatchData);
                     setupTeamDisplay(match);
                 } else if (bar_string.startsWith("role")) {
                     process_qr(bar_string);
@@ -380,7 +388,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     builder.setNeutralButton("Upload Anyways", (dialog, i) -> {
                         dialog.dismiss();
                         saveData(bar_string);
-                        configPreference.setBoolean("force_upload_toggle", true);
+                        repository.setForceUpload(true);
                         camController.bindToLifecycle(this);
                         camController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(
                                 requireContext()),
@@ -418,8 +426,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             System.err.println("Invalid data format: Chunk index is not a number");
             return result; // Return empty list for invalid format
         }
-        Set<Integer> processedChunks = listPreference.getObject("processedChunks", Set.class,
-            new HashSet<>());
+        Set<Integer> processedChunks = repository.getProcessedChunks();
         // Check if this chunk has already been processed
         if (processedChunks.contains(chunkIndex)) {
             System.out.println("Duplicate chunk detected: " + chunkIndex + ". Skipping.");
@@ -428,7 +435,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         // Add the chunk index to the set of processed chunks
         processedChunks.add(chunkIndex);
-        listPreference.setObject("processedChunks", processedChunks);
+        repository.setProcessedChunks(processedChunks);
 
         // Split the data string into individual match entries
         String[] matchEntries = parts[2].split("(?<=])(?=\\[)");
@@ -478,10 +485,15 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     private void saveData(String bar_string) {
 
-        String uploadData = null;
-        String uploadLines = null;
+        String uploadMode = repository.getUploadMode();
+        if (uploadMode == null) {
+            uploadMode = "Crowd";
+        }
 
-        switch (configPreference.getString("uploadMode", "Crowd")) {
+        String uploadData;
+        String uploadLines;
+
+        switch (uploadMode) {
             case "Crowd":
                 uploadData = "upload_data";
                 uploadLines = "seen_lines";
@@ -494,11 +506,14 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 uploadData = "pit_upload_data";
                 uploadLines = "pit_seen_lines";
                 break;
+            default:
+                uploadData = "upload_data";
+                uploadLines = "seen_lines";
+                break;
         }
 
         // Check to see if data is already in the list, if not initialize the list
-        List<String[]> raw_data = matchPreference.getObject(uploadData, ArrayList.class,
-            new ArrayList<>());
+        List<String[]> raw_data = matchPreference.getObject(uploadData, ArrayList.class, new ArrayList<>());
 
         // Split the string into an array
         String[] split = bar_string.split(",");
@@ -507,16 +522,11 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         // Make upload.csv for debugging
         makeUploadFile(bar_string);
 
-        // Add non-split data to the list
-        //raw_data.add(new String[] {bar_string});
-
         // Create a HashSet to keep track of the lines we've already seen
-        Set<String> seenLines = listPreference.getObject(uploadLines, Set.class,
-            new HashSet<>());
+        Set<String> seenLines = listPreference.getObject(uploadLines, Set.class, new HashSet<>());
 
         // Check for duplicate and don't upload role qr data
-        if (!seenLines.contains(bar_string) & !bar_string.contains("Role")) {
-
+        if (!seenLines.contains(bar_string) && !bar_string.contains("Role")) {
             // Add the line to the HashSet so we can check for duplicates in the future
             seenLines.add(bar_string);
 
@@ -569,11 +579,11 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             //teamInfo.read_teams();
         }
 
-        configPreference.setString("device_role", role);
-        configPreference.setInt("crowd_position", crowd_num);
-        configPreference.setString("current_scouter", name);
-        configPreference.setBoolean("role_locked_toggle", locked);
-        configPreference.setBoolean("specialSwitch", special_selector);
+        repository.setDeviceRole(role);
+        repository.setCrowdPosition(crowd_num);
+        repository.setCurrentScouter(name);
+        repository.setRoleLocked(locked);
+        repository.setSpecialSwitch(special_selector);
     }
 
     public static void restartApp(Context context) {
@@ -586,10 +596,13 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     }
 
     protected void call_sheets() {
-        if (configPreference.getString("google_account_name", null) == null) {
+        if (repository.getGoogleAccountName() == null) {
             googleAuthLauncher.launch(GoogleAuthActivity.newIntent(requireContext()));
         } else {
-            String spreadsheetId = configPreference.getString("workbook_id", "1ksCFboY3RF0d6eCQHtH2bdrPWFHXZXnicNJGz6pXndM");
+            String spreadsheetId = repository.getWorkbookId();
+            if (spreadsheetId == null) {
+                spreadsheetId = "1ksCFboY3RF0d6eCQHtH2bdrPWFHXZXnicNJGz6pXndM";
+            }
             sheetsUpdateTask.execute(spreadsheetId);
         }
     }
@@ -604,7 +617,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     private void refreshUI() {
         //toggle isMaster on press
-        if (!debugPreference.getBoolean("isMaster", false)) {
+        if (!repository.isMaster()) {
             binding.teamListDisplay.getRoot().setVisibility(View.GONE);
             binding.uiInsideNumberPicker.setVisibility(View.GONE);
             binding.scanPrompt.setText(R.string.role_qr_title);

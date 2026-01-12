@@ -26,6 +26,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
@@ -33,7 +35,6 @@ import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
-import com.preference.Preference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,11 +65,9 @@ public class Provision extends Fragment {
 
   List<String> entryLabels = new ArrayList<>();
 
-  Preference configPreference = PowerPreference.getFileByName("Config");
-  Preference debugPreference = PowerPreference.getFileByName("Debug");
-  Preference listPreference = PowerPreference.getFileByName("List");
+  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
 
-  boolean lock = configPreference.getBoolean("role_locked_toggle", false);
+  boolean lock;
 
   @Override
   public View onCreateView(
@@ -96,12 +95,12 @@ public class Provision extends Fragment {
 
           teamInfo.read_teams();
 
-          configPreference.setString("device_role", role.get());
-          configPreference.setInt("crowd_position", Integer.parseInt(crowd_position.get()));
-          configPreference.setString("current_scouter", scouter_name.get());
-          configPreference.setBoolean("role_locked_toggle", lock_status.get().equals("true"));
-          configPreference.setBoolean("specialSwitch", Boolean.parseBoolean(special_selector.get()));
-          //configPreference.setInt("current_match", matchInfo.getMatch());
+          repository.setDeviceRole(role.get());
+          repository.setCrowdPosition(Integer.parseInt(crowd_position.get()));
+          repository.setCurrentScouter(scouter_name.get());
+          repository.setRoleLocked(lock_status.get().equals("true"));
+          repository.setSpecialSwitch(Boolean.parseBoolean(special_selector.get()));
+          //repository.setCurrentMatch(matchInfo.getMatch());
           controller.navigate(R.id.action_provisionFragment_to_StartFragment);
         }
 
@@ -120,7 +119,8 @@ public class Provision extends Fragment {
   @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    scouterList = debugPreference.getObject("scouter_list", List.class);
+    lock = repository.isRoleLocked();
+    scouterList = repository.getScouterList();
 
     NavController controller = NavHostFragment.findNavController(Provision.this);
 
@@ -145,7 +145,7 @@ public class Provision extends Fragment {
       alertDialog.setMessage("Config");
       //alertDialog.show();
 
-      String[][] matchData = listPreference.getObject("team_match", String[][].class);
+      String[][] matchData = repository.getTeamMatchData();
       if (matchData == null) {
         Toast.makeText(requireContext(), "Not all data was found", Toast.LENGTH_LONG).show();
       } else {
@@ -170,26 +170,25 @@ public class Provision extends Fragment {
             qr_img[i] = qrCodeGenerator.generateQRCode(qr[i], 1000, 35, false);
           }
 
-          ArrayList<String> scouterList = debugPreference.getObject(
-              "scouter_list", List.class);
+          List<String> scouterListData = repository.getScouterList();
           // Add all scouterList strings to one string with a , separating each
           String scouterListString = "ScoutData"
               + ","
-              + String.join(",", scouterList);
+              + String.join(",", scouterListData);
           // Store the scouter list QR code in the 2nd to last slot
           qr_img[numChunks] = qrCodeGenerator.generateQRCode(scouterListString,
               1000, 35, false);
 
-          // Build the google config string from the configPreference
+          // Build the google config string from the repository
           String googleConfig = "GoogleConfig"
               + ","
-              + configPreference.getString("workbook_id")
+              + repository.getWorkbookId()
               + ","
-              + configPreference.getString("Crowd_range")
+              + repository.getCrowdRange()
               + ","
-              + configPreference.getString("Pit_range")
+              + repository.getPitRange()
               + ","
-              + configPreference.getString("Specialty_range");
+              + repository.getSpecialtyRange();
 
           // Store the google config QR code in the last slot
           qr_img[numChunks+1] = qrCodeGenerator.generateQRCode(googleConfig,
