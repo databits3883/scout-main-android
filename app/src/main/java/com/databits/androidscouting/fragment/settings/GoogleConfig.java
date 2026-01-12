@@ -3,9 +3,12 @@ package com.databits.androidscouting.fragment.settings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -32,11 +35,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class GoogleConfig extends Fragment {
   private FragmentSettingsGoogleconfigBinding binding;
   private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
   private ConfigViewModel viewModel;
+  private ExecutorService executor;
+  private Handler mainHandler;
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
   MatchInfo matchInfo;
@@ -61,6 +68,10 @@ public class GoogleConfig extends Fragment {
     PreferenceRepository repo = PowerPreferenceRepository.getInstance();
     ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+
+    // Initialize executor and handler for background operations
+    executor = Executors.newSingleThreadExecutor();
+    mainHandler = new Handler(Looper.getMainLooper());
 
     // Go Full screen
     View decorView = requireActivity().getWindow().getDecorView();
@@ -211,6 +222,9 @@ public class GoogleConfig extends Fragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
+    if (executor != null) {
+      executor.shutdown();
+    }
     binding = null;
   }
 
@@ -220,30 +234,50 @@ public class GoogleConfig extends Fragment {
         if (result.getResultCode() == Activity.RESULT_OK) {
           Intent data = result.getData();
           if (data != null) {
-            FileUtils.copyFileToInternal(requireContext(),data.getData(),
-                "google_config.csv");
-            String[][] dataArr;
-            try {
-              File teams = new File(requireContext().getFilesDir() + "/" + "google_config.csv");
-              CSVReader csvReader = new CSVReader(new FileReader(teams));
-              List<String[]> list = csvReader.readAll();
-              int size = list.size();
-              dataArr = new String[size][];
-              dataArr = list.toArray(dataArr);
-              for (String[] row : dataArr) {
-                viewModel.updateWorkbookId(row[0]);
-                viewModel.updateCrowdRange(row[1]);
-                viewModel.updatePitRange(row[2]);
-                viewModel.updateSpecialtyRange(row[3]);
+            // Move file I/O and preference writes to background thread
+            executor.execute(() -> {
+              try {
+                // File I/O on background thread
+                FileUtils.copyFileToInternal(requireContext(), data.getData(),
+                    "google_config.csv");
+                File teams = new File(requireContext().getFilesDir() + "/" + "google_config.csv");
+                CSVReader csvReader = new CSVReader(new FileReader(teams));
+                List<String[]> list = csvReader.readAll();
+                int size = list.size();
+                String[][] dataArr = new String[size][];
+                dataArr = list.toArray(dataArr);
+
+                // Preference writes on background thread (ViewModel uses ExecutorService internally)
+                for (String[] row : dataArr) {
+                  viewModel.updateWorkbookId(row[0]);
+                  viewModel.updateCrowdRange(row[1]);
+                  viewModel.updatePitRange(row[2]);
+                  viewModel.updateSpecialtyRange(row[3]);
+                }
+                repository.setGoogleConfig(dataArr);
+
+                // Update UI on main thread
+                mainHandler.post(() -> {
+                  if (binding != null) {
+                    updateRange(binding.crowdSheetLocation.getRoot(), "Crowd", false);
+                    updateRange(binding.pitSheetLocation.getRoot(), "Pit", false);
+                    updateRange(binding.specialtySheetLocation.getRoot(), "Specialty", false);
+                    updateID(false);
+                    Toast.makeText(requireContext(), "Google configuration imported successfully",
+                        Toast.LENGTH_SHORT).show();
+                  }
+                });
+              } catch (IOException e) {
+                e.printStackTrace();
+                // Show error on main thread
+                mainHandler.post(() -> {
+                  if (binding != null) {
+                    Toast.makeText(requireContext(), "Error importing configuration: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+                  }
+                });
               }
-              updateRange(binding.crowdSheetLocation.getRoot(), "Crowd", false);
-              updateRange(binding.pitSheetLocation.getRoot(), "Pit", false);
-              updateRange(binding.specialtySheetLocation.getRoot(), "Specialty", false);
-              updateID(false);
-              repository.setGoogleConfig(dataArr);
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
+            });
           }
         }
       }
