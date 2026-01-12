@@ -96,6 +96,9 @@ public class QR extends Fragment {
     private final Preference listPreference = PowerPreference.getFileByName("List");
     private final Preference pitDataPreference = PowerPreference.getFileByName("PitData");
 
+    // Handler for cycle button animation
+    private Handler cycleHandler;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentQRBinding.inflate(inflater, container, false);
@@ -213,21 +216,25 @@ public class QR extends Fragment {
             matchInfo.setTempMatch(1);
             setTeamText(mode, team);
             // Cycle through stored data (for demonstration purposes).
-            final Handler handler = new Handler();
+            // Clean up any existing handler first
+            if (cycleHandler != null) {
+                cycleHandler.removeCallbacksAndMessages(null);
+            }
+            cycleHandler = new Handler();
             Map<String, ?> pitData = pitDataPreference.getData();
             Map<String, ?> matchData = matchPreference.getData();
-            handler.postDelayed(new Runnable() {
+            cycleHandler.postDelayed(new Runnable() {
                 int i = 0;
                 public void run() {
-                    handler.postDelayed(this, 250);
+                    cycleHandler.postDelayed(this, 250);
                     matchPicker.increment();
                     if (mode) {
                         if (pitData != null && i == pitData.size()) {
-                            handler.removeCallbacks(this);
+                            cycleHandler.removeCallbacks(this);
                         }
                     } else {
                         if (matchData != null && i == matchData.size()) {
-                            handler.removeCallbacks(this);
+                            cycleHandler.removeCallbacks(this);
                             matchInfo.setMatch(debugPreference.getInt("match_backup"));
                         }
                     }
@@ -239,6 +246,11 @@ public class QR extends Fragment {
 
     @Override
     public void onDestroyView() {
+        // Clean up handler to prevent memory leaks
+        if (cycleHandler != null) {
+            cycleHandler.removeCallbacksAndMessages(null);
+            cycleHandler = null;
+        }
         super.onDestroyView();
         binding = null; // Prevent memory leaks.
     }
