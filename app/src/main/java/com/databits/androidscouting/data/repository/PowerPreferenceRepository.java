@@ -286,6 +286,159 @@ public class PowerPreferenceRepository implements PreferenceRepository {
         configPreference.setBoolean("specialSwitch", enabled);
     }
 
+    // ==================== Camera Preferences ====================
+
+    @Override
+    public boolean isCameraTorchEnabled() {
+        return configPreference.getBoolean("camera_torch_enabled", false);
+    }
+
+    @Override
+    public void setCameraTorch(boolean enabled) {
+        configPreference.setBoolean("camera_torch_enabled", enabled);
+    }
+
+    @Override
+    public boolean isCameraHapticFeedbackEnabled() {
+        return configPreference.getBoolean("camera_haptic_feedback", true);
+    }
+
+    @Override
+    public void setCameraHapticFeedback(boolean enabled) {
+        configPreference.setBoolean("camera_haptic_feedback", enabled);
+    }
+
+    @Override
+    public boolean isCameraAudioFeedbackEnabled() {
+        return configPreference.getBoolean("camera_audio_feedback", false);
+    }
+
+    @Override
+    public void setCameraAudioFeedback(boolean enabled) {
+        configPreference.setBoolean("camera_audio_feedback", enabled);
+    }
+
+    @Override
+    public boolean isCameraShowReticleEnabled() {
+        return configPreference.getBoolean("camera_show_reticle", true);
+    }
+
+    @Override
+    public void setCameraShowReticle(boolean enabled) {
+        configPreference.setBoolean("camera_show_reticle", enabled);
+    }
+
+    @Override
+    public boolean isCameraAutoBrightnessEnabled() {
+        return configPreference.getBoolean("camera_auto_brightness", true);
+    }
+
+    @Override
+    public void setCameraAutoBrightness(boolean enabled) {
+        configPreference.setBoolean("camera_auto_brightness", enabled);
+    }
+
+    @Override
+    public boolean isCameraKeepScreenOnEnabled() {
+        return configPreference.getBoolean("camera_keep_screen_on", true);
+    }
+
+    @Override
+    public void setCameraKeepScreenOn(boolean enabled) {
+        configPreference.setBoolean("camera_keep_screen_on", enabled);
+    }
+
+    @Override
+    public boolean isCameraShowStatsEnabled() {
+        return configPreference.getBoolean("camera_show_stats", false);
+    }
+
+    @Override
+    public void setCameraShowStats(boolean enabled) {
+        configPreference.setBoolean("camera_show_stats", enabled);
+    }
+
+    @Override
+    public boolean isCameraShowSuccessAnimationEnabled() {
+        return configPreference.getBoolean("camera_show_success_animation", true);
+    }
+
+    @Override
+    public void setCameraShowSuccessAnimation(boolean enabled) {
+        configPreference.setBoolean("camera_show_success_animation", enabled);
+    }
+
+    @Override
+    public int getCameraExposureCompensation() {
+        return configPreference.getInt("camera_exposure_compensation", 0);
+    }
+
+    @Override
+    public void setCameraExposureCompensation(int exposure) {
+        configPreference.setInt("camera_exposure_compensation", exposure);
+    }
+
+    @Override
+    public float getCameraZoomLevel() {
+        return configPreference.getFloat("camera_zoom_level", 1.0f);
+    }
+
+    @Override
+    public void setCameraZoomLevel(float zoom) {
+        configPreference.setFloat("camera_zoom_level", zoom);
+    }
+
+    @Override
+    public int getCameraMinBarcodeSize() {
+        return configPreference.getInt("camera_min_barcode_size", 100);
+    }
+
+    @Override
+    public void setCameraMinBarcodeSize(int size) {
+        configPreference.setInt("camera_min_barcode_size", size);
+    }
+
+    @Override
+    public boolean isCameraCenterWeightedEnabled() {
+        return configPreference.getBoolean("camera_center_weighted", true);
+    }
+
+    @Override
+    public void setCameraCenterWeighted(boolean enabled) {
+        configPreference.setBoolean("camera_center_weighted", enabled);
+    }
+
+    @Override
+    public int getCameraCenterThreshold() {
+        return configPreference.getInt("camera_center_threshold", 300);
+    }
+
+    @Override
+    public void setCameraCenterThreshold(int threshold) {
+        configPreference.setInt("camera_center_threshold", threshold);
+    }
+
+    @Override
+    public boolean isCameraShowFpsEnabled() {
+        return debugPreference.getBoolean("camera_show_fps", false);
+    }
+
+    @Override
+    public void setCameraShowFps(boolean enabled) {
+        debugPreference.setBoolean("camera_show_fps", enabled);
+    }
+
+    @Override
+    public boolean isCameraShowResolutionEnabled() {
+        return debugPreference.getBoolean("camera_show_resolution", false);
+    }
+
+    @Override
+    public void setCameraShowResolution(boolean enabled) {
+        debugPreference.setBoolean("camera_show_resolution", enabled);
+    }
+
+
     // ==================== Debug Preferences ====================
 
     @Override

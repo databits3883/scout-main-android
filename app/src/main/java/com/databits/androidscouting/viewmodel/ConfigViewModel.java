@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.databits.androidscouting.data.entity.UploadQueueItem;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,6 +34,23 @@ public class ConfigViewModel extends ViewModel {
     private final MutableLiveData<Boolean> autoLoadCrowdLayout;
     private final MutableLiveData<String> googleAccountName;
     private final MutableLiveData<Boolean> specialSwitch;
+
+    // Camera preferences
+    private final MutableLiveData<Boolean> cameraTorch;
+    private final MutableLiveData<Boolean> cameraHapticFeedback;
+    private final MutableLiveData<Boolean> cameraAudioFeedback;
+    private final MutableLiveData<Boolean> cameraShowReticle;
+    private final MutableLiveData<Boolean> cameraAutoBrightness;
+    private final MutableLiveData<Boolean> cameraKeepScreenOn;
+    private final MutableLiveData<Boolean> cameraShowStats;
+    private final MutableLiveData<Boolean> cameraShowSuccessAnimation;
+    private final MutableLiveData<Integer> cameraExposureCompensation;
+    private final MutableLiveData<Float> cameraZoomLevel;
+    private final MutableLiveData<Integer> cameraMinBarcodeSize;
+    private final MutableLiveData<Boolean> cameraCenterWeighted;
+    private final MutableLiveData<Integer> cameraCenterThreshold;
+    private final MutableLiveData<Boolean> cameraShowFps;
+    private final MutableLiveData<Boolean> cameraShowResolution;
 
     // Debug preferences
     private final MutableLiveData<Boolean> manualTeamOverride;
@@ -69,6 +87,22 @@ public class ConfigViewModel extends ViewModel {
         this.autoLoadCrowdLayout = new MutableLiveData<>();
         this.googleAccountName = new MutableLiveData<>();
         this.specialSwitch = new MutableLiveData<>();
+
+        this.cameraTorch = new MutableLiveData<>();
+        this.cameraHapticFeedback = new MutableLiveData<>();
+        this.cameraAudioFeedback = new MutableLiveData<>();
+        this.cameraShowReticle = new MutableLiveData<>();
+        this.cameraAutoBrightness = new MutableLiveData<>();
+        this.cameraKeepScreenOn = new MutableLiveData<>();
+        this.cameraShowStats = new MutableLiveData<>();
+        this.cameraShowSuccessAnimation = new MutableLiveData<>();
+        this.cameraExposureCompensation = new MutableLiveData<>();
+        this.cameraZoomLevel = new MutableLiveData<>();
+        this.cameraMinBarcodeSize = new MutableLiveData<>();
+        this.cameraCenterWeighted = new MutableLiveData<>();
+        this.cameraCenterThreshold = new MutableLiveData<>();
+        this.cameraShowFps = new MutableLiveData<>();
+        this.cameraShowResolution = new MutableLiveData<>();
 
         this.manualTeamOverride = new MutableLiveData<>();
         this.manualTeamOverrideValue = new MutableLiveData<>();
@@ -109,6 +143,23 @@ public class ConfigViewModel extends ViewModel {
             autoLoadCrowdLayout.postValue(repository.isAutoLoadCrowdLayoutEnabled());
             googleAccountName.postValue(repository.getGoogleAccountName());
             specialSwitch.postValue(repository.isSpecialSwitchEnabled());
+
+            // Camera preferences
+            cameraTorch.postValue(repository.isCameraTorchEnabled());
+            cameraHapticFeedback.postValue(repository.isCameraHapticFeedbackEnabled());
+            cameraAudioFeedback.postValue(repository.isCameraAudioFeedbackEnabled());
+            cameraShowReticle.postValue(repository.isCameraShowReticleEnabled());
+            cameraAutoBrightness.postValue(repository.isCameraAutoBrightnessEnabled());
+            cameraKeepScreenOn.postValue(repository.isCameraKeepScreenOnEnabled());
+            cameraShowStats.postValue(repository.isCameraShowStatsEnabled());
+            cameraShowSuccessAnimation.postValue(repository.isCameraShowSuccessAnimationEnabled());
+            cameraExposureCompensation.postValue(repository.getCameraExposureCompensation());
+            cameraZoomLevel.postValue(repository.getCameraZoomLevel());
+            cameraMinBarcodeSize.postValue(repository.getCameraMinBarcodeSize());
+            cameraCenterWeighted.postValue(repository.isCameraCenterWeightedEnabled());
+            cameraCenterThreshold.postValue(repository.getCameraCenterThreshold());
+            cameraShowFps.postValue(repository.isCameraShowFpsEnabled());
+            cameraShowResolution.postValue(repository.isCameraShowResolutionEnabled());
 
             // Debug preferences
             manualTeamOverride.postValue(repository.isManualTeamOverrideEnabled());
@@ -184,6 +235,68 @@ public class ConfigViewModel extends ViewModel {
 
     public LiveData<Boolean> getSpecialSwitch() {
         return specialSwitch;
+    }
+
+    // ==================== Camera Preference Getters ====================
+
+    public LiveData<Boolean> getCameraTorch() {
+        return cameraTorch;
+    }
+
+    public LiveData<Boolean> getCameraHapticFeedback() {
+        return cameraHapticFeedback;
+    }
+
+    public LiveData<Boolean> getCameraAudioFeedback() {
+        return cameraAudioFeedback;
+    }
+
+    public LiveData<Boolean> getCameraShowReticle() {
+        return cameraShowReticle;
+    }
+
+    public LiveData<Boolean> getCameraAutoBrightness() {
+        return cameraAutoBrightness;
+    }
+
+    public LiveData<Boolean> getCameraKeepScreenOn() {
+        return cameraKeepScreenOn;
+    }
+
+    public LiveData<Boolean> getCameraShowStats() {
+        return cameraShowStats;
+    }
+
+    public LiveData<Boolean> getCameraShowSuccessAnimation() {
+        return cameraShowSuccessAnimation;
+    }
+
+    public LiveData<Integer> getCameraExposureCompensation() {
+        return cameraExposureCompensation;
+    }
+
+    public LiveData<Float> getCameraZoomLevel() {
+        return cameraZoomLevel;
+    }
+
+    public LiveData<Integer> getCameraMinBarcodeSize() {
+        return cameraMinBarcodeSize;
+    }
+
+    public LiveData<Boolean> getCameraCenterWeighted() {
+        return cameraCenterWeighted;
+    }
+
+    public LiveData<Integer> getCameraCenterThreshold() {
+        return cameraCenterThreshold;
+    }
+
+    public LiveData<Boolean> getCameraShowFps() {
+        return cameraShowFps;
+    }
+
+    public LiveData<Boolean> getCameraShowResolution() {
+        return cameraShowResolution;
     }
 
     // ==================== Debug Preference Getters ====================
@@ -347,6 +460,113 @@ public class ConfigViewModel extends ViewModel {
         executor.execute(() -> {
             repository.setSpecialSwitch(enabled);
             specialSwitch.postValue(enabled);
+        });
+    }
+
+    // ==================== Camera Preference Setters ====================
+
+    public void updateCameraTorch(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraTorch(enabled);
+            cameraTorch.postValue(enabled);
+        });
+    }
+
+    public void updateCameraHapticFeedback(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraHapticFeedback(enabled);
+            cameraHapticFeedback.postValue(enabled);
+        });
+    }
+
+    public void updateCameraAudioFeedback(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraAudioFeedback(enabled);
+            cameraAudioFeedback.postValue(enabled);
+        });
+    }
+
+    public void updateCameraShowReticle(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraShowReticle(enabled);
+            cameraShowReticle.postValue(enabled);
+        });
+    }
+
+    public void updateCameraAutoBrightness(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraAutoBrightness(enabled);
+            cameraAutoBrightness.postValue(enabled);
+        });
+    }
+
+    public void updateCameraKeepScreenOn(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraKeepScreenOn(enabled);
+            cameraKeepScreenOn.postValue(enabled);
+        });
+    }
+
+    public void updateCameraShowStats(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraShowStats(enabled);
+            cameraShowStats.postValue(enabled);
+        });
+    }
+
+    public void updateCameraShowSuccessAnimation(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraShowSuccessAnimation(enabled);
+            cameraShowSuccessAnimation.postValue(enabled);
+        });
+    }
+
+    public void updateCameraExposureCompensation(int exposure) {
+        executor.execute(() -> {
+            repository.setCameraExposureCompensation(exposure);
+            cameraExposureCompensation.postValue(exposure);
+        });
+    }
+
+    public void updateCameraZoomLevel(float zoom) {
+        executor.execute(() -> {
+            repository.setCameraZoomLevel(zoom);
+            cameraZoomLevel.postValue(zoom);
+        });
+    }
+
+    public void updateCameraMinBarcodeSize(int size) {
+        executor.execute(() -> {
+            repository.setCameraMinBarcodeSize(size);
+            cameraMinBarcodeSize.postValue(size);
+        });
+    }
+
+    public void updateCameraCenterWeighted(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraCenterWeighted(enabled);
+            cameraCenterWeighted.postValue(enabled);
+        });
+    }
+
+    public void updateCameraCenterThreshold(int threshold) {
+        executor.execute(() -> {
+            repository.setCameraCenterThreshold(threshold);
+            cameraCenterThreshold.postValue(threshold);
+        });
+    }
+
+    public void updateCameraShowFps(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraShowFps(enabled);
+            cameraShowFps.postValue(enabled);
+        });
+    }
+
+    public void updateCameraShowResolution(boolean enabled) {
+        executor.execute(() -> {
+            repository.setCameraShowResolution(enabled);
+            cameraShowResolution.postValue(enabled);
         });
     }
 

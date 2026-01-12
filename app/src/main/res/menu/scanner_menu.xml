@@ -8,6 +8,11 @@
       app:showAsAction="ifRoom" />
 
   <item
+      android:id="@+id/action_camera_settings"
+      android:title="@string/camera_settings"
+      app:showAsAction="never"/>
+
+  <item
       android:id="@+id/action_debug"
       android:title="Debug Menu"
       app:showAsAction="never"/>

@@ -1,18 +1,26 @@
 package com.databits.androidscouting.fragment;
 
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
@@ -81,7 +89,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private FragmentScannerBinding binding;
     private ConfigViewModel viewModel;
 
-    private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    private PreferenceRepository repository;
 
     MatchInfo matchInfo;
     TeamInfo teamInfo;
@@ -97,13 +105,29 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private ActivityResultLauncher<Intent> googleAuthLauncher;
     private ActivityResultLauncher<Intent> authorizationLauncher;
 
+    // Camera control state
+    private boolean isTorchOn = false;
+    private boolean isScanningPaused = false;
+    private int totalScans = 0;
+    private int successfulScans = 0;
+    private long frameCount = 0;
+    private long lastFpsTime = System.currentTimeMillis();
+
+    // Feedback objects
+    private Vibrator vibrator;
+    private ToneGenerator toneGenerator;
+
+    // Camera capability info
+    private android.util.Range<Integer> exposureRange;
+    private android.util.Range<Float> zoomRange;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Initialize ViewModel
-        PreferenceRepository repo = PowerPreferenceRepository.getInstance();
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+        repository = PowerPreferenceRepository.getInstance(requireContext());
+        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
         viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
         googleAuthLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -146,6 +170,12 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 if (id == R.id.action_change_view) {
                     viewModel.updateIsMaster(!viewModel.getIsMasterSync());
                     refreshUI();
+                }
+
+                // Open camera settings dialog
+                if (id == R.id.action_camera_settings) {
+                    CameraSettingsDialogFragment dialog = new CameraSettingsDialogFragment();
+                    dialog.show(getParentFragmentManager(), "CameraSettings");
                 }
 
                 // Launch the Power Preference debug screen
@@ -244,6 +274,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         preview = binding.previewView;
         refreshUI();
         openCamera();
+
+        // Setup camera controls and auto-settings
+        setupCameraControls();
+        setupAutoSettings();
     }
 
     protected void openCamera() {
@@ -268,7 +302,17 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         camController.bindToLifecycle(this);
 
+        // Apply camera settings from preferences
+        applyCameraSettings();
+
         preview.setController(camController);
+
+        // Update resolution display once preview is ready
+        preview.post(() -> {
+            if (repository.isCameraShowResolutionEnabled()) {
+                updateResolutionDisplay();
+            }
+        });
 
         refreshActionBar();
     }
@@ -286,6 +330,26 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 }
 
                 Barcode qr = qrResList.get(0);
+
+                // Apply ML Kit enhancements - size and position filtering
+                if (!checkBarcodeSize(qr)) {
+                    preview.getOverlay().clear();
+                    return; // Too small, ignore
+                }
+                if (!checkBarcodePosition(qr, preview)) {
+                    preview.getOverlay().clear();
+                    return; // Not centered, ignore
+                }
+
+                // Check if scanning is paused
+                if (isScanningPaused) {
+                    preview.getOverlay().clear();
+                    return; // Scanning paused
+                }
+
+                // Update FPS counter
+                updateFpsCounter();
+
                 String bar_string = qr.getRawValue();
                 preview.getOverlay().clear();
 
@@ -295,6 +359,17 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 preview.getOverlay().add(qrCodeDrawable);
 
                 assert bar_string != null;
+
+                // Show feedback and animation for successful scan
+                showScanFeedback();
+                animateScanSuccess();
+
+                // Update statistics
+                totalScans++;
+                successfulScans++;
+                if (repository.isCameraShowStatsEnabled()) {
+                    updateScanStatistics();
+                }
 
                 if (bar_string.startsWith("ScoutData")) {
                     String[] scouterList = bar_string.split(",");
@@ -637,5 +712,358 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     @Override
     public void onDuplicateData() {
         requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Data is a duplicate and was not uploaded.", Toast.LENGTH_SHORT).show());
+    }
+
+    // ==================== Camera Control Methods ====================
+
+    /**
+     * Setup all camera controls and observers
+     */
+    private void setupCameraControls() {
+        setupTorchButton();
+        setupZoomSlider();
+        setupPauseScanButton();
+        observeCameraSettings();
+    }
+
+    /**
+     * Setup torch toggle button
+     */
+    private void setupTorchButton() {
+        binding.torchButton.setOnClickListener(v -> {
+            isTorchOn = !isTorchOn;
+            if (camController != null) {
+                camController.enableTorch(isTorchOn);
+            }
+            viewModel.updateCameraTorch(isTorchOn);
+            binding.torchButton.setImageResource(isTorchOn ?
+                R.drawable.ic_flashlight_on : R.drawable.ic_flashlight_off);
+            binding.torchButton.setContentDescription(getString(isTorchOn ?
+                R.string.torch_on : R.string.torch_off));
+        });
+
+        // Restore torch state from preferences
+        viewModel.getCameraTorch().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled != null && enabled != isTorchOn) {
+                isTorchOn = enabled;
+                if (camController != null) {
+                    camController.enableTorch(enabled);
+                }
+                binding.torchButton.setImageResource(enabled ?
+                    R.drawable.ic_flashlight_on : R.drawable.ic_flashlight_off);
+            }
+        });
+    }
+
+    /**
+     * Setup zoom slider with smooth animations
+     */
+    private void setupZoomSlider() {
+        binding.zoomSlider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && camController != null) {
+                    float targetZoom = 1f + (progress / 100f) * 3f; // 1x to 4x
+                    animateZoom(targetZoom);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(android.widget.SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(android.widget.SeekBar seekBar) {
+                float zoom = 1f + (seekBar.getProgress() / 100f) * 3f;
+                viewModel.updateCameraZoomLevel(zoom);
+            }
+        });
+
+        // Restore zoom level from preferences
+        viewModel.getCameraZoomLevel().observe(getViewLifecycleOwner(), zoom -> {
+            if (zoom != null && camController != null) {
+                camController.setZoomRatio(zoom);
+                int progress = (int) ((zoom - 1f) / 3f * 100f);
+                binding.zoomSlider.setProgress(progress);
+            }
+        });
+    }
+
+    /**
+     * Animate zoom changes smoothly
+     */
+    private void animateZoom(float targetZoom) {
+        if (camController == null || camController.getZoomState().getValue() == null) return;
+
+        Float currentZoom = camController.getZoomState().getValue().getZoomRatio();
+        if (currentZoom == null) currentZoom = 1.0f;
+
+        ValueAnimator animator = ValueAnimator.ofFloat(currentZoom, targetZoom);
+        animator.addUpdateListener(anim ->
+            camController.setZoomRatio((Float) anim.getAnimatedValue())
+        );
+        animator.setDuration(200);
+        animator.start();
+    }
+
+    /**
+     * Setup pause/resume scanning button
+     */
+    private void setupPauseScanButton() {
+        binding.pauseScanButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            isScanningPaused = isChecked;
+            if (isChecked) {
+                // Scanning is paused
+                binding.pauseScanButton.setText(R.string.resume_scanning);
+            } else {
+                // Scanning is resumed
+                binding.pauseScanButton.setText(R.string.pause_scanning);
+            }
+        });
+    }
+
+    /**
+     * Observe camera settings and update UI accordingly
+     */
+    private void observeCameraSettings() {
+        viewModel.getCameraShowReticle().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled != null) {
+                binding.scanReticle.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        viewModel.getCameraShowStats().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled != null) {
+                binding.statsText.setVisibility(enabled ? View.VISIBLE : View.GONE);
+                if (enabled) {
+                    updateScanStatistics();
+                }
+            }
+        });
+
+        viewModel.getCameraShowFps().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled != null) {
+                binding.fpsText.setVisibility(enabled ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        viewModel.getCameraShowResolution().observe(getViewLifecycleOwner(), enabled -> {
+            if (enabled != null) {
+                binding.resolutionText.setVisibility(enabled ? View.VISIBLE : View.GONE);
+                if (enabled) {
+                    updateResolutionDisplay();
+                }
+            }
+        });
+
+        // Observe exposure compensation changes
+        viewModel.getCameraExposureCompensation().observe(getViewLifecycleOwner(), exposure -> {
+            if (exposure != null && camController != null) {
+                if (exposureRange != null && exposureRange.contains(exposure)) {
+                    camController.getCameraControl().setExposureCompensationIndex(exposure);
+                }
+            }
+        });
+    }
+
+    /**
+     * Setup auto-settings (brightness, keep screen on, orientation lock)
+     */
+    private void setupAutoSettings() {
+        // Auto-brightness
+        if (repository.isCameraAutoBrightnessEnabled()) {
+            Window window = requireActivity().getWindow();
+            WindowManager.LayoutParams layoutParams = window.getAttributes();
+            layoutParams.screenBrightness = 1.0f; // Max brightness
+            window.setAttributes(layoutParams);
+        }
+
+        // Keep screen on
+        if (repository.isCameraKeepScreenOnEnabled()) {
+            requireActivity().getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            );
+        }
+
+        // Orientation lock to portrait
+        requireActivity().setRequestedOrientation(
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        );
+    }
+
+    /**
+     * Apply camera settings from preferences (exposure compensation, etc.)
+     */
+    private void applyCameraSettings() {
+        if (camController == null) return;
+
+        // Get camera info and capability ranges
+        androidx.camera.core.CameraInfo cameraInfo = camController.getCameraInfo();
+        if (cameraInfo != null) {
+            // Get exposure compensation range
+            androidx.camera.core.ExposureState exposureState = cameraInfo.getExposureState();
+            if (exposureState != null) {
+                exposureRange = exposureState.getExposureCompensationRange();
+            }
+
+            // Get zoom range
+            androidx.lifecycle.LiveData<androidx.camera.core.ZoomState> zoomState = cameraInfo.getZoomState();
+            if (zoomState != null && zoomState.getValue() != null) {
+                zoomRange = new android.util.Range<>(
+                    zoomState.getValue().getMinZoomRatio(),
+                    zoomState.getValue().getMaxZoomRatio()
+                );
+            }
+        }
+
+        // Apply exposure compensation from preferences
+        int exposureCompensation = repository.getCameraExposureCompensation();
+        if (exposureRange != null && exposureRange.contains(exposureCompensation)) {
+            camController.getCameraControl().setExposureCompensationIndex(exposureCompensation);
+        }
+    }
+
+    /**
+     * Show scan feedback (haptic + audio + visual)
+     */
+    private void showScanFeedback() {
+        // Haptic feedback
+        if (repository.isCameraHapticFeedbackEnabled()) {
+            if (vibrator == null) {
+                vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+            }
+            if (vibrator != null && vibrator.hasVibrator()) {
+                vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+            }
+        }
+
+        // Audio feedback
+        if (repository.isCameraAudioFeedbackEnabled()) {
+            if (toneGenerator == null) {
+                toneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, 80);
+            }
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150);
+        }
+    }
+
+    /**
+     * Animate scan success with green flash
+     */
+    private void animateScanSuccess() {
+        if (!repository.isCameraShowSuccessAnimationEnabled()) return;
+
+        requireActivity().runOnUiThread(() -> {
+            binding.scanSuccessOverlay.setVisibility(View.VISIBLE);
+            binding.scanSuccessOverlay.setAlpha(0.4f);
+            binding.scanSuccessOverlay.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .withEndAction(() -> binding.scanSuccessOverlay.setVisibility(View.GONE))
+                .start();
+        });
+    }
+
+    /**
+     * Update scan statistics display
+     */
+    private void updateScanStatistics() {
+        if (totalScans == 0) {
+            binding.statsText.setText("Scanned: 0/0 (0%)");
+        } else {
+            double successRate = (successfulScans * 100.0) / totalScans;
+            binding.statsText.setText(String.format(Locale.US,
+                "Scanned: %d/%d (%.1f%%)", successfulScans, totalScans, successRate));
+        }
+    }
+
+    /**
+     * Update FPS counter
+     */
+    private void updateFpsCounter() {
+        if (!repository.isCameraShowFpsEnabled()) return;
+
+        frameCount++;
+        long now = System.currentTimeMillis();
+        if (now - lastFpsTime >= 1000) {
+            double fps = frameCount / ((now - lastFpsTime) / 1000.0);
+            requireActivity().runOnUiThread(() ->
+                binding.fpsText.setText(String.format(Locale.US, "FPS: %.1f", fps))
+            );
+            frameCount = 0;
+            lastFpsTime = now;
+        }
+    }
+
+    /**
+     * Update resolution display
+     */
+    private void updateResolutionDisplay() {
+        if (!repository.isCameraShowResolutionEnabled()) return;
+        if (camController == null || preview == null) return;
+
+        requireActivity().runOnUiThread(() -> {
+            int width = preview.getWidth();
+            int height = preview.getHeight();
+            binding.resolutionText.setText(String.format(Locale.US, "Resolution: %dx%d", width, height));
+        });
+    }
+
+    /**
+     * Check if barcode meets minimum size requirement
+     */
+    private boolean checkBarcodeSize(Barcode barcode) {
+        if (barcode.getBoundingBox() == null) return true;
+
+        int minSize = repository.getCameraMinBarcodeSize();
+        int width = barcode.getBoundingBox().width();
+        int height = barcode.getBoundingBox().height();
+
+        return width >= minSize && height >= minSize;
+    }
+
+    /**
+     * Check if barcode is near center (center-weighted scanning)
+     */
+    private boolean checkBarcodePosition(Barcode barcode, PreviewView preview) {
+        if (!repository.isCameraCenterWeightedEnabled()) return true;
+        if (barcode.getBoundingBox() == null) return true;
+
+        int centerX = preview.getWidth() / 2;
+        int centerY = preview.getHeight() / 2;
+        int qrCenterX = barcode.getBoundingBox().centerX();
+        int qrCenterY = barcode.getBoundingBox().centerY();
+
+        double distance = Math.sqrt(
+            Math.pow(centerX - qrCenterX, 2) +
+            Math.pow(centerY - qrCenterY, 2)
+        );
+
+        int threshold = repository.getCameraCenterThreshold();
+        return distance <= threshold;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        // Cleanup tone generator
+        if (toneGenerator != null) {
+            toneGenerator.release();
+            toneGenerator = null;
+        }
+
+        // Restore auto-brightness if it was enabled
+        if (repository.isCameraAutoBrightnessEnabled()) {
+            Window window = requireActivity().getWindow();
+            WindowManager.LayoutParams layoutParams = window.getAttributes();
+            layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE;
+            window.setAttributes(layoutParams);
+        }
+
+        // Remove keep screen on flag
+        if (repository.isCameraKeepScreenOnEnabled()) {
+            requireActivity().getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            );
+        }
     }
 }

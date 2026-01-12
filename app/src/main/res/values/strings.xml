@@ -133,4 +133,29 @@
   <string name="google_sheets_config">Google Workbook Config</string>
   <string name="name">Name</string>
   <string name="generic_data_location">Generic Data location</string>
+
+  <!-- Camera Settings -->
+  <string name="camera_settings">Camera Settings</string>
+  <string name="haptic_feedback">Haptic Feedback</string>
+  <string name="audio_feedback">Audio Feedback</string>
+  <string name="show_reticle">Show Target Reticle</string>
+  <string name="show_success_animation">Show Success Animation</string>
+  <string name="auto_brightness">Auto Brightness</string>
+  <string name="keep_screen_on">Keep Screen On</string>
+  <string name="show_statistics">Show Statistics</string>
+  <string name="exposure_compensation">Exposure Compensation</string>
+  <string name="min_barcode_size">Minimum QR Code Size</string>
+  <string name="center_weighted_scanning">Center-Weighted Scanning</string>
+  <string name="center_threshold">Center Threshold Distance</string>
+  <string name="show_fps">Show FPS Counter</string>
+  <string name="show_resolution">Show Resolution</string>
+  <string name="pause_scanning">Pause</string>
+  <string name="resume_scanning">Resume</string>
+  <string name="torch_on">Torch On</string>
+  <string name="torch_off">Torch Off</string>
+  <string name="zoom_level">Zoom Level</string>
+  <string name="feedback_settings">Feedback Settings</string>
+  <string name="display_settings">Display Settings</string>
+  <string name="advanced_settings">Advanced Settings</string>
+  <string name="debug_settings">Debug Settings</string>
 </resources>

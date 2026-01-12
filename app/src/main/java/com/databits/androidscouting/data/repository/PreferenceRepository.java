@@ -215,6 +215,189 @@ public interface PreferenceRepository {
      */
     void setSpecialSwitch(boolean enabled);
 
+    // ==================== Camera Preferences ====================
+
+    /**
+     * Check if camera torch (flashlight) is enabled
+     * @return true if torch is enabled
+     */
+    boolean isCameraTorchEnabled();
+
+    /**
+     * Set camera torch (flashlight) status
+     * @param enabled true to enable torch
+     */
+    void setCameraTorch(boolean enabled);
+
+    /**
+     * Check if camera haptic feedback is enabled
+     * @return true if haptic feedback is enabled
+     */
+    boolean isCameraHapticFeedbackEnabled();
+
+    /**
+     * Set camera haptic feedback status
+     * @param enabled true to enable haptic feedback
+     */
+    void setCameraHapticFeedback(boolean enabled);
+
+    /**
+     * Check if camera audio feedback is enabled
+     * @return true if audio feedback is enabled
+     */
+    boolean isCameraAudioFeedbackEnabled();
+
+    /**
+     * Set camera audio feedback status
+     * @param enabled true to enable audio feedback
+     */
+    void setCameraAudioFeedback(boolean enabled);
+
+    /**
+     * Check if scan reticle overlay is enabled
+     * @return true if reticle is shown
+     */
+    boolean isCameraShowReticleEnabled();
+
+    /**
+     * Set scan reticle overlay status
+     * @param enabled true to show reticle
+     */
+    void setCameraShowReticle(boolean enabled);
+
+    /**
+     * Check if auto brightness is enabled for camera
+     * @return true if auto brightness is enabled
+     */
+    boolean isCameraAutoBrightnessEnabled();
+
+    /**
+     * Set auto brightness status for camera
+     * @param enabled true to enable auto brightness
+     */
+    void setCameraAutoBrightness(boolean enabled);
+
+    /**
+     * Check if keep screen on is enabled for camera
+     * @return true if keep screen on is enabled
+     */
+    boolean isCameraKeepScreenOnEnabled();
+
+    /**
+     * Set keep screen on status for camera
+     * @param enabled true to enable keep screen on
+     */
+    void setCameraKeepScreenOn(boolean enabled);
+
+    /**
+     * Check if scan statistics display is enabled
+     * @return true if statistics are shown
+     */
+    boolean isCameraShowStatsEnabled();
+
+    /**
+     * Set scan statistics display status
+     * @param enabled true to show statistics
+     */
+    void setCameraShowStats(boolean enabled);
+
+    /**
+     * Check if scan success animation is enabled
+     * @return true if success animation is shown
+     */
+    boolean isCameraShowSuccessAnimationEnabled();
+
+    /**
+     * Set scan success animation status
+     * @param enabled true to show success animation
+     */
+    void setCameraShowSuccessAnimation(boolean enabled);
+
+    /**
+     * Get camera exposure compensation value
+     * @return Exposure compensation (-2 to +2), defaults to 0
+     */
+    int getCameraExposureCompensation();
+
+    /**
+     * Set camera exposure compensation value
+     * @param exposure Exposure compensation value (-2 to +2)
+     */
+    void setCameraExposureCompensation(int exposure);
+
+    /**
+     * Get camera zoom level
+     * @return Zoom level (1.0 to 4.0), defaults to 1.0
+     */
+    float getCameraZoomLevel();
+
+    /**
+     * Set camera zoom level
+     * @param zoom Zoom level to set
+     */
+    void setCameraZoomLevel(float zoom);
+
+    /**
+     * Get minimum barcode size for detection
+     * @return Minimum size in pixels, defaults to 100
+     */
+    int getCameraMinBarcodeSize();
+
+    /**
+     * Set minimum barcode size for detection
+     * @param size Minimum size in pixels
+     */
+    void setCameraMinBarcodeSize(int size);
+
+    /**
+     * Check if center-weighted scanning is enabled
+     * @return true if center-weighted scanning is enabled
+     */
+    boolean isCameraCenterWeightedEnabled();
+
+    /**
+     * Set center-weighted scanning status
+     * @param enabled true to enable center-weighted scanning
+     */
+    void setCameraCenterWeighted(boolean enabled);
+
+    /**
+     * Get center threshold distance for center-weighted scanning
+     * @return Threshold distance in pixels, defaults to 300
+     */
+    int getCameraCenterThreshold();
+
+    /**
+     * Set center threshold distance for center-weighted scanning
+     * @param threshold Threshold distance in pixels
+     */
+    void setCameraCenterThreshold(int threshold);
+
+    /**
+     * Check if FPS counter is shown (debug)
+     * @return true if FPS counter is shown
+     */
+    boolean isCameraShowFpsEnabled();
+
+    /**
+     * Set FPS counter display status (debug)
+     * @param enabled true to show FPS counter
+     */
+    void setCameraShowFps(boolean enabled);
+
+    /**
+     * Check if camera resolution display is shown (debug)
+     * @return true if resolution is shown
+     */
+    boolean isCameraShowResolutionEnabled();
+
+    /**
+     * Set camera resolution display status (debug)
+     * @param enabled true to show resolution
+     */
+    void setCameraShowResolution(boolean enabled);
+
+
     // ==================== Debug Preferences ====================
 
     /**

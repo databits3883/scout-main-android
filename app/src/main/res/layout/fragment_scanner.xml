@@ -26,6 +26,129 @@
         app:layout_constraintTop_toTopOf="parent" >
     </androidx.camera.view.PreviewView>
 
+    <!-- Camera control overlays -->
+
+    <!-- Torch toggle button (top-right) -->
+    <ImageButton
+        android:id="@+id/torchButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/torch_off"
+        android:padding="8dp"
+        android:src="@drawable/ic_flashlight_off"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@android:color/white" />
+
+    <!-- Zoom slider (right edge, vertical) -->
+    <SeekBar
+        android:id="@+id/zoomSlider"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="32dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="72dp"
+        android:layout_marginEnd="8dp"
+        android:max="100"
+        android:progress="0"
+        android:rotation="270"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Scan reticle overlay (center) -->
+    <ImageView
+        android:id="@+id/scanReticle"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:contentDescription="@string/show_reticle"
+        android:src="@drawable/scan_reticle"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/guideline4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Success flash overlay (full screen) -->
+    <View
+        android:id="@+id/scanSuccessOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#4000FF00"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Debug info panel (top-left) -->
+    <LinearLayout
+        android:id="@+id/debugInfoPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:background="#80000000"
+        android:orientation="vertical"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/fpsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FPS: 0.0"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/resolutionText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Resolution: 0x0"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Scan control bar (bottom) -->
+    <LinearLayout
+        android:id="@+id/scanControlBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="#80000000"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/button_upload"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ToggleButton
+            android:id="@+id/pauseScanButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:textOff="@string/pause_scanning"
+            android:textOn="@string/resume_scanning"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/statsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scanned: 0/0 (0%)"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/match_selector_text"
         android:layout_width="wrap_content"
