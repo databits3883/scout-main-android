@@ -11,6 +11,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
@@ -24,6 +25,8 @@ import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import java.io.File;
 import java.util.Objects;
 
@@ -34,6 +37,7 @@ import java.util.Objects;
 public abstract class BaseScoutFragment extends Fragment {
     protected RecyclerView mRecyclerView;
     protected PreferenceRepository repository;
+    protected ConfigViewModel viewModel;
 
     // Dependencies
     protected LayoutManager layoutManager;
@@ -56,6 +60,10 @@ public abstract class BaseScoutFragment extends Fragment {
         // Repository
         repository = PowerPreferenceRepository.getInstance();
 
+        // Initialize ViewModel
+        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
+        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+
         // Utilities
         fileUtils = new FileUtils(requireContext());
         scoutUtils = new ScoutUtils(requireContext());
@@ -63,7 +71,7 @@ public abstract class BaseScoutFragment extends Fragment {
         teamInfo = new TeamInfo(requireContext());
 
         // Set grid toggle based on fragment requirements
-        repository.setGridToggle(useGridLayout());
+        viewModel.updateGridToggle(useGridLayout());
 
         // Create layout system
         LayoutParser parser = new LayoutParser();
@@ -114,7 +122,7 @@ public abstract class BaseScoutFragment extends Fragment {
             autoLoadCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 // Use synchronous set since this is a critical UI state
                 if ("auto_load_crowd_layout_toggle".equals(getAutoLoadPreferenceKey())) {
-                    repository.setAutoLoadCrowdLayout(isChecked);
+                    viewModel.updateAutoLoadCrowdLayout(isChecked);
                 }
             });
         }
@@ -172,12 +180,12 @@ public abstract class BaseScoutFragment extends Fragment {
      * Check if layout should be auto-loaded on fragment creation
      */
     protected boolean shouldAutoLoad() {
-        boolean roleLocked = repository.isRoleLocked();
+        boolean roleLocked = viewModel.getRoleLockedSync();
         boolean autoLoadEnabled = false;
 
         // Check specific auto-load preference based on fragment type
         if ("auto_load_crowd_layout_toggle".equals(getAutoLoadPreferenceKey())) {
-            autoLoadEnabled = repository.isAutoLoadCrowdLayoutEnabled();
+            autoLoadEnabled = viewModel.getAutoLoadCrowdLayoutSync();
         }
 
         return roleLocked || autoLoadEnabled;

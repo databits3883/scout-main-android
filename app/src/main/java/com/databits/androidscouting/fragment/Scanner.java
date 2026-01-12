@@ -29,6 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
@@ -43,6 +44,8 @@ import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.SheetsUpdateTask;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -77,6 +80,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     protected ExecutorService cameraExecutor;
 
     private FragmentScannerBinding binding;
+    private ConfigViewModel viewModel;
 
     private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
 
@@ -102,10 +106,15 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Initialize ViewModel
+        PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+        ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+
         googleAuthLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                 String accountName = result.getData().getStringExtra(GoogleAuthActivity.EXTRA_ACCOUNT_NAME);
-                repository.setGoogleAccountName(accountName);
+                viewModel.updateGoogleAccountName(accountName);
                 // Retry the upload after getting the account
                 call_sheets();
             } else {
@@ -140,7 +149,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 int id = menuItem.getItemId();
 
                 if (id == R.id.action_change_view) {
-                    repository.setMaster(!repository.isMaster());
+                    viewModel.updateIsMaster(!viewModel.getIsMasterSync());
                     refreshUI();
                 }
 
@@ -176,7 +185,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         match = matchInfo.getMatch();
 
-        String role = repository.getDeviceRole();
+        String role = viewModel.getDeviceRoleSync();
 
         NavController controller = NavHostFragment.findNavController(Scanner.this);
 
@@ -190,13 +199,13 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         binding.buttonGroupUploadMode.setOnPositionChangedListener(position -> {
             switch (position) {
                 case 0:
-                    repository.setUploadMode("Crowd");
+                    viewModel.updateUploadMode("Crowd");
                     break;
                 case 1:
-                    repository.setUploadMode("Speciality");
+                    viewModel.updateUploadMode("Speciality");
                     break;
                 case 2:
-                    repository.setUploadMode("Pit");
+                    viewModel.updateUploadMode("Pit");
                     break;
 
             }
@@ -223,10 +232,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             setupTeamDisplay(value);
         });
 
-        if (repository.isRoleLocked() && (!role.equals("master"))) {
-            repository.setMaster(false);
+        if (viewModel.getRoleLockedSync() && (!role.equals("master"))) {
+            viewModel.updateIsMaster(false);
         } else if (role.equals("master")) {
-            repository.setMaster(true);
+            viewModel.updateIsMaster(true);
             binding.buttonBack.setVisibility(View.INVISIBLE);
         }
 
@@ -289,14 +298,14 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
                 if (bar_string.startsWith("ScoutData")) {
                     String[] scouterList = bar_string.split(",");
-                    repository.setScouterList(Arrays.asList(scouterList));
+                    viewModel.updateScouterList(Arrays.asList(scouterList));
                 }  else if (bar_string.startsWith("GoogleConfig")) {
                     String[] parts = bar_string.split(",");
                     // parts[0] is "GoogleConfig"
-                    repository.setWorkbookId(parts[1]);
-                    repository.setCrowdRange(parts[2]);
-                    repository.setPitRange(parts[3]);
-                    repository.setSpecialtyRange(parts[4]);
+                    viewModel.updateWorkbookId(parts[1]);
+                    viewModel.updateCrowdRange(parts[2]);
+                    viewModel.updatePitRange(parts[3]);
+                    viewModel.updateSpecialtyRange(parts[4]);
                 } else if (bar_string.startsWith("MatchData")) {
                     List<String[]> matchData = splitMatchData(bar_string);
                     String[][] originalMatchData = repository.getTeamMatchData();
@@ -310,7 +319,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                         originalMatchData.length);
                     System.arraycopy(matchData.toArray(new String[0][0]), 0, combinedMatchData,
                         originalMatchData.length, matchData.size());
-                    repository.setTeamMatchData(combinedMatchData);
+                    viewModel.updateTeamMatchData(combinedMatchData);
 
                     // Sort/Organize combinedMatchData entries in the array by match number
                     // Handle the case where the Int is not a number
@@ -343,8 +352,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     System.arraycopy(combinedMatchData, 0, uniqueMatchData, 0, newLength);
 
                     // Save size and match info for use elsewhere
-                    repository.setTeamMatchListSize(newLength);
-                    repository.setTeamMatchData(uniqueMatchData);
+                    viewModel.updateTeamMatchListSize(newLength);
+                    viewModel.updateTeamMatchData(uniqueMatchData);
                     setupTeamDisplay(match);
                 } else if (bar_string.startsWith("role")) {
                     process_qr(bar_string);
@@ -388,7 +397,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     builder.setNeutralButton("Upload Anyways", (dialog, i) -> {
                         dialog.dismiss();
                         saveData(bar_string);
-                        repository.setForceUpload(true);
+                        viewModel.updateForceUpload(true);
                         camController.bindToLifecycle(this);
                         camController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(
                                 requireContext()),
@@ -435,7 +444,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         // Add the chunk index to the set of processed chunks
         processedChunks.add(chunkIndex);
-        repository.setProcessedChunks(processedChunks);
+        viewModel.updateProcessedChunks(processedChunks);
 
         // Split the data string into individual match entries
         String[] matchEntries = parts[2].split("(?<=])(?=\\[)");
@@ -579,11 +588,11 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             //teamInfo.read_teams();
         }
 
-        repository.setDeviceRole(role);
-        repository.setCrowdPosition(crowd_num);
-        repository.setCurrentScouter(name);
-        repository.setRoleLocked(locked);
-        repository.setSpecialSwitch(special_selector);
+        viewModel.updateDeviceRole(role);
+        viewModel.updateCrowdPosition(crowd_num);
+        viewModel.updateCurrentScouter(name);
+        viewModel.updateRoleLocked(locked);
+        viewModel.updateSpecialSwitch(special_selector);
     }
 
     public static void restartApp(Context context) {
@@ -617,7 +626,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     private void refreshUI() {
         //toggle isMaster on press
-        if (!repository.isMaster()) {
+        if (!viewModel.getIsMasterSync()) {
             binding.teamListDisplay.getRoot().setVisibility(View.GONE);
             binding.uiInsideNumberPicker.setVisibility(View.GONE);
             binding.scanPrompt.setText(R.string.role_qr_title);

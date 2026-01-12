@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
@@ -32,6 +33,8 @@ import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
@@ -44,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Provision extends Fragment {
 
   private FragmentProvisionBinding binding;
+  private ConfigViewModel viewModel;
 
   AtomicReference<String> lock_status = new AtomicReference<>("true");
   AtomicReference<String> scouter_name = new AtomicReference<>("");
@@ -74,6 +78,11 @@ public class Provision extends Fragment {
       @NonNull LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState
   ) {
+    // Initialize ViewModel
+    PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
+    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+
     requireActivity().addMenuProvider(new MenuProvider() {
       @Override
       public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
@@ -95,12 +104,12 @@ public class Provision extends Fragment {
 
           teamInfo.read_teams();
 
-          repository.setDeviceRole(role.get());
-          repository.setCrowdPosition(Integer.parseInt(crowd_position.get()));
-          repository.setCurrentScouter(scouter_name.get());
-          repository.setRoleLocked(lock_status.get().equals("true"));
-          repository.setSpecialSwitch(Boolean.parseBoolean(special_selector.get()));
-          //repository.setCurrentMatch(matchInfo.getMatch());
+          viewModel.updateDeviceRole(role.get());
+          viewModel.updateCrowdPosition(Integer.parseInt(crowd_position.get()));
+          viewModel.updateCurrentScouter(scouter_name.get());
+          viewModel.updateRoleLocked(lock_status.get().equals("true"));
+          viewModel.updateSpecialSwitch(Boolean.parseBoolean(special_selector.get()));
+          //viewModel.updateCurrentMatch(matchInfo.getMatch());
           controller.navigate(R.id.action_provisionFragment_to_StartFragment);
         }
 
@@ -119,8 +128,26 @@ public class Provision extends Fragment {
   @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    lock = repository.isRoleLocked();
-    scouterList = repository.getScouterList();
+
+    // Observe preferences via LiveData
+    viewModel.getRoleLocked().observe(getViewLifecycleOwner(), locked -> {
+      lock = locked;
+      if (lock) {
+        binding.buttonBackProvision.setText(R.string.reprovision);
+        NavController controller = NavHostFragment.findNavController(Provision.this);
+        binding.buttonBackProvision.setOnClickListener(view1 ->
+            controller.navigate(R.id.action_provisionFragment_to_ScannerFragment));
+      }
+    });
+
+    viewModel.getScouterList().observe(getViewLifecycleOwner(), scouters -> {
+      scouterList = scouters;
+      if (scouterList != null && binding != null) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.ui_list_item,
+            scouterList);
+        binding.scouterSelect.setAdapter(adapter);
+      }
+    });
 
     NavController controller = NavHostFragment.findNavController(Provision.this);
 
@@ -170,25 +197,25 @@ public class Provision extends Fragment {
             qr_img[i] = qrCodeGenerator.generateQRCode(qr[i], 1000, 35, false);
           }
 
-          List<String> scouterListData = repository.getScouterList();
+          // Use scouterList from LiveData observer
           // Add all scouterList strings to one string with a , separating each
           String scouterListString = "ScoutData"
               + ","
-              + String.join(",", scouterListData);
+              + String.join(",", scouterList != null ? scouterList : new ArrayList<>());
           // Store the scouter list QR code in the 2nd to last slot
           qr_img[numChunks] = qrCodeGenerator.generateQRCode(scouterListString,
               1000, 35, false);
 
-          // Build the google config string from the repository
+          // Build the google config string from preferences (sync)
           String googleConfig = "GoogleConfig"
               + ","
-              + repository.getWorkbookId()
+              + viewModel.getWorkbookId().getValue()
               + ","
-              + repository.getCrowdRange()
+              + viewModel.getCrowdRange().getValue()
               + ","
-              + repository.getPitRange()
+              + viewModel.getPitRange().getValue()
               + ","
-              + repository.getSpecialtyRange();
+              + viewModel.getSpecialtyRange().getValue();
 
           // Store the google config QR code in the last slot
           qr_img[numChunks+1] = qrCodeGenerator.generateQRCode(googleConfig,
@@ -213,13 +240,10 @@ public class Provision extends Fragment {
     role_selector.setPosition(1, true);
     role_lock_switch.setChecked(true);
 
-    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.ui_list_item,
-        scouterList);
     AutoCompleteTextView dropdown = binding.scouterSelect;
 
     entryLabels = Arrays.asList(
         requireContext().getResources().getStringArray(R.array.team_list));
-    dropdown.setAdapter(adapter);
     dropdown.setThreshold(0);
 
     custom_scout.setSelectAllOnFocus(true);
@@ -306,12 +330,6 @@ public class Provision extends Fragment {
       }
       generateQrCode();
     });
-
-    if (lock) {
-      binding.buttonBackProvision.setText(R.string.reprovision);
-      binding.buttonBackProvision.setOnClickListener(view1 ->
-          controller.navigate(R.id.action_provisionFragment_to_ScannerFragment));
-    }
 
     binding.dataEraseSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
       if (isChecked) {

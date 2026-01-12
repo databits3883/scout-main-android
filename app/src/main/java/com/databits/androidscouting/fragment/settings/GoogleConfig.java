@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
@@ -22,6 +23,8 @@ import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.google.android.material.textfield.TextInputEditText;
 import com.opencsv.CSVReader;
 import java.io.File;
@@ -33,6 +36,7 @@ import java.util.Objects;
 public class GoogleConfig extends Fragment {
   private FragmentSettingsGoogleconfigBinding binding;
   private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private ConfigViewModel viewModel;
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
   MatchInfo matchInfo;
@@ -52,6 +56,11 @@ public class GoogleConfig extends Fragment {
   @Override
   public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
     super.onViewCreated(v, savedInstanceState);
+
+    // Initialize ViewModel
+    PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+    ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
     // Go Full screen
     View decorView = requireActivity().getWindow().getDecorView();
@@ -93,10 +102,10 @@ public class GoogleConfig extends Fragment {
 
   private void updateID(boolean save) {
     TextInputEditText editText = requireView().findViewById(R.id.google_id_text_edit);
-    String sheet = repository.getWorkbookId();
+    String sheet = viewModel.getWorkbookId().getValue();
     if (sheet == null) sheet = "";
     if (sheet.isEmpty() || save) {
-      repository.setWorkbookId(Objects.requireNonNull(editText.getText()).toString());
+      viewModel.updateWorkbookId(Objects.requireNonNull(editText.getText()).toString());
     } else {
       editText.setText(sheet);
     }
@@ -130,13 +139,13 @@ public class GoogleConfig extends Fragment {
       // Set range based on id_prefix
       switch (id_prefix) {
         case "Crowd":
-          repository.setCrowdRange(range);
+          viewModel.updateCrowdRange(range);
           break;
         case "Pit":
-          repository.setPitRange(range);
+          viewModel.updatePitRange(range);
           break;
         case "Specialty":
-          repository.setSpecialtyRange(range);
+          viewModel.updateSpecialtyRange(range);
           break;
       }
     } else {
@@ -144,13 +153,13 @@ public class GoogleConfig extends Fragment {
       String range = "";
       switch (id_prefix) {
         case "Crowd":
-          range = repository.getCrowdRange();
+          range = viewModel.getCrowdRange().getValue();
           break;
         case "Pit":
-          range = repository.getPitRange();
+          range = viewModel.getPitRange().getValue();
           break;
         case "Specialty":
-          range = repository.getSpecialtyRange();
+          range = viewModel.getSpecialtyRange().getValue();
           break;
       }
       if (range != null && !range.isEmpty()) {
@@ -181,10 +190,12 @@ public class GoogleConfig extends Fragment {
       googleConfigDialog.show();
     });
 
-    String accountName = repository.getGoogleAccountName();
-    scoutUtils.setButtonStatus(binding.googleButton,
-        accountName != null && !accountName.isEmpty(),
-        "Logged into Google", "Sign into Google");
+    // Observe google account name changes
+    viewModel.getGoogleAccountName().observe(getViewLifecycleOwner(), accountName -> {
+      scoutUtils.setButtonStatus(binding.googleButton,
+          accountName != null && !accountName.isEmpty(),
+          "Logged into Google", "Sign into Google");
+    });
 
     binding.googleButton.setOnClickListener(view1 -> {
       Intent intent = new Intent(requireContext(), GoogleAuthActivity.class);
@@ -220,10 +231,10 @@ public class GoogleConfig extends Fragment {
               dataArr = new String[size][];
               dataArr = list.toArray(dataArr);
               for (String[] row : dataArr) {
-                repository.setWorkbookId(row[0]);
-                repository.setCrowdRange(row[1]);
-                repository.setPitRange(row[2]);
-                repository.setSpecialtyRange(row[3]);
+                viewModel.updateWorkbookId(row[0]);
+                viewModel.updateCrowdRange(row[1]);
+                viewModel.updatePitRange(row[2]);
+                viewModel.updateSpecialtyRange(row[3]);
               }
               updateRange(binding.crowdSheetLocation.getRoot(), "Crowd", false);
               updateRange(binding.pitSheetLocation.getRoot(), "Pit", false);

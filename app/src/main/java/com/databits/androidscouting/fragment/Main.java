@@ -18,6 +18,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
@@ -28,6 +29,8 @@ import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import java.io.File;
 import java.util.Objects;
 
@@ -36,6 +39,7 @@ public class Main extends Fragment {
     private FragmentMainBinding binding;
 
     private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    private ConfigViewModel viewModel;
 
     TeamInfo teamInfo;
     FileUtils fileUtils;
@@ -60,15 +64,20 @@ public class Main extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        role = repository.getDeviceRole();
+        // Initialize ViewModel
+        PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+        ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
-        lock = repository.isRoleLocked();
+        role = viewModel.getDeviceRoleSync();
+
+        lock = viewModel.getRoleLockedSync();
 
         refreshActionBar();
 
-        int pos = repository.getCrowdPosition();
+        int pos = viewModel.getCrowdPositionSync();
 
-        repository.setRedTeam(pos != 1 && pos != 2 && pos != 3);
+        viewModel.updateRedTeam(pos != 1 && pos != 2 && pos != 3);
 
         teamInfo = new TeamInfo(requireContext());
         fileUtils = new FileUtils(requireContext());

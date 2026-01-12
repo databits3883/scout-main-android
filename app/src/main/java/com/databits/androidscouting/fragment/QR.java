@@ -36,6 +36,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -48,6 +49,8 @@ import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.QrCsvParser;  // Robust CSV parser that trims spaces and supports various separators
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 import java.util.ArrayList;
@@ -91,6 +94,7 @@ public class QR extends Fragment {
 
     // Repository for centralized preference access
     private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    private ConfigViewModel viewModel;
 
     // Handler for cycle button animation
     private Handler cycleHandler;
@@ -105,6 +109,11 @@ public class QR extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("QR", "onViewCreated: Starting QR processing");
+
+        // Initialize ViewModel
+        PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+        ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
         // --- Initialize Utility Classes ---
         matchInfo = new MatchInfo();
@@ -169,7 +178,7 @@ public class QR extends Fragment {
             // Optionally, store special data.
             ArrayList<String> specialData = new ArrayList<>();
             specialData.add(data);
-            repository.setSpecialScoutData(specialData);
+            viewModel.updateSpecialScoutData(specialData);
         } else {
             Log.d("QR", "No QR data received; setting default values.");
             updateUI();
@@ -185,8 +194,8 @@ public class QR extends Fragment {
         });
 
         binding.buttonNext.setOnClickListener(v -> {
-            repository.setManualTeamOverride(false);
-            repository.setManualMatchOverride(false);
+            viewModel.updateManualTeamOverride(false);
+            viewModel.updateManualMatchOverride(false);
             repository.removeManualTeamOverrideValue();
             matchInfo.incrementMatch();
             matchInfo.setTempMatch(matchInfo.getMatch());
@@ -206,7 +215,7 @@ public class QR extends Fragment {
 
         binding.cycleButton.setOnClickListener(v -> {
             NumberPicker matchPicker = requireView().findViewById(R.id.number_counter_inside);
-            repository.setMatchBackup(matchInfo.getMatch());
+            viewModel.updateMatchBackup(matchInfo.getMatch());
             matchPicker.setValue(1);
             matchInfo.setMatch(1);
             matchInfo.setTempMatch(1);
@@ -231,7 +240,7 @@ public class QR extends Fragment {
                     } else {
                         if (matchData != null && i == matchData.size()) {
                             cycleHandler.removeCallbacks(this);
-                            matchInfo.setMatch(repository.getMatchBackup());
+                            matchInfo.setMatch(viewModel.getMatchBackupSync());
                         }
                     }
                     i++;

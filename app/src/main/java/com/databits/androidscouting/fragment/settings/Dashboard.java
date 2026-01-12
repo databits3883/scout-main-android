@@ -20,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.anggrayudi.storage.SimpleStorageHelper;
@@ -33,6 +34,8 @@ import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.preference.PowerPreference;
 import java.io.File;
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ import static android.content.ContentValues.TAG;
 public class Dashboard extends Fragment {
   private FragmentSettingsDashboardBinding binding;
   private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private ConfigViewModel viewModel;
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
   MatchInfo matchInfo;
@@ -67,6 +71,11 @@ public class Dashboard extends Fragment {
   @Override
   public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
     super.onViewCreated(v, savedInstanceState);
+
+    // Initialize ViewModel
+    PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+    ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
     mainActivity = (MainActivity) requireContext();
 
@@ -211,6 +220,10 @@ public class Dashboard extends Fragment {
 
     });
 
+    // Observe preference changes for automatic status updates
+    viewModel.getScouterList().observe(getViewLifecycleOwner(), list -> updateStatusIndicators());
+    viewModel.getGoogleAccountName().observe(getViewLifecycleOwner(), name -> updateStatusIndicators());
+
     updateStatusIndicators();
   }
 
@@ -275,7 +288,7 @@ public class Dashboard extends Fragment {
             assert path != null;
             File file1 = new File(path);
             ArrayList<String> studentList = fileUtils.readList(file1);
-            repository.setScouterList(studentList);
+            viewModel.updateScouterList(studentList);
 
           }
         }

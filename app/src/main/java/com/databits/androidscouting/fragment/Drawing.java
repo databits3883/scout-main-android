@@ -12,6 +12,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -19,6 +20,8 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentDrawingMapBinding;
+import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.github.dhaval2404.colorpicker.ColorPickerDialog;
 import com.github.dhaval2404.colorpicker.model.ColorShape;
 import com.mihir.drawingcanvas.drawingView;
@@ -27,6 +30,7 @@ import java.util.Objects;
 
 public class Drawing extends Fragment {
   private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private ConfigViewModel viewModel;
 
   private FragmentDrawingMapBinding binding;
 
@@ -49,6 +53,11 @@ public class Drawing extends Fragment {
   @Override
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
+
+    // Initialize ViewModel
+    PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+    ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
     // Go Full screen
     View decorView = requireActivity().getWindow().getDecorView();
@@ -83,8 +92,13 @@ public class Drawing extends Fragment {
     // Configure Drawing
     mDrawView.setBrushAlpha(255);// values from 0-255
     mDrawView.setBrushColor(R.color.green_900);
-    mDrawView.setSizeForBrush(repository.getMapBrushSize());
-    mDrawView.setSizeForBrush(15); // takes value from 0-200
+
+    // Observe brush size changes
+    viewModel.getMapBrushSize().observe(getViewLifecycleOwner(), size -> {
+      if (mDrawView != null) {
+        mDrawView.setSizeForBrush(size);
+      }
+    });
   }
 
   private void buttonChanger(ImageButton buttonPlace) {
@@ -164,8 +178,7 @@ public class Drawing extends Fragment {
         .setPositiveButton("OK", (dialog, which) -> {
           NumberPicker picker = ((AlertDialog) dialog).findViewById(R.id.brush_size_picker);
           assert picker != null;
-          mDrawView.setSizeForBrush(picker.getValue());
-          repository.setMapBrushSize(picker.getValue());
+          viewModel.updateMapBrushSize(picker.getValue());
         })
         .setNegativeButton("Cancel", (dialog, which) -> {
           // Do Nothing Cancel
