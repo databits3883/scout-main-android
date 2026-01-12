@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.databinding.ActivityMainBinding;
 import com.databits.androidscouting.util.ConnectionReceiver;
 import com.databits.androidscouting.util.FileUtils;
@@ -34,6 +35,9 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
 
         PowerPreference.init(this);
+
+        // Initialize PowerPreferenceRepository with Room database
+        PowerPreferenceRepository.getInstance(this);
 
         // Go Full screen
         View decorView = this.getWindow().getDecorView();

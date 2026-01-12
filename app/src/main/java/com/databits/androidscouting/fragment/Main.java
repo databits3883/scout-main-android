@@ -38,7 +38,7 @@ public class Main extends Fragment {
 
     private FragmentMainBinding binding;
 
-    private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    private PreferenceRepository repository;
     private ConfigViewModel viewModel;
 
     TeamInfo teamInfo;
@@ -54,6 +54,7 @@ public class Main extends Fragment {
             Bundle savedInstanceState
     ) {
         // Set Sane Defaults to enable debugging and new install demo
+        repository = PowerPreferenceRepository.getInstance(requireContext());
         repository.setConfigDefaults(R.xml.defaults_config);
         repository.setDebugDefaults(R.xml.defaults_debug);
         binding = FragmentMainBinding.inflate(inflater, container, false);
@@ -77,7 +78,7 @@ public class Main extends Fragment {
 
         int pos = viewModel.getCrowdPositionSync();
 
-        viewModel.updateRedTeam(pos != 1 && pos != 2 && pos != 3);
+        viewModel.updateIsRedTeam(pos != 1 && pos != 2 && pos != 3);
 
         teamInfo = new TeamInfo(requireContext());
         fileUtils = new FileUtils(requireContext());

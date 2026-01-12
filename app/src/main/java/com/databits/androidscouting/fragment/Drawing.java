@@ -29,7 +29,7 @@ import com.travijuu.numberpicker.library.NumberPicker;
 import java.util.Objects;
 
 public class Drawing extends Fragment {
-  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private PreferenceRepository repository;
   private ConfigViewModel viewModel;
 
   private FragmentDrawingMapBinding binding;
@@ -55,8 +55,8 @@ public class Drawing extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     // Initialize ViewModel
-    PreferenceRepository repo = PowerPreferenceRepository.getInstance();
-    ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+    repository = PowerPreferenceRepository.getInstance(requireContext());
+    ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
     // Go Full screen

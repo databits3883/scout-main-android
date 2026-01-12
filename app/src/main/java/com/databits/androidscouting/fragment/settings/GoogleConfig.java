@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 
 public class GoogleConfig extends Fragment {
   private FragmentSettingsGoogleconfigBinding binding;
-  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private PreferenceRepository repository;
   private ConfigViewModel viewModel;
   private ExecutorService executor;
   private Handler mainHandler;
@@ -65,8 +65,8 @@ public class GoogleConfig extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    PreferenceRepository repo = PowerPreferenceRepository.getInstance();
-    ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+    repository = PowerPreferenceRepository.getInstance(requireContext());
+    ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
     // Initialize executor and handler for background operations

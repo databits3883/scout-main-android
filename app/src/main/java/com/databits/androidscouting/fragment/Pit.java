@@ -79,32 +79,36 @@ public class Pit extends BaseScoutFragment {
                 }
 
                 if (id == R.id.actions_change_scouter) {
-                    View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select,
-                        null);
-                    AlertDialog scouterDialog = new AlertDialog.Builder(requireContext())
-                        .setTitle("Select Scouter")
-                        .setView(dialogView)
-                        .setPositiveButton("Set", (dialog1, which1) -> {
-                            AutoCompleteTextView dropdown = ((AlertDialog) dialog1)
-                                .findViewById(R.id.scouter_select);
-                            // Save the scouter name to the common preference
-                            configPreference.setString("current_scouter",
-                                Objects.requireNonNull(dropdown).getText().toString());
-                            refreshActionBar();
-                        })
-                        .setNegativeButton("Cancel", (dialog1, which1) -> {
-                            // Do nothing
-                        })
-                        .create();
-
-                    scouterList = debugPreference.getObject("scouter_list", List.class);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                        R.layout.ui_list_item,
-                        scouterList);
-                    AutoCompleteTextView dropdown = dialogView.findViewById(R.id.scouter_select);
-                    dropdown.setAdapter(adapter);
-                    dropdown.setThreshold(0);
-                    scouterDialog.show();
+                    // Load scouter list on background thread
+                    new Thread(() -> {
+                        List<String> loadedScouterList = repository.getScouterList();
+                        requireActivity().runOnUiThread(() -> {
+                            scouterList = loadedScouterList;
+                            View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
+                            AlertDialog scouterDialog = new AlertDialog.Builder(requireContext())
+                                .setTitle("Select Scouter")
+                                .setView(dialogView)
+                                .setPositiveButton("Set", (dialog1, which1) -> {
+                                    AutoCompleteTextView dropdown = ((AlertDialog) dialog1)
+                                        .findViewById(R.id.scouter_select);
+                                    // Save the scouter name to the common preference
+                                    repository.setCurrentScouter(
+                                        Objects.requireNonNull(dropdown).getText().toString());
+                                    refreshActionBar();
+                                })
+                                .setNegativeButton("Cancel", (dialog1, which1) -> {
+                                    // Do nothing
+                                })
+                                .create();
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                                R.layout.ui_list_item,
+                                scouterList);
+                            AutoCompleteTextView dropdown = dialogView.findViewById(R.id.scouter_select);
+                            dropdown.setAdapter(adapter);
+                            dropdown.setThreshold(0);
+                            scouterDialog.show();
+                        });
+                    }).start();
                 }
 
                 // Support manually setting the team number
@@ -121,8 +125,8 @@ public class Pit extends BaseScoutFragment {
                             int teamNumber = Integer.parseInt(
                                 Objects.requireNonNull(editText.getText()).toString());
                             // Save the team number to the preference
-                            debugPreference.setBoolean("manual_team_override_toggle", true);
-                            debugPreference.putInt("manual_team_override_value", teamNumber);
+                            repository.setManualTeamOverride(true);
+                            repository.setManualTeamOverrideValue(teamNumber);
                             mRecyclerView.post(() -> {
                                 com.databits.androidscouting.layout.LayoutPresenter presenter =
                                     new com.databits.androidscouting.layout.LayoutPresenter(
@@ -139,7 +143,7 @@ public class Pit extends BaseScoutFragment {
 
                 // Ask the user if they want to re-provision the device
                 if (id == R.id.action_reconfigure) {
-                    if (!configPreference.getBoolean("role_locked_toggle")) {
+                    if (!repository.isRoleLocked()) {
                         controller.navigate(R.id.action_pitScoutFragment_to_ScannerFragment);
                         return true;
                     }
@@ -173,8 +177,8 @@ public class Pit extends BaseScoutFragment {
                             NumberPicker matchPicker =
                                 ((AlertDialog) dialog1).findViewById(R.id.number_counter_inside);
                             int match = Objects.requireNonNull(matchPicker).getValue();
-                            debugPreference.setBoolean("manual_match_override_toggle", true);
-                            debugPreference.putInt("manual_match_override_value", match);
+                            repository.setManualMatchOverride(true);
+                            repository.setManualMatchOverrideValue(match);
                             refreshActionBar();
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -197,7 +201,7 @@ public class Pit extends BaseScoutFragment {
                             "Are you sure you want to unlock?\n\nThis will bring you back to"
                                 + " the main menu and require that your device be re-provisioned")
                         .setPositiveButton("Yes", (dialog1, which1) -> {
-                            configPreference.setBoolean("role_locked_toggle", false);
+                            repository.setRoleLocked(false);
                             controller.navigate(R.id.action_pitScoutFragment_to_StartFragment);
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -241,18 +245,17 @@ public class Pit extends BaseScoutFragment {
 
     public void teamSpinner(String team, boolean remove, Context context, View v) {
         String[] origList = context.getResources().getStringArray(R.array.team_list);
-        listPreference.setBoolean("pit_remove_enabled", true);
-        ArrayList<String> remainingList = listPreference.getObject(
-            "pit_teams_remaining_list", ArrayList.class);
-        if (remainingList != null) {
-            editedList = remainingList;
+        repository.setPitRemoveEnabled(true);
+        List<String> remainingList = repository.getPitTeamsRemainingList();
+        if (remainingList != null && !remainingList.isEmpty()) {
+            editedList = new ArrayList<>(remainingList);
         } else {
             editedList = new ArrayList<>(Arrays.asList(origList));
         }
 
         if (remove) {
             editedList.remove(team);
-            listPreference.setObject("pit_teams_remaining_list", editedList);
+            repository.setPitTeamsRemainingList(editedList);
         }
         Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemChanged(1);
     }

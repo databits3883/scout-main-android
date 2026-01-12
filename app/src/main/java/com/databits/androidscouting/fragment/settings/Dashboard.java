@@ -46,7 +46,7 @@ import static android.content.ContentValues.TAG;
 
 public class Dashboard extends Fragment {
   private FragmentSettingsDashboardBinding binding;
-  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private PreferenceRepository repository;
   private ConfigViewModel viewModel;
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
@@ -62,7 +62,7 @@ public class Dashboard extends Fragment {
       @NonNull LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState
   ) {
-
+    repository = PowerPreferenceRepository.getInstance(requireContext());
     binding = FragmentSettingsDashboardBinding.inflate(inflater, container, false);
     return binding.getRoot();
 
@@ -228,30 +228,41 @@ public class Dashboard extends Fragment {
   }
 
   public void updateStatusIndicators(){
+    // Update indicators that don't require database access immediately
     setStatusIndicator(binding.internetStatusIndicator, "Internet", mainActivity.checkConnection(),
         "Online", "Offline");
 
-    setStatusIndicator(binding.matchListStatusIndicator, "Match List",
-        repository.getTeamMatchListSize() > 0 ||
-        fileUtils.fileExists(String.valueOf(
-            new File(requireContext().getFilesDir() + "/" + "match.csv"))),
-        "Loaded", "Not Loaded");
+    // Run database queries on background thread
+    new Thread(() -> {
+      // Query database on background thread
+      int teamMatchListSize = repository.getTeamMatchListSize();
+      List<String> scouterList = repository.getScouterList();
+      String googleAccountName = repository.getGoogleAccountName();
 
-    List<String> scouterList = repository.getScouterList();
-    setStatusIndicator(binding.scouterListStatusIndicator, "Scouter List",
-        fileUtils.fileExists(String.valueOf(
-            new File(requireContext().getFilesDir() + "/" + "scouter_list.txt"))) &&
-        scouterList != null && !scouterList.isEmpty(),
-        "Loaded", "Not Loaded");
+      boolean matchListFileExists = fileUtils.fileExists(String.valueOf(
+          new File(requireContext().getFilesDir() + "/" + "match.csv")));
+      boolean scouterListFileExists = fileUtils.fileExists(String.valueOf(
+          new File(requireContext().getFilesDir() + "/" + "scouter_list.txt")));
 
-    String googleAccountName = repository.getGoogleAccountName();
-    setStatusIndicator(binding.googleStatusIndicator, "Google",
-        googleAccountName != null && !googleAccountName.isEmpty(),
-        "Logged in", "Logged out");
+      // Update UI on main thread
+      requireActivity().runOnUiThread(() -> {
+        setStatusIndicator(binding.matchListStatusIndicator, "Match List",
+            teamMatchListSize > 0 || matchListFileExists,
+            "Loaded", "Not Loaded");
 
-    setStatusIndicator(binding.permissionStatusIndicator, "Permissions",
-        scoutUtils.allPermissionsGranted() && Settings.System.canWrite(requireActivity()),
-        "Granted", "Denied");
+        setStatusIndicator(binding.scouterListStatusIndicator, "Scouter List",
+            scouterListFileExists && scouterList != null && !scouterList.isEmpty(),
+            "Loaded", "Not Loaded");
+
+        setStatusIndicator(binding.googleStatusIndicator, "Google",
+            googleAccountName != null && !googleAccountName.isEmpty(),
+            "Logged in", "Logged out");
+
+        setStatusIndicator(binding.permissionStatusIndicator, "Permissions",
+            scoutUtils.allPermissionsGranted() && Settings.System.canWrite(requireActivity()),
+            "Granted", "Denied");
+      });
+    }).start();
   }
 
   public void setStatusIndicator(UiStatusIndicatorBinding StatusIndicator, String title,

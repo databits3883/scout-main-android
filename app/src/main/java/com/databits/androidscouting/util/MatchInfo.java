@@ -5,18 +5,25 @@ import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class MatchInfo {
-  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private PreferenceRepository repository;
 
   // Lazy-loaded to avoid premature preference access during field initialization
   private Integer match = null;
 
+  private PreferenceRepository getRepository() {
+    if (repository == null) {
+      repository = PowerPreferenceRepository.getInstance();
+    }
+    return repository;
+  }
+
   public int getMatch() {
-    if (repository.isManualMatchOverrideEnabled()) {
-      return repository.getManualMatchOverrideValue();
+    if (getRepository().isManualMatchOverrideEnabled()) {
+      return getRepository().getManualMatchOverrideValue();
     } else {
       // Lazy load match value on first access
       if (match == null) {
-        match = repository.getCurrentMatch();
+        match = getRepository().getCurrentMatch();
       }
       return match;
     }
@@ -24,21 +31,21 @@ public class MatchInfo {
 
   public void setMatch(int val) {
     match = val; // Update cached value
-    repository.setCurrentMatch(val);
+    getRepository().setCurrentMatch(val);
   }
 
   public void incrementMatch() {
-    int newValue = repository.getCurrentMatch() + 1;
+    int newValue = getRepository().getCurrentMatch() + 1;
     match = newValue; // Update cached value
-    repository.setCurrentMatch(newValue);
+    getRepository().setCurrentMatch(newValue);
   }
 
   public void setTempMatch(int val) {
-    repository.setDebugMatch(val);
+    getRepository().setDebugMatch(val);
   }
 
   public int getTempMatch() {
-    return repository.getDebugMatch();
+    return getRepository().getDebugMatch();
   }
 
   // Default configuration for the match number picker

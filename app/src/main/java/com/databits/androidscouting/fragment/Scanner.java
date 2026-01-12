@@ -36,7 +36,6 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
-import com.preference.Preference;
 import com.databits.androidscouting.model.QrCodeDrawable;
 import com.databits.androidscouting.model.QrCodeViewModel;
 import com.databits.androidscouting.util.GoogleAuthActivity;
@@ -83,10 +82,6 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private ConfigViewModel viewModel;
 
     private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
-
-    // Direct preference access for dynamic keys that don't fit repository pattern
-    private Preference matchPreference;
-    private Preference listPreference;
 
     MatchInfo matchInfo;
     TeamInfo teamInfo;
@@ -169,10 +164,6 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize direct preference access for dynamic keys
-        matchPreference = PowerPreference.getFileByName("Match");
-        listPreference = PowerPreference.getFileByName("List");
-
         // Go Full screen
         View decorView = requireActivity().getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
@@ -218,13 +209,22 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         matchCounter = matchInfo.configurePicker(matchCounter);
 
-        if (repository.getTeamMatchData() == null) {
-            teamInfo.read_teams();
-        }
+        // Check team list size on background thread
+        new Thread(() -> {
+            int teamMatchListSize = repository.getTeamMatchListSize();
+            if (teamMatchListSize == 0) {
+                teamInfo.read_teams();
+            }
 
-        if (teamInfo.teamsLoaded()) {
-            setupTeamDisplay(match);
-        }
+            // Check if teams are loaded (also accesses database)
+            boolean teamsAreLoaded = teamInfo.teamsLoaded();
+
+            requireActivity().runOnUiThread(() -> {
+                if (teamsAreLoaded) {
+                    setupTeamDisplay(match);
+                }
+            });
+        }).start();
 
         //Override the default listener to configure the ui
         matchCounter.setValueChangedListener((value, action) -> {
@@ -308,53 +308,13 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     viewModel.updateSpecialtyRange(parts[4]);
                 } else if (bar_string.startsWith("MatchData")) {
                     List<String[]> matchData = splitMatchData(bar_string);
-                    String[][] originalMatchData = repository.getTeamMatchData();
-                    if (originalMatchData == null) {
-                        originalMatchData = new String[0][0];
+                    if (!matchData.isEmpty()) {
+                        // Import new match data into Room database
+                        // importTeamSchedule handles deduplication via unique index
+                        String[][] newMatchDataArray = matchData.toArray(new String[0][0]);
+                        viewModel.importTeamSchedule(newMatchDataArray);
+                        setupTeamDisplay(match);
                     }
-                    // Combine matchData with originalMatchData and delete duplicates
-                    String[][] combinedMatchData = new String[originalMatchData.length +
-                        matchData.size()][];
-                    System.arraycopy(originalMatchData, 0, combinedMatchData, 0,
-                        originalMatchData.length);
-                    System.arraycopy(matchData.toArray(new String[0][0]), 0, combinedMatchData,
-                        originalMatchData.length, matchData.size());
-                    viewModel.updateTeamMatchData(combinedMatchData);
-
-                    // Sort/Organize combinedMatchData entries in the array by match number
-                    // Handle the case where the Int is not a number
-                    // Deduplicate identical lines
-                    for (String[] entry : combinedMatchData) {
-                        try {
-                            entry[0] = String.valueOf(Integer.parseInt(entry[0]));
-                        } catch (NumberFormatException e) {
-                            entry[0] = "0";
-                        }
-                    }
-                    Arrays.sort(combinedMatchData,
-                        Comparator.comparingInt(a -> Integer.parseInt(a[0])));
-
-                  int newLength = combinedMatchData.length;
-
-                    for (int i = 1; i < newLength; i++) {
-                        if (Arrays.equals(combinedMatchData[i], combinedMatchData[i - 1])) {
-                            // Shift elements to the left, overwriting the duplicate
-                            System.arraycopy(combinedMatchData, i + 1, combinedMatchData, i, newLength - i - 1);
-                            // Reduce the effective size of the array
-                            newLength--;
-                            // Decrement i to recheck the current position, as the next element has been shifted
-                            i--;
-                        }
-                    }
-
-                    // Create a new array with the correct size
-                    String[][] uniqueMatchData = new String[newLength][];
-                    System.arraycopy(combinedMatchData, 0, uniqueMatchData, 0, newLength);
-
-                    // Save size and match info for use elsewhere
-                    viewModel.updateTeamMatchListSize(newLength);
-                    viewModel.updateTeamMatchData(uniqueMatchData);
-                    setupTeamDisplay(match);
                 } else if (bar_string.startsWith("role")) {
                     process_qr(bar_string);
                 } else if (bar_string.contains(teamInfo.getMasterTeam(match, 1))) {
@@ -435,16 +395,14 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             System.err.println("Invalid data format: Chunk index is not a number");
             return result; // Return empty list for invalid format
         }
-        Set<Integer> processedChunks = repository.getProcessedChunks();
         // Check if this chunk has already been processed
-        if (processedChunks.contains(chunkIndex)) {
+        if (repository.hasProcessedChunk(chunkIndex)) {
             System.out.println("Duplicate chunk detected: " + chunkIndex + ". Skipping.");
             return result; // Return empty list to indicate no new data
         }
 
-        // Add the chunk index to the set of processed chunks
-        processedChunks.add(chunkIndex);
-        viewModel.updateProcessedChunks(processedChunks);
+        // Mark the chunk as processed
+        viewModel.markChunkProcessed(chunkIndex);
 
         // Split the data string into individual match entries
         String[] matchEntries = parts[2].split("(?<=])(?=\\[)");
@@ -499,51 +457,50 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             uploadMode = "Crowd";
         }
 
-        String uploadData;
-        String uploadLines;
-
+        String dataType;
         switch (uploadMode) {
             case "Crowd":
-                uploadData = "upload_data";
-                uploadLines = "seen_lines";
+                dataType = "CROWD";
                 break;
             case "Speciality":
-                uploadData = "special_upload_data";
-                uploadLines = "special_seen_lines";
+                dataType = "SPECIALTY";
                 break;
             case "Pit":
-                uploadData = "pit_upload_data";
-                uploadLines = "pit_seen_lines";
+                dataType = "PIT";
                 break;
             default:
-                uploadData = "upload_data";
-                uploadLines = "seen_lines";
+                dataType = "CROWD";
                 break;
         }
-
-        // Check to see if data is already in the list, if not initialize the list
-        List<String[]> raw_data = matchPreference.getObject(uploadData, ArrayList.class, new ArrayList<>());
-
-        // Split the string into an array
-        String[] split = bar_string.split(",");
-        raw_data.add(split);
 
         // Make upload.csv for debugging
         makeUploadFile(bar_string);
 
-        // Create a HashSet to keep track of the lines we've already seen
-        Set<String> seenLines = listPreference.getObject(uploadLines, Set.class, new HashSet<>());
+        // Check for duplicate using Room seen_lines and don't upload role qr data
+        if (!repository.hasSeenLine(bar_string, dataType) && !bar_string.contains("Role")) {
+            // Mark as seen
+            repository.markLineSeen(bar_string, dataType);
 
-        // Check for duplicate and don't upload role qr data
-        if (!seenLines.contains(bar_string) && !bar_string.contains("Role")) {
-            // Add the line to the HashSet so we can check for duplicates in the future
-            seenLines.add(bar_string);
+            // Add to upload queue
+            com.databits.androidscouting.data.entity.UploadQueueItem item =
+                new com.databits.androidscouting.data.entity.UploadQueueItem();
+            item.uploadType = dataType;
+            item.dataCsv = bar_string;
 
-            // Save the HashSet to the shared preferences
-            listPreference.setObject(uploadLines, seenLines);
+            // Extract match and team number from CSV string if possible
+            String[] parts = bar_string.split(",");
+            if (parts.length > 0) {
+                try {
+                    item.matchNumber = Integer.parseInt(parts[0]);
+                } catch (NumberFormatException e) {
+                    item.matchNumber = null;
+                }
+            }
+            if (parts.length > 1) {
+                item.teamNumber = parts[1];
+            }
 
-            // Save the data to the shared preferences
-            matchPreference.setObject(uploadData, raw_data);
+            viewModel.addUploadItem(item);
         }
     }
 
@@ -555,18 +512,28 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private void setupTeamDisplay(int match) {
         int[] teamIds = new int[] {R.id.blue1, R.id.blue2, R.id.blue3, R.id.red1, R.id.red2,
             R.id.red3};
-        for (int i = 0; i < teamIds.length; i++) {
-            TextView team = requireView().findViewById(teamIds[i]);
-            team.setText(teamInfo.getMasterTeam(match, i+1));
-            if (i == 0 || i == 1 || i == 2) {
-                team.setBackgroundTintList(getResources().getColorStateList(
-                    android.R.color.holo_blue_light,null));
-            } else {
-                team.setBackgroundTintList(getResources().getColorStateList(
-                    android.R.color.holo_red_light, null));
+
+        // Load team data on background thread
+        new Thread(() -> {
+            String[] teams = new String[6];
+            for (int i = 0; i < 6; i++) {
+                teams[i] = teamInfo.getMasterTeam(match, i+1);
             }
 
-        }
+            requireActivity().runOnUiThread(() -> {
+                for (int i = 0; i < teamIds.length; i++) {
+                    TextView team = requireView().findViewById(teamIds[i]);
+                    team.setText(teams[i]);
+                    if (i == 0 || i == 1 || i == 2) {
+                        team.setBackgroundTintList(getResources().getColorStateList(
+                            android.R.color.holo_blue_light,null));
+                    } else {
+                        team.setBackgroundTintList(getResources().getColorStateList(
+                            android.R.color.holo_red_light, null));
+                    }
+                }
+            });
+        }).start();
     }
 
     private void process_qr(String raw_qr) {

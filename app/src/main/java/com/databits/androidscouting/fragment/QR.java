@@ -93,7 +93,7 @@ public class QR extends Fragment {
     private int matchCounter = 1; // Initialized to 1
 
     // Repository for centralized preference access
-    private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    private PreferenceRepository repository;
     private ConfigViewModel viewModel;
 
     // Handler for cycle button animation
@@ -111,8 +111,8 @@ public class QR extends Fragment {
         Log.d("QR", "onViewCreated: Starting QR processing");
 
         // Initialize ViewModel
-        PreferenceRepository repo = PowerPreferenceRepository.getInstance();
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
+        repository = PowerPreferenceRepository.getInstance(requireContext());
+        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
         viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
         // --- Initialize Utility Classes ---
@@ -267,8 +267,15 @@ public class QR extends Fragment {
      */
     private void updateUI() {
         Log.d("QR", "Updating UI - Team: " + team + ", Temp Match: " + matchInfo.getTempMatch());
-        binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", teamInfo.getTeam(matchInfo.getTempMatch())));
-        binding.qrMatchText.setText(String.format(Locale.US, "Match: %d", matchInfo.getTempMatch()));
+        int tempMatch = matchInfo.getTempMatch();
+        // Load team data on background thread
+        new Thread(() -> {
+            int teamNumber = teamInfo.getTeam(tempMatch);
+            requireActivity().runOnUiThread(() -> {
+                binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", teamNumber));
+                binding.qrMatchText.setText(String.format(Locale.US, "Match: %d", tempMatch));
+            });
+        }).start();
     }
 
     /**
@@ -356,13 +363,18 @@ public class QR extends Fragment {
      */
     private void setTeamText(boolean mode, int team) {
         int tempMatch = matchInfo.getTempMatch();
-        // Default team display using teamInfo.
-        String teamDisplay = String.format(Locale.US, "Team: %d", teamInfo.getTeam(tempMatch));
-        // If Pit mode is active and an override team is provided, use it.
+        // If Pit mode is active and an override team is provided, use it directly.
         if (mode && team != 0) {
-            teamDisplay = String.format(Locale.US, "Team: %d", team);
+            binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", team));
+        } else {
+            // Load team data on background thread for default display
+            new Thread(() -> {
+                int teamNumber = teamInfo.getTeam(tempMatch);
+                requireActivity().runOnUiThread(() -> {
+                    binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", teamNumber));
+                });
+            }).start();
         }
-        binding.qrTeamText.setText(teamDisplay);
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.databits.androidscouting.data.repository;
 
+import androidx.lifecycle.LiveData;
+import com.databits.androidscouting.data.entity.UploadQueueItem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -336,30 +338,46 @@ public interface PreferenceRepository {
     void setMapBrushSize(int size);
 
     /**
-     * Get the scouter list
+     * Get the scouter list (Room-based)
      * @return List of scouter names
      */
     List<String> getScouterList();
 
     /**
-     * Set the scouter list
+     * Get scouter list as LiveData
+     * @return LiveData list of scouter names
+     */
+    LiveData<List<String>> getScouterListLive();
+
+    /**
+     * Set the scouter list (Room-based)
      * @param scouters List of scouter names
      */
     void setScouterList(List<String> scouters);
 
-    // ==================== List Preferences ====================
+    // ==================== List Preferences (Room-based Team Scheduling) ====================
 
     /**
-     * Get the team match data as 2D array
-     * @return Team match data or null if not set
+     * Get team number for a specific match and position (from Room database)
+     * @param matchNumber Match number
+     * @param position Crowd position (1-6)
+     * @return Team number or null if not found
      */
-    String[][] getTeamMatchData();
+    String getTeamNumber(int matchNumber, int position);
 
     /**
-     * Set the team match data
-     * @param data Team match data as 2D array
+     * Export all team schedule data as String[][] for QR code generation
+     * Format: [matchNumber, team1, team2, team3, team4, team5, team6]
+     * @return 2D array of team schedule data, or null if no data
      */
-    void setTeamMatchData(String[][] data);
+    String[][] exportTeamSchedule();
+
+    /**
+     * Import team schedule from CSV data
+     * Format: [matchNumber, crowdPosition, teamNumber, alliance]
+     * @param csvData 2D array of team schedule data
+     */
+    void importTeamSchedule(String[][] csvData);
 
     /**
      * Check if pit remove is enabled
@@ -398,16 +416,28 @@ public interface PreferenceRepository {
     void setGoogleConfig(String[][] config);
 
     /**
-     * Get the pit teams remaining list
-     * @return ArrayList of remaining pit teams
+     * Get the pit teams remaining list (Room-based)
+     * @return List of remaining pit team numbers
      */
-    ArrayList<String> getPitTeamsRemainingList();
+    List<String> getPitTeamsRemainingList();
 
     /**
-     * Set the pit teams remaining list
-     * @param teams ArrayList of remaining pit teams
+     * Get pit teams remaining as LiveData
+     * @return LiveData list of pit team numbers
      */
-    void setPitTeamsRemainingList(ArrayList<String> teams);
+    LiveData<List<String>> getPitTeamsRemainingLive();
+
+    /**
+     * Set the pit teams remaining list (Room-based)
+     * @param teams List of remaining pit team numbers
+     */
+    void setPitTeamsRemainingList(List<String> teams);
+
+    /**
+     * Remove a team from pit teams remaining
+     * @param teamNumber Team number to remove
+     */
+    void removePitTeam(String teamNumber);
 
     /**
      * Get the special scout data list
@@ -422,95 +452,98 @@ public interface PreferenceRepository {
     void setSpecialScoutData(ArrayList<String> data);
 
     /**
-     * Get the set of processed chunks
-     * @return Set of processed chunk indices
+     * Check if a chunk has been processed (Room-based)
+     * @param chunkId Chunk ID to check
+     * @return true if chunk has been processed
      */
-    Set<Integer> getProcessedChunks();
+    boolean hasProcessedChunk(int chunkId);
 
     /**
-     * Set the set of processed chunks
-     * @param chunks Set of processed chunk indices
+     * Mark a chunk as processed (Room-based)
+     * @param chunkId Chunk ID to mark
      */
-    void setProcessedChunks(Set<Integer> chunks);
+    void markChunkProcessed(int chunkId);
 
     /**
-     * Get the set of seen lines for crowd upload
-     * @return Set of seen line strings
+     * Get all processed chunk IDs
+     * @return List of processed chunk IDs
      */
-    Set<String> getSeenLines();
+    List<Integer> getAllProcessedChunks();
 
     /**
-     * Set the set of seen lines for crowd upload
-     * @param lines Set of seen line strings
+     * Clear all processed chunks
      */
-    void setSeenLines(Set<String> lines);
+    void clearProcessedChunks();
 
     /**
-     * Get the set of seen lines for special upload
-     * @return Set of special seen line strings
+     * Check if a line has been seen (Room-based deduplication)
+     * @param lineHash Hash of the line content
+     * @param dataType Data type: "CROWD", "PIT", or "SPECIALTY"
+     * @return true if line has been seen before
      */
-    Set<String> getSpecialSeenLines();
+    boolean hasSeenLine(String lineHash, String dataType);
 
     /**
-     * Set the set of seen lines for special upload
-     * @param lines Set of special seen line strings
+     * Mark a line as seen (Room-based deduplication)
+     * @param lineHash Hash of the line content
+     * @param dataType Data type: "CROWD", "PIT", or "SPECIALTY"
      */
-    void setSpecialSeenLines(Set<String> lines);
+    void markLineSeen(String lineHash, String dataType);
 
     /**
-     * Get the set of seen lines for pit upload
-     * @return Set of pit seen line strings
+     * Clear seen lines for a specific data type
+     * @param dataType Data type: "CROWD", "PIT", or "SPECIALTY"
      */
-    Set<String> getPitSeenLines();
+    void clearSeenLines(String dataType);
 
     /**
-     * Set the set of seen lines for pit upload
-     * @param lines Set of pit seen line strings
+     * Clear all seen lines
      */
-    void setPitSeenLines(Set<String> lines);
+    void clearAllSeenLines();
 
-    // ==================== Match Preferences ====================
-
-    /**
-     * Get the upload data queue
-     * @return List of data to upload
-     */
-    ArrayList<HashMap<String, Object>> getUploadData();
+    // ==================== Match Preferences (Room-based) ====================
 
     /**
-     * Set the upload data queue
-     * @param data List of data to upload
+     * Get pending upload items from the queue (synchronous for background threads)
+     * @return List of pending upload items
      */
-    void setUploadData(ArrayList<HashMap<String, Object>> data);
+    List<UploadQueueItem> getPendingUploads();
 
     /**
-     * Get the pit upload data queue
-     * @return List of pit data to upload
+     * Get pending upload items as LiveData for UI observation
+     * @return LiveData list of pending upload items
      */
-    ArrayList<HashMap<String, Object>> getPitUploadData();
+    LiveData<List<UploadQueueItem>> getPendingUploadsLive();
 
     /**
-     * Set the pit upload data queue
-     * @param data List of pit data to upload
+     * Add an item to the upload queue
+     * @param item Upload queue item to add
      */
-    void setPitUploadData(ArrayList<HashMap<String, Object>> data);
+    void addUploadItem(UploadQueueItem item);
 
     /**
-     * Get the special upload data queue
-     * @return List of special data to upload
+     * Mark an upload as successful
+     * @param id Upload item ID
      */
-    ArrayList<HashMap<String, Object>> getSpecialUploadData();
+    void markUploadSuccess(long id);
 
     /**
-     * Set the special upload data queue
-     * @param data List of special data to upload
+     * Mark an upload as failed with error message
+     * @param id Upload item ID
+     * @param error Error message
      */
-    void setSpecialUploadData(ArrayList<HashMap<String, Object>> data);
+    void markUploadFailed(long id, String error);
 
     /**
-     * Clear all upload data (match preferences)
+     * Clear all successful uploads from the queue
      */
-    void clearUploadData();
+    void clearSuccessfulUploads();
+
+    /**
+     * Get count of pending uploads as LiveData
+     * @return LiveData integer count
+     */
+    LiveData<Integer> getPendingUploadCount();
 
     /**
      * Get match data for a specific match number

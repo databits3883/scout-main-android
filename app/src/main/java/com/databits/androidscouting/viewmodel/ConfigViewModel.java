@@ -3,11 +3,9 @@ package com.databits.androidscouting.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import com.databits.androidscouting.data.entity.UploadQueueItem;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,15 +42,12 @@ public class ConfigViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isMaster;
     private final MutableLiveData<Boolean> isRedTeam;
     private final MutableLiveData<Integer> mapBrushSize;
-    private final MutableLiveData<List<String>> scouterList;
-    private final MutableLiveData<String[][]> teamMatchData;
-    private final MutableLiveData<Integer> teamMatchListSize;
-    private final MutableLiveData<Set<Integer>> processedChunks;
 
-    // Upload data
-    private final MutableLiveData<ArrayList<HashMap<String, Object>>> uploadData;
-    private final MutableLiveData<ArrayList<HashMap<String, Object>>> pitUploadData;
-    private final MutableLiveData<ArrayList<HashMap<String, Object>>> specialUploadData;
+    // Room-based LiveData (directly from repository, not MutableLiveData)
+    private final LiveData<List<String>> scouterList;
+    private final LiveData<List<UploadQueueItem>> pendingUploads;
+    private final LiveData<Integer> pendingUploadCount;
+    private final LiveData<List<String>> pitTeamsRemaining;
 
     public ConfigViewModel(PreferenceRepository repository) {
         this.repository = repository;
@@ -82,16 +77,14 @@ public class ConfigViewModel extends ViewModel {
         this.isMaster = new MutableLiveData<>();
         this.isRedTeam = new MutableLiveData<>();
         this.mapBrushSize = new MutableLiveData<>();
-        this.scouterList = new MutableLiveData<>();
-        this.teamMatchData = new MutableLiveData<>();
-        this.teamMatchListSize = new MutableLiveData<>();
-        this.processedChunks = new MutableLiveData<>();
 
-        this.uploadData = new MutableLiveData<>();
-        this.pitUploadData = new MutableLiveData<>();
-        this.specialUploadData = new MutableLiveData<>();
+        // Initialize Room-based LiveData directly from repository
+        this.scouterList = repository.getScouterListLive();
+        this.pendingUploads = repository.getPendingUploadsLive();
+        this.pendingUploadCount = repository.getPendingUploadCount();
+        this.pitTeamsRemaining = repository.getPitTeamsRemainingLive();
 
-        // Load initial values
+        // Load initial values for simple preferences
         loadPreferences();
     }
 
@@ -125,15 +118,9 @@ public class ConfigViewModel extends ViewModel {
             isMaster.postValue(repository.isMaster());
             isRedTeam.postValue(repository.isRedTeam());
             mapBrushSize.postValue(repository.getMapBrushSize());
-            scouterList.postValue(repository.getScouterList());
-            teamMatchData.postValue(repository.getTeamMatchData());
-            teamMatchListSize.postValue(repository.getTeamMatchListSize());
-            processedChunks.postValue(repository.getProcessedChunks());
 
-            // Upload data
-            uploadData.postValue(repository.getUploadData());
-            pitUploadData.postValue(repository.getPitUploadData());
-            specialUploadData.postValue(repository.getSpecialUploadData());
+            // Note: Room-based LiveData (scouterList, pendingUploads, etc.) are
+            // automatically updated by Room and don't need to be loaded here
         });
     }
 
@@ -233,18 +220,27 @@ public class ConfigViewModel extends ViewModel {
         return scouterList;
     }
 
-    // ==================== Upload Data Getters ====================
+    // ==================== Room-based Data Getters ====================
 
-    public LiveData<ArrayList<HashMap<String, Object>>> getUploadData() {
-        return uploadData;
+    /**
+     * Get pending upload items (Room LiveData)
+     */
+    public LiveData<List<UploadQueueItem>> getPendingUploads() {
+        return pendingUploads;
     }
 
-    public LiveData<ArrayList<HashMap<String, Object>>> getPitUploadData() {
-        return pitUploadData;
+    /**
+     * Get count of pending uploads (Room LiveData)
+     */
+    public LiveData<Integer> getPendingUploadCount() {
+        return pendingUploadCount;
     }
 
-    public LiveData<ArrayList<HashMap<String, Object>>> getSpecialUploadData() {
-        return specialUploadData;
+    /**
+     * Get pit teams remaining (Room LiveData)
+     */
+    public LiveData<List<String>> getPitTeamsRemaining() {
+        return pitTeamsRemaining;
     }
 
     // ==================== Config Preference Setters ====================
@@ -405,67 +401,77 @@ public class ConfigViewModel extends ViewModel {
         });
     }
 
+    // ==================== Room-based Data Operations ====================
+
+    /**
+     * Update scouter list (Room-based)
+     */
     public void updateScouterList(List<String> scouters) {
-        executor.execute(() -> {
-            repository.setScouterList(scouters);
-            scouterList.postValue(scouters);
-        });
+        repository.setScouterList(scouters);
+        // No need to post value - Room LiveData updates automatically
     }
 
-    public LiveData<String[][]> getTeamMatchData() {
-        return teamMatchData;
+    /**
+     * Update special scout data
+     */
+    public void updateSpecialScoutData(ArrayList<String> data) {
+        repository.setSpecialScoutData(data);
     }
 
-    public void updateTeamMatchData(String[][] data) {
-        executor.execute(() -> {
-            repository.setTeamMatchData(data);
-            teamMatchData.postValue(data);
-        });
+    /**
+     * Import team schedule from CSV data (Room-based)
+     */
+    public void importTeamSchedule(String[][] csvData) {
+        repository.importTeamSchedule(csvData);
     }
 
-    public LiveData<Integer> getTeamMatchListSize() {
-        return teamMatchListSize;
+    /**
+     * Get team number for a specific match and position (synchronous, for background threads)
+     */
+    public String getTeamNumberSync(int matchNumber, int position) {
+        return repository.getTeamNumber(matchNumber, position);
     }
 
-    public void updateTeamMatchListSize(int size) {
-        executor.execute(() -> {
-            repository.setTeamMatchListSize(size);
-            teamMatchListSize.postValue(size);
-        });
+    /**
+     * Check if a chunk has been processed (synchronous, Room query)
+     */
+    public boolean hasProcessedChunkSync(int chunkId) {
+        return repository.hasProcessedChunk(chunkId);
     }
 
-    public LiveData<Set<Integer>> getProcessedChunks() {
-        return processedChunks;
+    /**
+     * Mark a chunk as processed (Room-based)
+     */
+    public void markChunkProcessed(int chunkId) {
+        repository.markChunkProcessed(chunkId);
     }
 
-    public void updateProcessedChunks(Set<Integer> chunks) {
-        executor.execute(() -> {
-            repository.setProcessedChunks(chunks);
-            processedChunks.postValue(chunks);
-        });
+    /**
+     * Add an item to the upload queue (Room-based)
+     */
+    public void addUploadItem(UploadQueueItem item) {
+        repository.addUploadItem(item);
     }
 
-    // ==================== Upload Data Setters ====================
-
-    public void updateUploadData(ArrayList<HashMap<String, Object>> data) {
-        executor.execute(() -> {
-            repository.setUploadData(data);
-            uploadData.postValue(data);
-        });
+    /**
+     * Mark an upload as successful (Room-based)
+     */
+    public void markUploadSuccess(long id) {
+        repository.markUploadSuccess(id);
     }
 
-    public void updatePitUploadData(ArrayList<HashMap<String, Object>> data) {
-        executor.execute(() -> {
-            repository.setPitUploadData(data);
-            pitUploadData.postValue(data);
-        });
+    /**
+     * Clear successful uploads from queue (Room-based)
+     */
+    public void clearSuccessfulUploads() {
+        repository.clearSuccessfulUploads();
     }
 
-    public void updateSpecialUploadData(ArrayList<HashMap<String, Object>> data) {
-        executor.execute(() -> {
-            repository.setSpecialUploadData(data);
-            specialUploadData.postValue(data);
-        });
+    /**
+     * Remove a team from pit teams remaining (Room-based)
+     */
+    public void removePitTeam(String teamNumber) {
+        repository.removePitTeam(teamNumber);
     }
 
     /**

@@ -17,8 +17,6 @@ public class TeamInfo {
   Context context;
   private final PreferenceRepository repository;
 
-  String[][] dataArr;
-
   public TeamInfo(Context context) {
     this.context = context;
     // Use repository for centralized preference access
@@ -26,31 +24,31 @@ public class TeamInfo {
   }
 
   public int getTeam(int match) {
-    dataArr = repository.getTeamMatchData();
     int pos = repository.getCrowdPosition();
 
     if (repository.isManualTeamOverrideEnabled()) {
       return repository.getManualTeamOverrideValue();
     } else {
       if (match >= repository.getTeamMatchListSize() || match < 0) {
-        Toast.makeText(context, "No team data found", Toast.LENGTH_LONG).show();
+        // Toast.makeText(context, "No team data found", Toast.LENGTH_LONG).show();
         return 0;
       }
-      return Integer.parseInt(dataArr[match][pos]);
+      String teamNumber = repository.getTeamNumber(match, pos);
+      return teamNumber != null ? Integer.parseInt(teamNumber) : 0;
     }
   }
 
   public String getMasterTeam(int match, int pos) {
-    dataArr = repository.getTeamMatchData();
     if (match >= repository.getTeamMatchListSize() || match < 0) {
       //Toast.makeText(context, "No team data found", Toast.LENGTH_LONG).show();
       return "0";
     }
-    return dataArr[match][pos];
+    String teamNumber = repository.getTeamNumber(match, pos);
+    return teamNumber != null ? teamNumber : "0";
   }
 
   public boolean teamsLoaded() {
-    return repository.getTeamMatchData() != null;
+    return repository.getTeamMatchListSize() > 0;
   }
 
   public void setTeam(int val) {
@@ -87,16 +85,12 @@ public class TeamInfo {
 
   // Read the team data for validator from match.csv
   public void read_teams() {
-      String[][] dataArr;
       try {
         File teams = new File(context.getFilesDir() + "/" + "match.csv");
           CSVReader csvReader = new CSVReader(new FileReader(teams));
           List<String[]> list = csvReader.readAll();
-          int size = list.size();
-          repository.setTeamMatchListSize(size);
-          dataArr = new String[size][];
-          dataArr = list.toArray(dataArr);
-          repository.setTeamMatchData(dataArr);
+          String[][] dataArr = list.toArray(new String[0][]);
+          repository.importTeamSchedule(dataArr);
       } catch (IOException e) {
           e.printStackTrace();
       }

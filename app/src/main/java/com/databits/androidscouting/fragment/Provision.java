@@ -69,7 +69,7 @@ public class Provision extends Fragment {
 
   List<String> entryLabels = new ArrayList<>();
 
-  private final PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+  private PreferenceRepository repository;
 
   boolean lock;
 
@@ -79,7 +79,7 @@ public class Provision extends Fragment {
       Bundle savedInstanceState
   ) {
     // Initialize ViewModel
-    PreferenceRepository repository = PowerPreferenceRepository.getInstance();
+    repository = PowerPreferenceRepository.getInstance(requireContext());
     ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
@@ -172,7 +172,7 @@ public class Provision extends Fragment {
       alertDialog.setMessage("Config");
       //alertDialog.show();
 
-      String[][] matchData = repository.getTeamMatchData();
+      String[][] matchData = repository.exportTeamSchedule();
       if (matchData == null) {
         Toast.makeText(requireContext(), "Not all data was found", Toast.LENGTH_LONG).show();
       } else {

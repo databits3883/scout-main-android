@@ -91,39 +91,52 @@ public class SheetsUpdateTask {
 
   private SheetsUpdateTask.UploadData prepareUploadData() {
     String uploadMode = repository.getUploadMode();
-    List<List<String>> columnData = getColumnData(uploadMode);
+    String uploadType;
+    switch (uploadMode) {
+      case "Crowd":
+        uploadType = "CROWD";
+        break;
+      case "Pit":
+        uploadType = "PIT";
+        break;
+      case "Specialty":
+        uploadType = "SPECIALTY";
+        break;
+      default:
+        return null;
+    }
 
-    if (columnData == null || columnData.isEmpty()) {
+    // Get pending uploads from Room database
+    List<com.databits.androidscouting.data.entity.UploadQueueItem> pendingItems =
+        repository.getPendingUploads();
+
+    if (pendingItems == null || pendingItems.isEmpty()) {
+      return null;
+    }
+
+    // Filter by upload type and collect data + IDs
+    List<List<Object>> uploadValues = new ArrayList<>();
+    List<Long> itemIds = new ArrayList<>();
+
+    for (com.databits.androidscouting.data.entity.UploadQueueItem item : pendingItems) {
+      if (uploadType.equals(item.uploadType)) {
+        // Split CSV string into list of fields
+        String[] fields = item.dataCsv.split(",");
+        List<Object> row = new ArrayList<>();
+        for (String field : fields) {
+          row.add(field);
+        }
+        uploadValues.add(row);
+        itemIds.add(item.id);
+      }
+    }
+
+    if (uploadValues.isEmpty()) {
       return null;
     }
 
     String range = getRangeForUploadMode(uploadMode);
-    List<List<Object>> uploadValues = new ArrayList<>();
-    for (List<String> rowData : columnData) {
-      uploadValues.add(new ArrayList<>(rowData));
-    }
-
-    return new SheetsUpdateTask.UploadData(range, uploadValues);
-  }
-
-  private List<List<String>> getColumnData(String uploadMode) {
-    switch (uploadMode) {
-      case "Crowd":
-        @SuppressWarnings("unchecked")
-        List<List<String>> crowdData = (List<List<String>>) (List<?>) repository.getUploadData();
-        return crowdData != null ? crowdData : new ArrayList<>();
-      case "Pit":
-        @SuppressWarnings("unchecked")
-        List<List<String>> pitData = (List<List<String>>) (List<?>) repository.getPitUploadData();
-        return pitData != null ? pitData : new ArrayList<>();
-      case "Specialty":
-        @SuppressWarnings("unchecked")
-        List<List<String>> specialtyData = (List<List<String>>) (List<?>) repository.getSpecialUploadData();
-        return specialtyData != null ? specialtyData : new ArrayList<>();
-      default:
-        Log.d(TAG, "No valid upload mode set.");
-        return null;
-    }
+    return new SheetsUpdateTask.UploadData(range, uploadValues, itemIds);
   }
 
   private String getRangeForUploadMode(String uploadMode) {
@@ -150,8 +163,13 @@ public class SheetsUpdateTask {
     Runnable uploadRunnable = () -> {
       try {
         if (performUpload(spreadsheetId, uploadData)) {
-          // Post preference clear to main thread for thread safety
-          mainHandler.post(() -> repository.clearUploadData());
+          // Mark uploaded items as successful and clear from queue
+          mainHandler.post(() -> {
+            for (Long itemId : uploadData.itemIds) {
+              repository.markUploadSuccess(itemId);
+            }
+            repository.clearSuccessfulUploads();
+          });
         } else {
           handleUploadFailure(attempt.getAndIncrement(), spreadsheetId, uploadData);
         }
@@ -227,10 +245,12 @@ public class SheetsUpdateTask {
   private static class UploadData {
     final String range;
     final List<List<Object>> values;
+    final List<Long> itemIds;
 
-    UploadData(String range, List<List<Object>> values) {
+    UploadData(String range, List<List<Object>> values, List<Long> itemIds) {
       this.range = range;
       this.values = values;
+      this.itemIds = itemIds;
     }
   }
 }

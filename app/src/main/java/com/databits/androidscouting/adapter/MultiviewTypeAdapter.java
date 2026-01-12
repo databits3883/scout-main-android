@@ -512,7 +512,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         ContextCompat.getColor(mContext, categoryColor));
 
                     // Use cached repository instead of creating new Preference on every bind
-                    ArrayList<String> remainingList = repository.getPitTeamsRemainingList();
+                    List<String> remainingList = repository.getPitTeamsRemainingList();
                     if (repository.isPitRemoveEnabled()) {
                         entryLabels = remainingList;
                     } else {
