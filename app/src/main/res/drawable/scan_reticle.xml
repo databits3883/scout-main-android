@@ -1,0 +1,72 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Outer circle -->
+    <path
+        android:pathData="M100,100m-90,0a90,90 0,1 1,180 0a90,90 0,1 1,-180 0"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="3"
+        android:fillColor="#00000000"/>
+
+    <!-- Inner circle -->
+    <path
+        android:pathData="M100,100m-70,0a70,70 0,1 1,140 0a70,70 0,1 1,-140 0"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"
+        android:fillColor="#00000000"/>
+
+    <!-- Crosshair horizontal line -->
+    <path
+        android:pathData="M20,100 L80,100"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"/>
+    <path
+        android:pathData="M120,100 L180,100"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"/>
+
+    <!-- Crosshair vertical line -->
+    <path
+        android:pathData="M100,20 L100,80"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"/>
+    <path
+        android:pathData="M100,120 L100,180"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="2"/>
+
+    <!-- Corner brackets (top-left) -->
+    <path
+        android:pathData="M10,40 L10,10 L40,10"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"/>
+
+    <!-- Corner brackets (top-right) -->
+    <path
+        android:pathData="M160,10 L190,10 L190,40"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"/>
+
+    <!-- Corner brackets (bottom-left) -->
+    <path
+        android:pathData="M10,160 L10,190 L40,190"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"/>
+
+    <!-- Corner brackets (bottom-right) -->
+    <path
+        android:pathData="M160,190 L190,190 L190,160"
+        android:strokeColor="#4CAF50"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"/>
+</vector>

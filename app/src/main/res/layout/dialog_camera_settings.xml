@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Dialog Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/camera_settings"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Feedback Settings Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/feedback_settings"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp" />
+
+        <CheckBox
+            android:id="@+id/checkHapticFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/haptic_feedback"
+            android:checked="true" />
+
+        <CheckBox
+            android:id="@+id/checkAudioFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/audio_feedback"
+            android:checked="false" />
+
+        <CheckBox
+            android:id="@+id/checkSuccessAnimation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_success_animation"
+            android:checked="true" />
+
+        <!-- Display Settings Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/display_settings"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <CheckBox
+            android:id="@+id/checkShowReticle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_reticle"
+            android:checked="true" />
+
+        <CheckBox
+            android:id="@+id/checkShowStats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_statistics"
+            android:checked="false" />
+
+        <CheckBox
+            android:id="@+id/checkAutoBrightness"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/auto_brightness"
+            android:checked="true" />
+
+        <CheckBox
+            android:id="@+id/checkKeepScreenOn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/keep_screen_on"
+            android:checked="true" />
+
+        <!-- Advanced Settings Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/advanced_settings"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Exposure Compensation -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/exposure_compensation"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-2"
+                android:textSize="12sp" />
+
+            <SeekBar
+                android:id="@+id/seekExposure"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="4"
+                android:progress="2"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/textExposureValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="12sp"
+                android:minWidth="30dp"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+2"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Minimum Barcode Size -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/min_barcode_size"
+            android:textSize="14sp"
+            android:layout_marginTop="16dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <SeekBar
+                android:id="@+id/seekMinBarcodeSize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="300"
+                android:progress="100" />
+
+            <TextView
+                android:id="@+id/textMinBarcodeSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100px"
+                android:textSize="12sp"
+                android:minWidth="60dp"
+                android:gravity="center"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Center-Weighted Scanning -->
+        <CheckBox
+            android:id="@+id/checkCenterWeighted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/center_weighted_scanning"
+            android:checked="true"
+            android:layout_marginTop="16dp" />
+
+        <!-- Center Threshold (only visible when center-weighted is enabled) -->
+        <LinearLayout
+            android:id="@+id/layoutCenterThreshold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/center_threshold"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <SeekBar
+                    android:id="@+id/seekCenterThreshold"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="500"
+                    android:progress="300" />
+
+                <TextView
+                    android:id="@+id/textCenterThreshold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="300px"
+                    android:textSize="12sp"
+                    android:minWidth="60dp"
+                    android:gravity="center"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Debug Settings Section -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/debug_settings"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
+
+        <CheckBox
+            android:id="@+id/checkShowFps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_fps"
+            android:checked="false" />
+
+        <CheckBox
+            android:id="@+id/checkShowResolution"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/show_resolution"
+            android:checked="false" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="24dp">
+
+            <Button
+                android:id="@+id/buttonCancel"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@android:string/cancel"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/buttonSave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@android:string/ok" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
