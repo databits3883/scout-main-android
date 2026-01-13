@@ -215,6 +215,18 @@ public interface PreferenceRepository {
      */
     void setSpecialSwitch(boolean enabled);
 
+    /**
+     * Get the theme mode setting
+     * @return Theme mode: "light", "dark", or "system"
+     */
+    String getThemeMode();
+
+    /**
+     * Set the theme mode setting
+     * @param mode Theme mode to set: "light", "dark", or "system"
+     */
+    void setThemeMode(String mode);
+
     // ==================== Camera Preferences ====================
 
     /**

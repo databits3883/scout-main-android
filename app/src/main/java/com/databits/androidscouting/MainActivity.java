@@ -11,9 +11,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.ActivityMainBinding;
 import com.databits.androidscouting.util.ConnectionReceiver;
 import com.databits.androidscouting.util.FileUtils;
@@ -44,13 +46,24 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
 
-        //// Set Night Mode based on installed Android version
-        //if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-        //    UiModeManager uiModeManager = (UiModeManager) getSystemService(UI_MODE_SERVICE);
-        //    uiModeManager.setNightMode(UiModeManager.MODE_NIGHT_YES);
-        //} else {
-        //    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        //}
+        // Apply saved theme preference
+        PreferenceRepository repository = PowerPreferenceRepository.getInstance(this);
+        String themeMode = repository.getThemeMode();
+        int nightMode;
+
+        switch (themeMode) {
+            case "light":
+                nightMode = AppCompatDelegate.MODE_NIGHT_NO;
+                break;
+            case "dark":
+                nightMode = AppCompatDelegate.MODE_NIGHT_YES;
+                break;
+            default:  // "system"
+                nightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+                break;
+        }
+
+        AppCompatDelegate.setDefaultNightMode(nightMode);
 
         Intent intent = getIntent();
         String action = intent.getAction();

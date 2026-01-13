@@ -10,9 +10,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -110,6 +112,38 @@ public class Dashboard extends Fragment {
         }
         return null;
       });
+    });
+
+    // Initialize theme toggle
+    RadioGroup themeGroup = binding.themeRadioGroup;
+    String currentTheme = repository.getThemeMode();
+
+    // Set initial selection
+    switch (currentTheme) {
+      case "light":
+        themeGroup.check(R.id.theme_light);
+        break;
+      case "dark":
+        themeGroup.check(R.id.theme_dark);
+        break;
+      default:  // "system"
+        themeGroup.check(R.id.theme_system);
+        break;
+    }
+
+    // Handle theme changes
+    themeGroup.setOnCheckedChangeListener((group, checkedId) -> {
+      String mode;
+      if (checkedId == R.id.theme_light) {
+        mode = "light";
+      } else if (checkedId == R.id.theme_dark) {
+        mode = "dark";
+      } else {  // theme_system
+        mode = "system";
+      }
+
+      repository.setThemeMode(mode);
+      applyTheme(mode);
     });
 
     binding.googleStatusIndicator.indicatorButton.setOnClickListener(v1 -> controller.navigate(
@@ -281,6 +315,22 @@ public class Dashboard extends Fragment {
     StatusIndicator.indicatorButton.setBackgroundTintList(ContextCompat.getColorStateList(
         requireContext(), condition ? com.github.dhaval2404.colorpicker.R.color.green_200 :
             com.github.dhaval2404.colorpicker.R.color.red_200));
+  }
+
+  private void applyTheme(String mode) {
+    int nightMode;
+    switch (mode) {
+      case "light":
+        nightMode = AppCompatDelegate.MODE_NIGHT_NO;
+        break;
+      case "dark":
+        nightMode = AppCompatDelegate.MODE_NIGHT_YES;
+        break;
+      default:  // "system"
+        nightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+        break;
+    }
+    AppCompatDelegate.setDefaultNightMode(nightMode);
   }
 
   @Override

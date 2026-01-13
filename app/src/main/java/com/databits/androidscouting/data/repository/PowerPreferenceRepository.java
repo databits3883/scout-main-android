@@ -286,6 +286,16 @@ public class PowerPreferenceRepository implements PreferenceRepository {
         configPreference.setBoolean("specialSwitch", enabled);
     }
 
+    @Override
+    public String getThemeMode() {
+        return configPreference.getString("theme_mode", "system");
+    }
+
+    @Override
+    public void setThemeMode(String mode) {
+        configPreference.setString("theme_mode", mode);
+    }
+
     // ==================== Camera Preferences ====================
 
     @Override
