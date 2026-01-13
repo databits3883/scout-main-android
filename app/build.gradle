@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'androidx.navigation.safeargs'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.devtools.ksp' version '1.9.20-1.0.14'
 }
 
 android {
@@ -24,8 +25,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -79,7 +80,9 @@ dependencies {
     implementation 'com.github.piphagor:SegmentedButton:3.2.0'
 
     // Json Parser/Writer
-    implementation("com.squareup.moshi:moshi:1.14.0")
+    implementation("com.squareup.moshi:moshi:1.15.1")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.1")
 
     // Segmented Button UI
     implementation 'com.github.piphagor:SegmentedButton:3.2.0'

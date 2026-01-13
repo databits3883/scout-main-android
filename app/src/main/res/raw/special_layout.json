@@ -1,58 +1,56 @@
 {
-  "mCell": [
+  "cells": [
     {
-      "mCellId": 0,
-      "mParam": {
-        "cellSegments": 4,
-        "cellSegmentLabels": [
+      "id": 0,
+      "config": {
+        "segments": 4,
+        "segmentLabels": [
           "Team 1",
           "Team 2",
           "Team 3",
           "No Team"
         ],
-        "cellType": "Special",
-        "cellSpecialTeamColor": "Blue",
+        "type": "Special",
+        "specialTeamColor": "Blue",
         "helpText": "",
-        "cellCategory": "Auto",
+        "categoryString": "Auto",
         "helpPictureSelector": "None",
         "helpTitle": "Helpful Stuff"
       },
-      "mTitle": "Blue Team",
-      "mType": "Special"
+      "title": "Blue Team",
+      "typeString": "Special"
     },
     {
-      "mCellId": 1,
-      "mParam": {
-        "cellSegments": 4,
-        "cellSegmentLabels": [
+      "id": 1,
+      "config": {
+        "segments": 4,
+        "segmentLabels": [
           "Team 1",
           "Team 2",
           "Team 3",
           "No Team"
         ],
-        "cellType": "Special",
-        "cellSpecialTeamColor": "Red",
+        "type": "Special",
+        "specialTeamColor": "Red",
         "helpText": "",
-        "cellCategory": "Teleop",
+        "categoryString": "Teleop",
         "helpPictureSelector": "None",
         "helpTitle": "Helpful Stuff"
       },
-      "mTitle": "Red Team",
-      "mType": "Special"
+      "title": "Red Team",
+      "typeString": "Special"
     },
     {
-      "mCellId": 2,
-      "mParam": {
-        "cellType": "Text",
+      "id": 2,
+      "config": {
+        "type": "Text",
         "helpText": "Be Specific, More info is always better",
-        "cellCategory": "Endgame",
+        "categoryString": "Endgame",
         "helpPictureSelector": "None",
         "helpTitle": "Comments"
       },
-      "mTitle": "Comments",
-      "mType": "Text"
+      "title": "Comments",
+      "typeString": "Text"
     }
   ]
 }
-
-^{"entryLabels":[],"mCell":[]}

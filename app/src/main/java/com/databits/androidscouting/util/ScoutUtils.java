@@ -13,6 +13,7 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.model.CellType;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class ScoutUtils {
@@ -38,52 +39,52 @@ public class ScoutUtils {
 
     if (recyclerAdapter != null) {
       for (int i = 0; i < recyclerView.getChildCount(); i++) {
-        String cellType = recyclerAdapter.mCell.get(i).getType();
+        CellType cellType = recyclerAdapter.mCell.get(i).getType();
         View v = recyclerView.getChildAt(i);
 
           finalString.append(",");
         switch (cellType) {
-          case "YesNo":
+          case YES_NO:
             SegmentedButtonGroup YesNoButtonGroup = v.findViewById(R.id.buttonGroup_yes_no);
             finalString.append(YesNoButtonGroup.getPosition())/*.append(",")*/;
             break;
-          case "Counter":
+          case COUNTER:
             NumberPicker numberPicker = v.findViewById(R.id.number_counter_inside);
             finalString.append(numberPicker.getValue())/*.append(",")*/;
             break;
-          case "DoubleCounter":
+          case DOUBLE_COUNTER:
             NumberPicker numberPicker1 = v.findViewById(R.id.number_counter_one);
             finalString.append(numberPicker1.getValue()).append(",");
             NumberPicker numberPicker2 = v.findViewById(R.id.number_counter_two);
             finalString.append(numberPicker2.getValue())/*.append(",")*/;
             break;
-          case "DualCounter":
+          case DUAL_COUNTER:
             NumberPicker picker1 = v.findViewById(R.id.counterOne);
             NumberPicker picker2 = v.findViewById(R.id.counterTwo);
             finalString.append(picker1.getValue()).append(",");
             finalString.append(picker2.getValue())/*.append(",")*/;
             break;
-          case "Segment":
+          case SEGMENT:
             SegmentedButtonGroup multiSegment = v.findViewById(R.id.buttonGroup_segments);
             finalString.append(multiSegment.getPosition())/*.append(",")*/;
             break;
-          case "List":
+          case LIST:
             Spinner listSpinner = v.findViewWithTag("Spinner");
             finalString.append(listSpinner.getSelectedItem())/*.append(",")*/;
             break;
-          case "Text":
+          case TEXT:
             EditText enteredText = v.findViewById(R.id.enteredText);
             // Remove commas from the string to prevent the spreadsheet from breaking
             finalString.append(enteredText.getText().toString().replaceAll(",", "."))/*.append(",")*/;
             break;
-          case "Title":
+          case TITLE:
             // Do nothing this cell type contains only internal data
             break;
-          case "TeamSelect":
+          case TEAM_SELECT:
             Spinner teamSpinner = v.findViewWithTag("TeamSpinner");
             finalString.append(teamSpinner.getSelectedItem())/*.append(",")*/;
             break;
-          case "Special":
+          case SPECIAL:
             SegmentedButtonGroup teamSelector = v.findViewById(R.id.teamSelector_segment).findViewById(R.id.buttonGroup_segments);
             // Gets the title of the selected button instead of just the position as normal
             finalString.append(teamSelector.getButton(teamSelector.getPosition()).getText()).append(",");

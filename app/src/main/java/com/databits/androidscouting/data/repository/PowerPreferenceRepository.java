@@ -157,53 +157,32 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public String getCrowdRange() {
-        // Try new key first, fall back to legacy key
-        String range = configPreference.getString("Crowd_range", null);
-        if (range == null) {
-            range = configPreference.getString("crowd_range", null);
-        }
-        return range;
+        return configPreference.getString("Crowd_range", null);
     }
 
     @Override
     public void setCrowdRange(String range) {
         configPreference.setString("Crowd_range", range);
-        // Also set legacy key for compatibility
-        configPreference.setString("crowd_range", range);
     }
 
     @Override
     public String getPitRange() {
-        // Try new key first, fall back to legacy key
-        String range = configPreference.getString("Pit_range", null);
-        if (range == null) {
-            range = configPreference.getString("pit_range", null);
-        }
-        return range;
+        return configPreference.getString("Pit_range", null);
     }
 
     @Override
     public void setPitRange(String range) {
         configPreference.setString("Pit_range", range);
-        // Also set legacy key for compatibility
-        configPreference.setString("pit_range", range);
     }
 
     @Override
     public String getSpecialtyRange() {
-        // Try new key first, fall back to legacy key
-        String range = configPreference.getString("Specialty_range", null);
-        if (range == null) {
-            range = configPreference.getString("specialty_range", null);
-        }
-        return range;
+        return configPreference.getString("Specialty_range", null);
     }
 
     @Override
     public void setSpecialtyRange(String range) {
         configPreference.setString("Specialty_range", range);
-        // Also set legacy key for compatibility
-        configPreference.setString("specialty_range", range);
     }
 
     @Override

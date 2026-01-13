@@ -10,6 +10,7 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
 import com.databits.androidscouting.factory.AdapterFactory;
 import com.databits.androidscouting.model.Cell;
+import com.databits.androidscouting.model.CellType;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.snackbar.Snackbar;
@@ -47,6 +48,9 @@ public class LayoutPresenter {
         // Load pit teams remaining cache to avoid database access in onBindViewHolder
         adapter.loadPitTeamsRemainingCache();
 
+        // Load special team numbers cache to avoid database access in onBindViewHolder
+        adapter.loadSpecialTeamNumbersCache();
+
         // Notify changes
         adapter.notifyDataSetChanged();
 
@@ -73,7 +77,8 @@ public class LayoutPresenter {
 
         // Find and update all Title cells
         for (int i = 0; i < adapter.mCell.size(); i++) {
-            if (Objects.equals(adapter.mCell.get(i).getType(), "Title")) {
+            CellType cellType = adapter.mCell.get(i).getType();
+            if (cellType == CellType.TITLE) {
                 View cellView = recyclerView.getChildAt(i);
                 if (cellView != null) {
                     updateSingleTitleCell(cellView);

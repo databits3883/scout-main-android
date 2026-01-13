@@ -23,7 +23,10 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.model.Cell;
-import com.databits.androidscouting.model.CellParam;
+import com.databits.androidscouting.model.CellConfig;
+import com.databits.androidscouting.model.CellType;
+import com.databits.androidscouting.model.CellCategory;
+import com.databits.androidscouting.model.HelpPictureType;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.TeamInfo;
 import com.google.android.material.textfield.TextInputEditText;
@@ -52,6 +55,10 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     // Cached pit teams remaining list to avoid database access in onBindViewHolder
     private List<String> cachedPitTeamsRemainingList = null;
+
+    // Cached team numbers for SPECIAL cell to avoid database access in onBindViewHolder
+    // Index 0 unused, indices 1-6 correspond to positions 1-6 (Blue 1-3, Red 4-6)
+    private String[] cachedSpecialTeamNumbers = null;
 
 
     public static class YesNoTypeViewHolder extends RecyclerView.ViewHolder {
@@ -230,6 +237,44 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         cachedPitTeamsRemainingList = newList;
     }
 
+    /**
+     * Load team numbers for SPECIAL cell on background thread and cache them.
+     * Call this method after creating the adapter to populate the cache.
+     * Loads all 6 team positions (1-6) for the current match.
+     */
+    public void loadSpecialTeamNumbersCache() {
+        new Thread(() -> {
+            if (teamInfo != null && matchInfo != null) {
+                String[] teams = new String[7]; // Index 0 unused, 1-6 for positions
+                for (int i = 1; i <= 6; i++) {
+                    try {
+                        teams[i] = teamInfo.getMasterTeam(matchInfo.getMatch(), i);
+                    } catch (Exception e) {
+                        teams[i] = "Team " + i; // Fallback on error
+                    }
+                }
+                cachedSpecialTeamNumbers = teams;
+
+                // Notify adapter that data has changed (on main thread)
+                if (inflater != null && inflater.getContext() instanceof android.app.Activity) {
+                    ((android.app.Activity) inflater.getContext()).runOnUiThread(() -> {
+                        notifyDataSetChanged();
+                    });
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Update the cached special team numbers.
+     * Call this method when match changes or schedule is updated.
+     */
+    public void updateSpecialTeamNumbersCache(String[] newTeamNumbers) {
+        if (newTeamNumbers != null && newTeamNumbers.length == 7) {
+            cachedSpecialTeamNumbers = newTeamNumbers;
+        }
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -299,31 +344,34 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemViewType(int position) {
-        switch (mCell.get(position).getType()) {
-            case "YesNo":
+        CellType cellType = mCell.get(position).getType();
+        switch (cellType) {
+            case YES_NO:
                 return 0;
-            case "Text":
+            case TEXT:
                 return 1;
-            case "Counter":
+            case COUNTER:
                 return 2;
-            case "Segment":
+            case SEGMENT:
                 return 3;
-            case "List":
+            case LIST:
                 return 4;
-            case "TeamSelect":
+            case TEAM_SELECT:
                 return 5;
-            case "DualCounter":
+            case DUAL_COUNTER:
                 return 6;
-            case "Special":
+            case SPECIAL:
                 return 7;
-            case "DoubleCounter":
+            case DOUBLE_COUNTER:
                 return 8;
+            case TITLE:
+                return 9;
             default:
                 return -1;
         }
     }
 
-    private void bindHelpBalloon(ImageButton helpButton, CellParam object, Drawable helpPicture) {
+    private void bindHelpBalloon(ImageButton helpButton, CellConfig object, Drawable helpPicture) {
         helpButton.setOnClickListener(view -> {
             Balloon helpBalloon = helpBuilder.build();
             TextView helpTitle = helpBalloon.getContentView().findViewById(R.id.help_title);
@@ -338,54 +386,24 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int listPosition) {
-        CellParam object = mCell.get(listPosition).getParam();
+        CellConfig object = mCell.get(listPosition).getConfig();
 
         String title_text = mCell.get(listPosition).getTitle();
 
         Context mContext = holder.itemView.getContext();
 
-        int categoryColor = 0;
+        // Get category color from enum (eliminates 15-line switch statement)
+        CellCategory category = object.getCategory();
+        int categoryColor = category.getColorRes();
 
-        switch (object.getCellCategory()){
-            case "Auto":
-                categoryColor = R.color.auto_category;
-                break;
-            case "Teleop":
-                categoryColor = R.color.teleop_category;
-                break;
-            case "Endgame":
-                categoryColor = R.color.endgame_category;
-                break;
-        }
-        Drawable helpPicture = null;
-        switch (object.getHelpPictureSelector()){
-            case "Speaker":
-                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.speaker);
-                break;
-            case "Amp":
-                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.amp);
-                break;
-            case "Stage":
-                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.stage);
-                break;
-            case "Endgame":
-                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.endgame);
-                break;
-            case "Feeder":
-                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.feeder);
-                break;
-            case "Auto":
-                helpPicture = AppCompatResources.getDrawable(mContext,R.drawable.auto);
-                break;
-            case "None":
-                helpPicture = AppCompatResources.getDrawable(mContext,
-                    com.anggrayudi.storage.R.drawable.md_transparent);
-                break;
-        }
+        // Get help picture from enum (eliminates 30-line switch statement)
+        HelpPictureType helpPictureType = object.getHelpPicture();
+        Drawable helpPicture = AppCompatResources.getDrawable(mContext, helpPictureType.getDrawableRes());
 
         if (object != null) {
-            switch (object.getType()) {
-                case "YesNo":
+            CellType cellType = mCell.get(listPosition).getType();
+            switch (cellType) {
+                case YES_NO:
                     YesNoTypeViewHolder yesnoHolder = (YesNoTypeViewHolder) holder;
                     bindHelpBalloon(yesnoHolder.help, object, helpPicture);
                     yesnoHolder.title.setText(title_text);
@@ -401,7 +419,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     yesnoHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "Text":
+                case TEXT:
                     TextTypeViewHolder textHolder = (TextTypeViewHolder) holder;
                     bindHelpBalloon(textHolder.help, object, helpPicture);
                     textHolder.title.setText(title_text);
@@ -415,55 +433,55 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     textHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "Counter":
+                case COUNTER:
                     CounterTypeViewHolder counterHolder = (CounterTypeViewHolder) holder;
                     bindHelpBalloon(counterHolder.help, object, helpPicture);
                     counterHolder.title.setText(title_text);
                     counterHolder.currentPicker.setMax(object.getMax());
                     counterHolder.currentPicker.setMin(object.getMin());
                     counterHolder.currentPicker.setUnit(object.getUnit());
-                    counterHolder.currentPicker.setValue(object.getDefault());
+                    counterHolder.currentPicker.setValue(object.getDefaultValue());
                     counterHolder.currentPicker.setFocusable(false);
                     counterHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "DoubleCounter":
+                case DOUBLE_COUNTER:
                     DoubleCounterTypeViewHolder doubleCounterHolder = (DoubleCounterTypeViewHolder) holder;
                     bindHelpBalloon(doubleCounterHolder.help, object, helpPicture);
                     doubleCounterHolder.title.setText(title_text);
                     doubleCounterHolder.counterOne.setMax(object.getMax());
                     doubleCounterHolder.counterOne.setMin(object.getMin());
                     doubleCounterHolder.counterOne.setUnit(object.getUnit());
-                    doubleCounterHolder.counterOne.setValue(object.getDefault());
+                    doubleCounterHolder.counterOne.setValue(object.getDefaultValue());
                     doubleCounterHolder.counterOne.setFocusable(false);
 
                     doubleCounterHolder.counterTwo.setMax(object.getMax());
                     doubleCounterHolder.counterTwo.setMin(object.getMin());
                     doubleCounterHolder.counterTwo.setUnit(object.getUnit());
-                    doubleCounterHolder.counterTwo.setValue(object.getDefault());
+                    doubleCounterHolder.counterTwo.setValue(object.getDefaultValue());
                     doubleCounterHolder.counterTwo.setFocusable(false);
                     doubleCounterHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "DualCounter":
+                case DUAL_COUNTER:
                     DualCounterTypeViewHolder dualCounterHolder = (DualCounterTypeViewHolder) holder;
                     bindHelpBalloon(dualCounterHolder.help, object, helpPicture);
                     dualCounterHolder.title.setText(title_text);
                     dualCounterHolder.counterOne.setMax(object.getMax());
                     dualCounterHolder.counterOne.setMin(object.getMin());
                     dualCounterHolder.counterOne.setUnit(object.getUnit());
-                    dualCounterHolder.counterOne.setValue(object.getDefault());
+                    dualCounterHolder.counterOne.setValue(object.getDefaultValue());
                     dualCounterHolder.counterOne.setFocusable(false);
 
                     dualCounterHolder.counterTwo.setMax(object.getMax());
                     dualCounterHolder.counterTwo.setMin(object.getMin());
                     dualCounterHolder.counterTwo.setUnit(object.getUnit());
-                    dualCounterHolder.counterTwo.setValue(object.getDefault());
+                    dualCounterHolder.counterTwo.setValue(object.getDefaultValue());
                     dualCounterHolder.counterTwo.setFocusable(false);
                     dualCounterHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "Segment":
+                case SEGMENT:
                     SegmentTypeViewHolder segmentHolder = (SegmentTypeViewHolder) holder;
                     bindHelpBalloon(segmentHolder.help, object, helpPicture);
                     segmentHolder.title.setText(title_text);
@@ -500,7 +518,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     segmentHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "List":
+                case LIST:
                     ListTypeViewHolder listHolder = (ListTypeViewHolder) holder;
                     bindHelpBalloon(listHolder.help, object, helpPicture);
                     listHolder.title.setText(title_text);
@@ -525,7 +543,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     listHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
                     break;
-                case "TeamSelect":
+                case TEAM_SELECT:
                     TeamSelectTypeViewHolder teamSelectHolder = (TeamSelectTypeViewHolder) holder;
                     bindHelpBalloon(teamSelectHolder.help, object, helpPicture);
 
@@ -551,7 +569,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     teamSelectHolder.spinner.setAdapter(
                         teamselectspinnerArrayAdapter);
                     break;
-                case "Special":
+                case SPECIAL:
                     SpecialTypeViewHolder specialHolder = (SpecialTypeViewHolder) holder;
                     bindHelpBalloon(specialHolder.help, object, helpPicture);
 
@@ -579,22 +597,31 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     }
 
                     specialHolder.teamSelector.setPosition(3,false);
-                    String teamColor = object.getCellSpecialTeamColorTitle();
+                    String teamColor = object.getSpecialTeamColor();
 
+                    // Use cached team numbers to avoid database access on main thread
                     String teamNumberOne;
                     String teamNumberTwo;
                     String teamNumberThree;
                     String teamNumberFour = "No Team";
 
-                    // Get team numbers based on team color
-                    if(teamColor.equals("Blue")){
-                        teamNumberOne = teamInfo.getMasterTeam(matchInfo.getMatch(),1);
-                        teamNumberTwo = teamInfo.getMasterTeam(matchInfo.getMatch(),2);
-                        teamNumberThree = teamInfo.getMasterTeam(matchInfo.getMatch(),3);
-                    } else { // Red
-                        teamNumberOne = teamInfo.getMasterTeam(matchInfo.getMatch(),4);
-                        teamNumberTwo = teamInfo.getMasterTeam(matchInfo.getMatch(),5);
-                        teamNumberThree = teamInfo.getMasterTeam(matchInfo.getMatch(),6);
+                    // Get team numbers from cache based on team color
+                    if(cachedSpecialTeamNumbers != null && cachedSpecialTeamNumbers.length == 7){
+                        if(teamColor != null && teamColor.equals("Blue")){
+                            // Blue alliance: positions 1, 2, 3
+                            teamNumberOne = cachedSpecialTeamNumbers[1];
+                            teamNumberTwo = cachedSpecialTeamNumbers[2];
+                            teamNumberThree = cachedSpecialTeamNumbers[3];
+                        } else { // Red alliance: positions 4, 5, 6
+                            teamNumberOne = cachedSpecialTeamNumbers[4];
+                            teamNumberTwo = cachedSpecialTeamNumbers[5];
+                            teamNumberThree = cachedSpecialTeamNumbers[6];
+                        }
+                    } else {
+                        // Fallback if cache not loaded yet
+                        teamNumberOne = "Team 1";
+                        teamNumberTwo = "Team 2";
+                        teamNumberThree = "Team 3";
                     }
 
                     specialSegmentedButtons[0].setText(teamNumberOne);

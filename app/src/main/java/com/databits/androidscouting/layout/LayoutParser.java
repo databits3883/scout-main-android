@@ -1,71 +1,48 @@
 package com.databits.androidscouting.layout;
 
 import com.databits.androidscouting.model.Cell;
+import com.databits.androidscouting.model.LayoutConfig;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-import java.io.IOException;
 import java.util.List;
 
 /**
  * Parses layout JSON into cell list with validation and error handling.
- * Handles legacy format with ^ delimiter for backwards compatibility.
+ * Uses Moshi to parse modern Kotlin data classes directly.
  */
 public class LayoutParser {
-    private final Moshi moshi;
-    private final JsonAdapter<LayoutConfig> jsonAdapter;
+    private final JsonAdapter<LayoutConfig> adapter;
 
     public LayoutParser() {
-        this.moshi = new Moshi.Builder().build();
-        this.jsonAdapter = moshi.adapter(LayoutConfig.class);
+        Moshi moshi = MoshiProvider.INSTANCE.getMoshi();
+        this.adapter = moshi.adapter(LayoutConfig.class);
     }
 
     /**
-     * Parse layout JSON into cell list
+     * Parse layout JSON into cell list.
+     *
      * @param jsonString Raw JSON string (with or without ^ delimiter)
      * @return ParseResult containing cells on success or error message on failure
      */
     public ParseResult parse(String jsonString) {
-        if (jsonString == null || jsonString.trim().isEmpty()) {
+        if (jsonString == null || jsonString.isBlank()) {
             return ParseResult.error("Layout JSON is empty");
         }
 
+        // Remove legacy ^ delimiter if present
+        String cleanJson = jsonString.contains("^")
+            ? jsonString.split("\\^")[0]
+            : jsonString;
+
         try {
-            // Remove legacy ^ delimiter if present
-            String cleanJson = removeDelimiter(jsonString);
-
-            LayoutConfig config = jsonAdapter.fromJson(cleanJson);
-
+            LayoutConfig config = adapter.fromJson(cleanJson);
             if (config == null) {
-                return ParseResult.error("Failed to parse layout: Invalid JSON structure");
+                return ParseResult.error("Failed to parse layout: null result");
             }
 
-            if (config.mCell == null || config.mCell.isEmpty()) {
-                return ParseResult.error("Layout file contains no cells");
-            }
-
-            return ParseResult.success(config.mCell);
-
-        } catch (IOException e) {
-            return ParseResult.error("Failed to parse layout: " + e.getMessage());
+            return ParseResult.success(config.getCells());
         } catch (Exception e) {
-            return ParseResult.error("Unexpected error parsing layout: " + e.getMessage());
+            return ParseResult.error("Failed to parse layout: " + e.getMessage());
         }
-    }
-
-    /**
-     * Remove legacy ^ delimiter from JSON string
-     * The ^ delimiter was used in older versions to separate layout data from metadata.
-     * This method extracts only the layout portion before the ^ for backwards compatibility.
-     *
-     * @param jsonString Original JSON string that may contain ^ delimiter
-     * @return Clean JSON string with delimiter removed
-     */
-    private String removeDelimiter(String jsonString) {
-        if (jsonString.contains("^")) {
-            // Split on ^ and take only the first part (layout data)
-            // Second part after ^ is discarded (legacy metadata)
-            return jsonString.split("\\^")[0];
-        }
-        return jsonString;
     }
 }
