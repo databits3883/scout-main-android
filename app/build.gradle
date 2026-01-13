@@ -36,6 +36,12 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
     namespace 'com.databits.androidscouting'
 }
 
