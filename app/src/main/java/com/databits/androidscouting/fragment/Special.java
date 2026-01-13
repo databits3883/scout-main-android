@@ -155,7 +155,7 @@ public class Special extends BaseScoutFragment {
                 mRecyclerView.post(() -> {
                   com.databits.androidscouting.layout.LayoutPresenter presenter =
                       new com.databits.androidscouting.layout.LayoutPresenter(
-                          requireContext(), matchInfo, teamInfo);
+                          requireContext(), matchInfo, teamInfo, repository);
                   presenter.updateTitleCells(mRecyclerView);
                 });
               })

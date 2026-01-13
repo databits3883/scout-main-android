@@ -79,7 +79,7 @@ public abstract class BaseScoutFragment extends Fragment {
 
         // Create layout system
         LayoutParser parser = new LayoutParser();
-        LayoutPresenter presenter = new LayoutPresenter(requireContext(), matchInfo, teamInfo);
+        LayoutPresenter presenter = new LayoutPresenter(requireContext(), matchInfo, teamInfo, repository);
         layoutManager = new LayoutManager(parser, presenter, fileUtils);
 
         // Create RecyclerView factory
@@ -250,7 +250,7 @@ public abstract class BaseScoutFragment extends Fragment {
         super.onResume();
         if (mRecyclerView != null && mRecyclerView.getAdapter() != null) {
             mRecyclerView.post(() -> {
-                LayoutPresenter presenter = new LayoutPresenter(requireContext(), matchInfo, teamInfo);
+                LayoutPresenter presenter = new LayoutPresenter(requireContext(), matchInfo, teamInfo, repository);
                 presenter.updateTitleCells(mRecyclerView);
             });
         }

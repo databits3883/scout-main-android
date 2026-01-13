@@ -218,6 +218,30 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     /**
+     * Set the preference repository for the adapter.
+     * Required for pit teams remaining cache to work.
+     */
+    public void setRepository(PreferenceRepository repository) {
+        this.repository = repository;
+    }
+
+    /**
+     * Set the match info for the adapter.
+     * Required for special team numbers cache to work.
+     */
+    public void setMatchInfo(MatchInfo matchInfo) {
+        this.matchInfo = matchInfo;
+    }
+
+    /**
+     * Set the team info for the adapter.
+     * Required for special team numbers cache to work.
+     */
+    public void setTeamInfo(TeamInfo teamInfo) {
+        this.teamInfo = teamInfo;
+    }
+
+    /**
      * Load pit teams remaining list on background thread and cache it.
      * Call this method after creating the adapter to populate the cache.
      */

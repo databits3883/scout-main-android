@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
+import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.factory.AdapterFactory;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellType;
@@ -25,12 +26,14 @@ public class LayoutPresenter {
     private final Context context;
     private final MatchInfo matchInfo;
     private final TeamInfo teamInfo;
+    private final PreferenceRepository repository;
     private final AdapterFactory adapterFactory;
 
-    public LayoutPresenter(Context context, MatchInfo matchInfo, TeamInfo teamInfo) {
+    public LayoutPresenter(Context context, MatchInfo matchInfo, TeamInfo teamInfo, PreferenceRepository repository) {
         this.context = context;
         this.matchInfo = matchInfo;
         this.teamInfo = teamInfo;
+        this.repository = repository;
         this.adapterFactory = new AdapterFactory();
     }
 
@@ -44,6 +47,11 @@ public class LayoutPresenter {
         // Create and set adapter
         MultiviewTypeAdapter adapter = adapterFactory.create(cells);
         recyclerView.setAdapter(adapter);
+
+        // Set dependencies on adapter so caches can be loaded
+        adapter.setRepository(repository);
+        adapter.setMatchInfo(matchInfo);
+        adapter.setTeamInfo(teamInfo);
 
         // Load pit teams remaining cache to avoid database access in onBindViewHolder
         adapter.loadPitTeamsRemainingCache();
