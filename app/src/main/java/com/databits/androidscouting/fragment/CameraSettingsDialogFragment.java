@@ -32,8 +32,16 @@ import java.util.Locale;
  */
 public class CameraSettingsDialogFragment extends DialogFragment {
 
+    /**
+     * Callback interface for notifying when settings are applied
+     */
+    public interface OnSettingsAppliedListener {
+        void onSettingsApplied();
+    }
+
     private ConfigViewModel viewModel;
     private PreferenceRepository repository;
+    private OnSettingsAppliedListener settingsAppliedListener;
 
     // UI Components
     private CheckBox checkHapticFeedback;
@@ -53,6 +61,13 @@ public class CameraSettingsDialogFragment extends DialogFragment {
     private TextView textCenterThreshold;
     private CheckBox checkShowFps;
     private CheckBox checkShowResolution;
+
+    /**
+     * Set the listener to be notified when settings are applied
+     */
+    public void setOnSettingsAppliedListener(OnSettingsAppliedListener listener) {
+        this.settingsAppliedListener = listener;
+    }
 
     @NonNull
     @Override
@@ -118,6 +133,10 @@ public class CameraSettingsDialogFragment extends DialogFragment {
         buttonCancel.setOnClickListener(v -> dismiss());
         buttonSave.setOnClickListener(v -> {
             saveSettings();
+            // Notify listener that settings were applied
+            if (settingsAppliedListener != null) {
+                settingsAppliedListener.onSettingsApplied();
+            }
             dismiss();
         });
     }
