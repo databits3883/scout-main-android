@@ -70,6 +70,10 @@ public abstract class BaseScoutFragment extends Fragment {
         matchInfo = new MatchInfo();
         teamInfo = new TeamInfo(requireContext());
 
+        // Set matchInfo and teamInfo on scoutUtils
+        scoutUtils.matchInfo = matchInfo;
+        scoutUtils.teamInfo = teamInfo;
+
         // Set grid toggle based on fragment requirements
         viewModel.updateGridToggle(useGridLayout());
 
@@ -204,14 +208,38 @@ public abstract class BaseScoutFragment extends Fragment {
                     File file = new File(
                         Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri, getLayoutFileName())));
 
-                    // Save current data before loading new layout
-                    scoutUtils.saveData(requireView(), shouldSaveWithSpecialFlag());
+                    // Extract cell data on UI thread first
+                    String cellData = scoutUtils.exportCell(requireView().findViewById(R.id.recycler_view));
 
-                    // Load new layout
-                    boolean loaded = layoutManager.loadLayout(file, mRecyclerView, getViewLifecycleOwner());
-                    if (loaded) {
-                        hideLayoutButtons();
-                    }
+                    // Save current data before loading new layout (get team data on background thread)
+                    new Thread(() -> {
+                        int match = matchInfo.getMatch();
+                        int team = 9999;
+                        if (repository.isManualTeamOverrideEnabled()) {
+                            team = repository.getManualTeamOverrideValue();
+                        } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+                            team = teamInfo.getTeam(match);
+                        }
+
+                        // Combine and save data
+                        String savedData;
+                        if (repository.isPitRemoveEnabled()) {
+                            savedData = cellData.substring(1) + "," + teamInfo.getScouterName();
+                        } else if (shouldSaveWithSpecialFlag()) {
+                            savedData = cellData.substring(1) + "," + teamInfo.getScouterName();
+                        } else {
+                            savedData = team + "," + match + "," + cellData.substring(1) + "," + teamInfo.getScouterName();
+                        }
+                        // TODO: Actually save this data somewhere if needed
+
+                        requireActivity().runOnUiThread(() -> {
+                            // Load new layout
+                            boolean loaded = layoutManager.loadLayout(file, mRecyclerView, getViewLifecycleOwner());
+                            if (loaded) {
+                                hideLayoutButtons();
+                            }
+                        });
+                    }).start();
                 }
             }
         }

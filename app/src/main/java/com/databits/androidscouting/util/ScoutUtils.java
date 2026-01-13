@@ -21,8 +21,8 @@ public class ScoutUtils {
 
   private final PreferenceRepository repository;
 
-  MatchInfo matchInfo;
-  TeamInfo teamInfo;
+  public MatchInfo matchInfo;
+  public TeamInfo teamInfo;
 
   Context context;
 

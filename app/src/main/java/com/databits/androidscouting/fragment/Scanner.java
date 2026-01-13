@@ -121,6 +121,9 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private android.util.Range<Integer> exposureRange;
     private android.util.Range<Float> zoomRange;
 
+    // Cached team data to avoid database access in analyzer callback
+    private final String[] cachedTeamNumbers = new String[7]; // Index 0 unused, 1-6 for team positions
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,7 +131,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         // Initialize ViewModel
         repository = PowerPreferenceRepository.getInstance(requireContext());
         ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity(), factory).get(ConfigViewModel.class);
 
         googleAuthLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
@@ -175,6 +178,12 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 // Open camera settings dialog
                 if (id == R.id.action_camera_settings) {
                     CameraSettingsDialogFragment dialog = new CameraSettingsDialogFragment();
+                    dialog.setOnSettingsAppliedListener(() -> {
+                        // Apply camera settings immediately when OK is pressed
+                        applyCameraSettings();
+                        // Refresh UI elements that depend on settings
+                        refreshUI();
+                    });
                     dialog.show(getParentFragmentManager(), "CameraSettings");
                 }
 
@@ -249,11 +258,13 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             // Check if teams are loaded (also accesses database)
             boolean teamsAreLoaded = teamInfo.teamsLoaded();
 
-            requireActivity().runOnUiThread(() -> {
-                if (teamsAreLoaded) {
-                    setupTeamDisplay(match);
-                }
-            });
+            if (isAdded()) {
+                requireActivity().runOnUiThread(() -> {
+                    if (isAdded() && teamsAreLoaded) {
+                        setupTeamDisplay(match);
+                    }
+                });
+            }
         }).start();
 
         //Override the default listener to configure the ui
@@ -262,11 +273,13 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             setupTeamDisplay(value);
         });
 
-        if (viewModel.getRoleLockedSync() && (!role.equals("master"))) {
-            viewModel.updateIsMaster(false);
-        } else if (role.equals("master")) {
-            viewModel.updateIsMaster(true);
-            binding.buttonBack.setVisibility(View.INVISIBLE);
+        if (role != null) {
+            if (viewModel.getRoleLockedSync() && (!role.equals("master"))) {
+                viewModel.updateIsMaster(false);
+            } else if (role.equals("master")) {
+                viewModel.updateIsMaster(true);
+                binding.buttonBack.setVisibility(View.INVISIBLE);
+            }
         }
 
         cameraExecutor = Executors.newSingleThreadExecutor();
@@ -322,6 +335,9 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             Collections.singletonList(qrScanner), COORDINATE_SYSTEM_VIEW_REFERENCED,
             ContextCompat.getMainExecutor(requireContext()),
             result -> {
+                // Update FPS counter on every frame
+                updateFpsCounter();
+
                 List<Barcode> qrResList = result.getValue(qrScanner);
                 if (qrResList == null || qrResList.isEmpty() || qrResList.get(0) == null) {
                     preview.getOverlay().clear();
@@ -346,9 +362,6 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     preview.getOverlay().clear();
                     return; // Scanning paused
                 }
-
-                // Update FPS counter
-                updateFpsCounter();
 
                 String bar_string = qr.getRawValue();
                 preview.getOverlay().clear();
@@ -392,55 +405,48 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                     }
                 } else if (bar_string.startsWith("role")) {
                     process_qr(bar_string);
-                } else if (bar_string.contains(teamInfo.getMasterTeam(match, 1))) {
-                    set_team(R.id.blue1);
-                    saveData(bar_string);
-                } else if (bar_string.contains(teamInfo.getMasterTeam(match, 2))) {
-                    set_team(R.id.blue2);
-                    saveData(bar_string);
-                } else if (bar_string.contains(teamInfo.getMasterTeam(match, 3))) {
-                    set_team(R.id.blue3);
-                    saveData(bar_string);
-                } else if (bar_string.contains(teamInfo.getMasterTeam(match, 4))) {
-                    set_team(R.id.red1);
-                    saveData(bar_string);
-                } else if (bar_string.contains(teamInfo.getMasterTeam(match, 5))) {
-                    set_team(R.id.red2);
-                    saveData(bar_string);
-                } else if (bar_string.contains(teamInfo.getMasterTeam(match, 6))) {
-                    set_team(R.id.red3);
-                    saveData(bar_string);
-                } else if (!bar_string.startsWith("role")) {
-                    saveData(bar_string);
-                } else if (!bar_string.split(",")[0].equals(String.valueOf(
-                    match))) {
-                    // Disables the camera
-                    camController.unbind();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-                    builder.setTitle("Wrong Match!");
-                    builder.setCancelable(false);
-                    builder.setMessage("Scanned Match: " + bar_string.split(",")[0]
-                        + "\nCurrent Match: " + match);
-                    builder.setPositiveButton("Ignore bad data", (dialog, which) -> {
-                        dialog.dismiss();
-                        camController.bindToLifecycle(this);
-                        camController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(
-                                requireContext()),
-                            getQrCodeAnalyzer(preview));
-                        //openCamera();
-                    });
-                    builder.setNeutralButton("Upload Anyways", (dialog, i) -> {
-                        dialog.dismiss();
-                        saveData(bar_string);
-                        viewModel.updateForceUpload(true);
-                        camController.bindToLifecycle(this);
-                        camController.setImageAnalysisAnalyzer(ContextCompat.getMainExecutor(
-                                requireContext()),
-                            getQrCodeAnalyzer(preview));
-                        //openCamera();
-                    });
-                    builder.show();
+                } else {
+                    // Check if scanned QR matches any team in this match
+                    android.util.Log.d("Scanner", "Checking QR: " + bar_string);
+                    android.util.Log.d("Scanner", "Cached teams: " + java.util.Arrays.toString(cachedTeamNumbers));
 
+                    boolean teamFound = false;
+                    if (cachedTeamNumbers[1] != null && bar_string.contains(cachedTeamNumbers[1])) {
+                        android.util.Log.d("Scanner", "Matched Blue 1: " + cachedTeamNumbers[1]);
+                        set_team(R.id.blue1);
+                        saveData(bar_string);
+                        teamFound = true;
+                    } else if (cachedTeamNumbers[2] != null && bar_string.contains(cachedTeamNumbers[2])) {
+                        android.util.Log.d("Scanner", "Matched Blue 2: " + cachedTeamNumbers[2]);
+                        set_team(R.id.blue2);
+                        saveData(bar_string);
+                        teamFound = true;
+                    } else if (cachedTeamNumbers[3] != null && bar_string.contains(cachedTeamNumbers[3])) {
+                        android.util.Log.d("Scanner", "Matched Blue 3: " + cachedTeamNumbers[3]);
+                        set_team(R.id.blue3);
+                        saveData(bar_string);
+                        teamFound = true;
+                    } else if (cachedTeamNumbers[4] != null && bar_string.contains(cachedTeamNumbers[4])) {
+                        android.util.Log.d("Scanner", "Matched Red 1: " + cachedTeamNumbers[4]);
+                        set_team(R.id.red1);
+                        saveData(bar_string);
+                        teamFound = true;
+                    } else if (cachedTeamNumbers[5] != null && bar_string.contains(cachedTeamNumbers[5])) {
+                        android.util.Log.d("Scanner", "Matched Red 2: " + cachedTeamNumbers[5]);
+                        set_team(R.id.red2);
+                        saveData(bar_string);
+                        teamFound = true;
+                    } else if (cachedTeamNumbers[6] != null && bar_string.contains(cachedTeamNumbers[6])) {
+                        android.util.Log.d("Scanner", "Matched Red 3: " + cachedTeamNumbers[6]);
+                        set_team(R.id.red3);
+                        saveData(bar_string);
+                        teamFound = true;
+                    }
+
+                    if (!teamFound && !bar_string.startsWith("role")) {
+                        android.util.Log.d("Scanner", "No team match found, saving data anyway");
+                        saveData(bar_string);
+                    }
                 }
             }
         );
@@ -516,10 +522,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             uploader.flush();
             uploader.close();
 
-            binding.buttonBack.setVisibility(View.INVISIBLE);
-            final Handler handler = new Handler();
-            handler.postDelayed(() -> binding.buttonBack.setVisibility(View.VISIBLE),
-                3000);
+            //binding.buttonBack.setVisibility(View.INVISIBLE);
+            //final Handler handler = new Handler();
+            //handler.postDelayed(() -> binding.buttonBack.setVisibility(View.VISIBLE),
+            //    3000);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -551,37 +557,51 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         // Make upload.csv for debugging
         makeUploadFile(bar_string);
 
-        // Check for duplicate using Room seen_lines and don't upload role qr data
-        if (!repository.hasSeenLine(bar_string, dataType) && !bar_string.contains("Role")) {
-            // Mark as seen
-            repository.markLineSeen(bar_string, dataType);
+        // Check for duplicate using Room seen_lines in background thread
+        final String finalDataType = dataType;
+        new Thread(() -> {
+            // Check if line has been seen (Room database access)
+            if (!repository.hasSeenLine(bar_string, finalDataType) && !bar_string.contains("Role")) {
+                // Mark as seen
+                repository.markLineSeen(bar_string, finalDataType);
 
-            // Add to upload queue
-            com.databits.androidscouting.data.entity.UploadQueueItem item =
-                new com.databits.androidscouting.data.entity.UploadQueueItem();
-            item.uploadType = dataType;
-            item.dataCsv = bar_string;
+                // Add to upload queue
+                com.databits.androidscouting.data.entity.UploadQueueItem item =
+                    new com.databits.androidscouting.data.entity.UploadQueueItem();
+                item.uploadType = finalDataType;
+                item.dataCsv = bar_string;
 
-            // Extract match and team number from CSV string if possible
-            String[] parts = bar_string.split(",");
-            if (parts.length > 0) {
-                try {
-                    item.matchNumber = Integer.parseInt(parts[0]);
-                } catch (NumberFormatException e) {
-                    item.matchNumber = null;
+                // Extract match and team number from CSV string if possible
+                String[] parts = bar_string.split(",");
+                if (parts.length > 0) {
+                    try {
+                        item.matchNumber = Integer.parseInt(parts[0]);
+                    } catch (NumberFormatException e) {
+                        item.matchNumber = null;
+                    }
                 }
-            }
-            if (parts.length > 1) {
-                item.teamNumber = parts[1];
-            }
+                if (parts.length > 1) {
+                    item.teamNumber = parts[1];
+                }
 
-            viewModel.addUploadItem(item);
-        }
+                viewModel.addUploadItem(item);
+            }
+        }).start();
     }
 
     private void set_team(int id) {
-        TextView text = requireView().findViewById(id);
-        text.setBackgroundTintList(getResources().getColorStateList(R.color.green_900,null));
+        android.util.Log.d("Scanner", "set_team called for id: " + getResources().getResourceEntryName(id));
+        if (!isAdded()) return; // Fragment not attached to activity
+        requireActivity().runOnUiThread(() -> {
+            if (!isAdded()) return; // Double-check inside runOnUiThread
+            TextView text = requireView().findViewById(id);
+            if (text != null) {
+                text.setBackgroundTintList(getResources().getColorStateList(R.color.green_900, null));
+                android.util.Log.d("Scanner", "Team box turned green for: " + text.getText());
+            } else {
+                android.util.Log.w("Scanner", "TextView not found for id: " + id);
+            }
+        });
     }
 
     private void setupTeamDisplay(int match) {
@@ -593,9 +613,12 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             String[] teams = new String[6];
             for (int i = 0; i < 6; i++) {
                 teams[i] = teamInfo.getMasterTeam(match, i+1);
+                // Cache team numbers for use in barcode analyzer (avoid database access on main thread)
+                cachedTeamNumbers[i+1] = teams[i];
             }
 
             requireActivity().runOnUiThread(() -> {
+                if (!isAdded()) return; // Fragment not attached to activity
                 for (int i = 0; i < teamIds.length; i++) {
                     TextView team = requireView().findViewById(teamIds[i]);
                     team.setText(teams[i]);
@@ -647,6 +670,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     }
 
     protected void call_sheets() {
+        if (!isAdded()) return; // Fragment not attached to activity
+
         if (repository.getGoogleAccountName() == null) {
             googleAuthLauncher.launch(GoogleAuthActivity.newIntent(requireContext()));
         } else {
@@ -659,11 +684,16 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     }
 
     public void refreshActionBar() {
+        if (!isAdded()) return; // Fragment not attached to activity
+
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        assert activity != null;
+        if (activity == null) return;
+
         ActionBar actionBar = activity.getSupportActionBar();
-        Objects.requireNonNull(actionBar).setTitle("Scanner");
-        Objects.requireNonNull(actionBar).setSubtitle("");
+        if (actionBar != null) {
+            actionBar.setTitle("Scanner");
+            actionBar.setSubtitle("");
+        }
     }
 
     private void refreshUI() {
@@ -696,22 +726,42 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     @Override
     public void onUploadSuccess(String updatedRange) {
-        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Upload successful: " + updatedRange, Toast.LENGTH_LONG).show());
+        if (!isAdded()) return; // Fragment not attached to activity
+        requireActivity().runOnUiThread(() -> {
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Upload successful: " + updatedRange, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
     public void onUploadFailed() {
-        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Upload failed. Please try again.", Toast.LENGTH_SHORT).show());
+        if (!isAdded()) return; // Fragment not attached to activity
+        requireActivity().runOnUiThread(() -> {
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Upload failed. Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public void onNoDataToUpload() {
-        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "No data to upload.", Toast.LENGTH_SHORT).show());
+        if (!isAdded()) return; // Fragment not attached to activity
+        requireActivity().runOnUiThread(() -> {
+            if (isAdded()) {
+                Toast.makeText(getContext(), "No data to upload.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
     public void onDuplicateData() {
-        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Data is a duplicate and was not uploaded.", Toast.LENGTH_SHORT).show());
+        if (!isAdded()) return; // Fragment not attached to activity
+        requireActivity().runOnUiThread(() -> {
+            if (isAdded()) {
+                Toast.makeText(getContext(), "Data is a duplicate and was not uploaded.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     // ==================== Camera Control Methods ====================
@@ -721,7 +771,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
      */
     private void setupCameraControls() {
         setupTorchButton();
-        setupZoomSlider();
+        setupZoomButtons();
         setupPauseScanButton();
         observeCameraSettings();
     }
@@ -756,34 +806,116 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     }
 
     /**
-     * Setup zoom slider with smooth animations
+     * Setup zoom buttons with smooth animations and long press support
      */
-    private void setupZoomSlider() {
-        binding.zoomSlider.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(android.widget.SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && camController != null) {
-                    float targetZoom = 1f + (progress / 100f) * 3f; // 1x to 4x
-                    animateZoom(targetZoom);
+    private void setupZoomButtons() {
+        final float ZOOM_STEP = 0.25f; // Zoom increment per button press
+        final float ZOOM_CONTINUOUS_STEP = 0.05f; // Smaller step for continuous zoom
+        final float MIN_ZOOM = 1.0f;
+        final float MAX_ZOOM = 4.0f;
+        final int REPEAT_DELAY = 50; // ms between zoom steps during long press
+
+        final android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        final boolean[] isLongPressing = {false};
+
+        // Zoom In button
+        binding.zoomInButton.setOnClickListener(v -> {
+            if (!isLongPressing[0] && camController != null) {
+                float currentZoom = camController.getZoomState().getValue().getZoomRatio();
+                float newZoom = Math.min(currentZoom + ZOOM_STEP, MAX_ZOOM);
+                animateZoom(newZoom);
+                viewModel.updateCameraZoomLevel(newZoom);
+            }
+        });
+
+        binding.zoomInButton.setOnLongClickListener(v -> {
+            isLongPressing[0] = true;
+            final Runnable zoomRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (isLongPressing[0] && camController != null) {
+                        float currentZoom = camController.getZoomState().getValue().getZoomRatio();
+                        float newZoom = Math.min(currentZoom + ZOOM_CONTINUOUS_STEP, MAX_ZOOM);
+                        if (newZoom < MAX_ZOOM) {
+                            camController.setZoomRatio(newZoom);
+                            handler.postDelayed(this, REPEAT_DELAY);
+                        } else {
+                            camController.setZoomRatio(MAX_ZOOM);
+                            isLongPressing[0] = false;
+                        }
+                    }
+                }
+            };
+            handler.post(zoomRunnable);
+            return true;
+        });
+
+        binding.zoomInButton.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP ||
+                event.getAction() == android.view.MotionEvent.ACTION_CANCEL) {
+                if (isLongPressing[0]) {
+                    isLongPressing[0] = false;
+                    handler.removeCallbacksAndMessages(null);
+                    if (camController != null) {
+                        float finalZoom = camController.getZoomState().getValue().getZoomRatio();
+                        viewModel.updateCameraZoomLevel(finalZoom);
+                    }
                 }
             }
+            return false; // Allow other listeners to handle the event
+        });
 
-            @Override
-            public void onStartTrackingTouch(android.widget.SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(android.widget.SeekBar seekBar) {
-                float zoom = 1f + (seekBar.getProgress() / 100f) * 3f;
-                viewModel.updateCameraZoomLevel(zoom);
+        // Zoom Out button
+        binding.zoomOutButton.setOnClickListener(v -> {
+            if (!isLongPressing[0] && camController != null) {
+                float currentZoom = camController.getZoomState().getValue().getZoomRatio();
+                float newZoom = Math.max(currentZoom - ZOOM_STEP, MIN_ZOOM);
+                animateZoom(newZoom);
+                viewModel.updateCameraZoomLevel(newZoom);
             }
+        });
+
+        binding.zoomOutButton.setOnLongClickListener(v -> {
+            isLongPressing[0] = true;
+            final Runnable zoomRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (isLongPressing[0] && camController != null) {
+                        float currentZoom = camController.getZoomState().getValue().getZoomRatio();
+                        float newZoom = Math.max(currentZoom - ZOOM_CONTINUOUS_STEP, MIN_ZOOM);
+                        if (newZoom > MIN_ZOOM) {
+                            camController.setZoomRatio(newZoom);
+                            handler.postDelayed(this, REPEAT_DELAY);
+                        } else {
+                            camController.setZoomRatio(MIN_ZOOM);
+                            isLongPressing[0] = false;
+                        }
+                    }
+                }
+            };
+            handler.post(zoomRunnable);
+            return true;
+        });
+
+        binding.zoomOutButton.setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_UP ||
+                event.getAction() == android.view.MotionEvent.ACTION_CANCEL) {
+                if (isLongPressing[0]) {
+                    isLongPressing[0] = false;
+                    handler.removeCallbacksAndMessages(null);
+                    if (camController != null) {
+                        float finalZoom = camController.getZoomState().getValue().getZoomRatio();
+                        viewModel.updateCameraZoomLevel(finalZoom);
+                    }
+                }
+            }
+            return false; // Allow other listeners to handle the event
         });
 
         // Restore zoom level from preferences
         viewModel.getCameraZoomLevel().observe(getViewLifecycleOwner(), zoom -> {
             if (zoom != null && camController != null) {
                 camController.setZoomRatio(zoom);
-                int progress = (int) ((zoom - 1f) / 3f * 100f);
-                binding.zoomSlider.setProgress(progress);
             }
         });
     }
@@ -834,6 +966,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         viewModel.getCameraShowStats().observe(getViewLifecycleOwner(), enabled -> {
             if (enabled != null) {
                 binding.statsText.setVisibility(enabled ? View.VISIBLE : View.GONE);
+                binding.scanControlBar.setVisibility(enabled ? View.VISIBLE : View.GONE);
                 if (enabled) {
                     updateScanStatistics();
                 }
@@ -843,6 +976,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         viewModel.getCameraShowFps().observe(getViewLifecycleOwner(), enabled -> {
             if (enabled != null) {
                 binding.fpsText.setVisibility(enabled ? View.VISIBLE : View.GONE);
+                updateDebugInfoPanelVisibility();
             }
         });
 
@@ -852,6 +986,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 if (enabled) {
                     updateResolutionDisplay();
                 }
+                updateDebugInfoPanelVisibility();
             }
         });
 
@@ -926,6 +1061,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
      * Show scan feedback (haptic + audio + visual)
      */
     private void showScanFeedback() {
+        if (!isAdded()) return; // Fragment not attached to activity
+
         // Haptic feedback
         if (repository.isCameraHapticFeedbackEnabled()) {
             if (vibrator == null) {
@@ -950,14 +1087,20 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
      */
     private void animateScanSuccess() {
         if (!repository.isCameraShowSuccessAnimationEnabled()) return;
+        if (!isAdded()) return; // Fragment not attached to activity
 
         requireActivity().runOnUiThread(() -> {
+            if (!isAdded()) return; // Double-check inside runOnUiThread
             binding.scanSuccessOverlay.setVisibility(View.VISIBLE);
             binding.scanSuccessOverlay.setAlpha(0.4f);
             binding.scanSuccessOverlay.animate()
                 .alpha(0f)
                 .setDuration(300)
-                .withEndAction(() -> binding.scanSuccessOverlay.setVisibility(View.GONE))
+                .withEndAction(() -> {
+                    if (isAdded()) {
+                        binding.scanSuccessOverlay.setVisibility(View.GONE);
+                    }
+                })
                 .start();
         });
     }
@@ -980,14 +1123,17 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
      */
     private void updateFpsCounter() {
         if (!repository.isCameraShowFpsEnabled()) return;
+        if (!isAdded()) return; // Fragment not attached to activity
 
         frameCount++;
         long now = System.currentTimeMillis();
         if (now - lastFpsTime >= 1000) {
             double fps = frameCount / ((now - lastFpsTime) / 1000.0);
-            requireActivity().runOnUiThread(() ->
-                binding.fpsText.setText(String.format(Locale.US, "FPS: %.1f", fps))
-            );
+            requireActivity().runOnUiThread(() -> {
+                if (isAdded()) {
+                    binding.fpsText.setText(String.format(Locale.US, "FPS: %.1f", fps));
+                }
+            });
             frameCount = 0;
             lastFpsTime = now;
         }
@@ -999,12 +1145,25 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private void updateResolutionDisplay() {
         if (!repository.isCameraShowResolutionEnabled()) return;
         if (camController == null || preview == null) return;
+        if (!isAdded()) return; // Fragment not attached to activity
 
         requireActivity().runOnUiThread(() -> {
-            int width = preview.getWidth();
-            int height = preview.getHeight();
-            binding.resolutionText.setText(String.format(Locale.US, "Resolution: %dx%d", width, height));
+            if (isAdded()) {
+                int width = preview.getWidth();
+                int height = preview.getHeight();
+                binding.resolutionText.setText(String.format(Locale.US, "Resolution: %dx%d", width, height));
+            }
         });
+    }
+
+    /**
+     * Update debug info panel visibility based on whether any debug info is shown
+     */
+    private void updateDebugInfoPanelVisibility() {
+        boolean showFps = repository.isCameraShowFpsEnabled();
+        boolean showResolution = repository.isCameraShowResolutionEnabled();
+        boolean showAny = showFps || showResolution;
+        binding.debugInfoPanel.setVisibility(showAny ? View.VISIBLE : View.GONE);
     }
 
     /**

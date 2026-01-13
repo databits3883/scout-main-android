@@ -125,36 +125,43 @@ public class Dashboard extends Fragment {
         }).create();
 
     binding.scouterListStatusIndicator.indicatorButton.setOnClickListener(view -> {
-      AlertDialog scouterListDialog = new AlertDialog.Builder(requireContext())
-          .setTitle("Do you want to import a new scouter list?")
-          .setMessage("This will overwrite the current scouter list. \n\n"
-              + "The format is a text file with one scouter name per line. \n\n"
-              + "Select Yes and then select a text file to import from your device.")
-          .setPositiveButton("Yes", (dialog1, which1) -> {
-            Intent data = fileUtils.intentFileDialog();
-            Intent.createChooser(data, "Select a scouter_list.txt file to import");
-            importScouterLauncher.launch(data);
-          })
-          .setNegativeButton("Cancel", (dialog1, which1) -> {
-            // Do nothing
-          })
-          .setNeutralButton("Loaded Data Preview",(dialog2, which2) -> {
-            previewDialog.show();
-          })
-          .create();
-      TextView text = dialogView.findViewById(R.id.data_view);
-      text.setMovementMethod(new ScrollingMovementMethod());
-      List<String> scouterList = repository.getScouterList();
-      if (scouterList == null) {
-        scouterList = new ArrayList<>();
-      }
-      // Add all scouterList strings to a string with each being on a newline
-      StringBuilder scouterListString = new StringBuilder();
-      for (String scouter : scouterList) {
-        scouterListString.append(scouter).append("\n");
-      }
-      text.setText(scouterListString.toString());
-      scouterListDialog.show();
+      // Load scouter list on background thread
+      new Thread(() -> {
+        List<String> scouterList = repository.getScouterList();
+        if (scouterList == null) {
+          scouterList = new ArrayList<>();
+        }
+        // Add all scouterList strings to a string with each being on a newline
+        StringBuilder scouterListString = new StringBuilder();
+        for (String scouter : scouterList) {
+          scouterListString.append(scouter).append("\n");
+        }
+
+        final String finalScouterListString = scouterListString.toString();
+        requireActivity().runOnUiThread(() -> {
+          AlertDialog scouterListDialog = new AlertDialog.Builder(requireContext())
+              .setTitle("Do you want to import a new scouter list?")
+              .setMessage("This will overwrite the current scouter list. \n\n"
+                  + "The format is a text file with one scouter name per line. \n\n"
+                  + "Select Yes and then select a text file to import from your device.")
+              .setPositiveButton("Yes", (dialog1, which1) -> {
+                Intent data = fileUtils.intentFileDialog();
+                Intent.createChooser(data, "Select a scouter_list.txt file to import");
+                importScouterLauncher.launch(data);
+              })
+              .setNegativeButton("Cancel", (dialog1, which1) -> {
+                // Do nothing
+              })
+              .setNeutralButton("Loaded Data Preview",(dialog2, which2) -> {
+                previewDialog.show();
+              })
+              .create();
+          TextView text = dialogView.findViewById(R.id.data_view);
+          text.setMovementMethod(new ScrollingMovementMethod());
+          text.setText(finalScouterListString);
+          scouterListDialog.show();
+        });
+      }).start();
     });
 
     binding.buttonDebug.setOnClickListener(view1 -> PowerPreference.showDebugScreen(true));

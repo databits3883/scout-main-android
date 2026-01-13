@@ -55,14 +55,34 @@ public class Crowd extends BaseScoutFragment {
                             + "This will clear your data and load the QR code.")
                         .setTitle("Load QR Code?")
                         .setPositiveButton("Yes", (dialog, Identify) -> {
-                            Bundle bundle = controller.saveState();
-                            if (bundle != null) {
-                                String qrData = scoutUtils.saveData(requireView(),false);
-                                bundle.putString("qrData", qrData);
-                                bundle.putBoolean("mode", false);
-                            }
-                            controller.navigate(R.id.action_crowdScoutFragment_to_QRFragment,
-                                bundle);
+                            // Extract cell data on UI thread first
+                            String cellData = scoutUtils.exportCell(requireView().findViewById(R.id.recycler_view));
+                            android.util.Log.d("Crowd", "Cell data extracted: " + cellData);
+
+                            // Get team/match data on background thread since it accesses Room database
+                            new Thread(() -> {
+                                int match = matchInfo.getMatch();
+                                int team = 9999;
+                                if (repository.isManualTeamOverrideEnabled()) {
+                                    team = repository.getManualTeamOverrideValue();
+                                } else if (teamInfo.teamsLoaded()) {
+                                    team = teamInfo.getTeam(match);
+                                }
+
+                                // Combine data (remove leading comma from cellData)
+                                String qrData = team + "," + match + "," + cellData.substring(1) + "," + teamInfo.getScouterName();
+                                android.util.Log.d("Crowd", "Final QR data: " + qrData);
+
+                                requireActivity().runOnUiThread(() -> {
+                                    Bundle bundle = controller.saveState();
+                                    if (bundle != null) {
+                                        bundle.putString("qrData", qrData);
+                                        bundle.putBoolean("mode", false);
+                                        controller.navigate(R.id.action_crowdScoutFragment_to_QRFragment,
+                                            bundle);
+                                    }
+                                });
+                            }).start();
                         })
                         .setNegativeButton(R.string.cancel, (dialog, Identify) -> {
                             // CANCEL

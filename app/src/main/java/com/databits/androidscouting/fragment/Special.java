@@ -61,22 +61,41 @@ public class Special extends BaseScoutFragment {
                   + "This will clear your data and load the QR code.")
               .setTitle("Load QR Code?")
               .setPositiveButton("Yes", (dialog, Identify) -> {
-                Bundle bundle = controller.saveState();
-                if (bundle != null) {
-                  String data = scoutUtils.saveData(requireView(), true);
-                  bundle.putString("qrData", data);
-                  bundle.putBoolean("mode", false);
-                  try {
-                    int team = Integer.parseInt(data.split(",")[0]);
-                    teamInfo.setTeam(team);
-                    teamSpinner(String.valueOf(team),true, requireContext(),requireView());
-                  } catch (NumberFormatException e) {
-                      teamInfo.setTeam(0);
-                  }
-                }
+                // Extract cell data on UI thread first
+                String cellData = scoutUtils.exportCell(requireView().findViewById(R.id.recycler_view));
+                android.util.Log.d("Special", "Cell data extracted: " + cellData);
 
-                controller.navigate(R.id.action_SpecialFragment_to_QRFragment,
-                    bundle);
+                // Get team data on background thread since it accesses Room database
+                new Thread(() -> {
+                  int match = matchInfo.getMatch();
+                  int team = 9999;
+                  if (repository.isManualTeamOverrideEnabled()) {
+                    team = repository.getManualTeamOverrideValue();
+                  } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+                    team = teamInfo.getTeam(match);
+                  }
+
+                  // Combine data (remove leading comma from cellData) - special doesn't include team/match
+                  String qrData = cellData.substring(1) + "," + teamInfo.getScouterName();
+                  android.util.Log.d("Special", "Final QR data: " + qrData);
+
+                  int finalTeam = team;
+                  requireActivity().runOnUiThread(() -> {
+                    Bundle bundle = controller.saveState();
+                    if (bundle != null) {
+                      bundle.putString("qrData", qrData);
+                      bundle.putBoolean("mode", false);
+                      try {
+                        teamInfo.setTeam(finalTeam);
+                        teamSpinner(String.valueOf(finalTeam),true, requireContext(),requireView());
+                      } catch (NumberFormatException e) {
+                        teamInfo.setTeam(0);
+                      }
+                      controller.navigate(R.id.action_SpecialFragment_to_QRFragment,
+                          bundle);
+                    }
+                  });
+                }).start();
               })
               .setNegativeButton(R.string.cancel, (dialog, Identify) -> {
                 // CANCEL

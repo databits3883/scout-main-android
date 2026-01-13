@@ -50,6 +50,9 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     private LayoutInflater inflater;
     private Balloon.Builder helpBuilder;
 
+    // Cached pit teams remaining list to avoid database access in onBindViewHolder
+    private List<String> cachedPitTeamsRemainingList = null;
+
 
     public static class YesNoTypeViewHolder extends RecyclerView.ViewHolder {
         TextView title;
@@ -205,6 +208,26 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public MultiviewTypeAdapter(List<Cell> cells) {
         this.mCell = cells;
+    }
+
+    /**
+     * Load pit teams remaining list on background thread and cache it.
+     * Call this method after creating the adapter to populate the cache.
+     */
+    public void loadPitTeamsRemainingCache() {
+        new Thread(() -> {
+            if (repository != null) {
+                cachedPitTeamsRemainingList = repository.getPitTeamsRemainingList();
+            }
+        }).start();
+    }
+
+    /**
+     * Update the cached pit teams remaining list.
+     * Call this method when the list changes (e.g., after removing a team).
+     */
+    public void updatePitTeamsRemainingCache(List<String> newList) {
+        cachedPitTeamsRemainingList = newList;
     }
 
     @NonNull
@@ -511,10 +534,9 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                     teamSelectHolder.categoryColor.setBackgroundColor(
                         ContextCompat.getColor(mContext, categoryColor));
 
-                    // Use cached repository instead of creating new Preference on every bind
-                    List<String> remainingList = repository.getPitTeamsRemainingList();
-                    if (repository.isPitRemoveEnabled()) {
-                        entryLabels = remainingList;
+                    // Use cached pit teams list to avoid database access on main thread
+                    if (repository.isPitRemoveEnabled() && cachedPitTeamsRemainingList != null) {
+                        entryLabels = cachedPitTeamsRemainingList;
                     } else {
                         entryLabels = Arrays.asList(mContext.getResources().getStringArray(
                             R.array.team_list));;

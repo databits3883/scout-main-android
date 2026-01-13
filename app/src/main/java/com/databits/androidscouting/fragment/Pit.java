@@ -60,17 +60,37 @@ public class Pit extends BaseScoutFragment {
                             + "This will clear your data and load the QR code.")
                         .setTitle("Load QR Code?")
                         .setPositiveButton("Yes", (dialog, Identify) -> {
-                            Bundle bundle = controller.saveState();
-                            if (bundle != null) {
-                                String data = scoutUtils.saveData(requireView(), false);
-                                bundle.putString("qrData", data);
-                                bundle.putBoolean("mode", true);
-                                int team = Integer.parseInt(data.split(",")[0]);
-                                teamInfo.setTeam(team);
-                                teamSpinner(String.valueOf(team),true, requireContext(),requireView());
-                            }
-                            controller.navigate(R.id.action_pitScoutFragment_to_QRFragment,
-                                bundle);
+                            // Extract cell data on UI thread first
+                            String cellData = scoutUtils.exportCell(requireView().findViewById(R.id.recycler_view));
+                            android.util.Log.d("Pit", "Cell data extracted: " + cellData);
+
+                            // Get team data on background thread since it accesses Room database
+                            new Thread(() -> {
+                                int match = matchInfo.getMatch();
+                                int team = 9999;
+                                if (repository.isManualTeamOverrideEnabled()) {
+                                    team = repository.getManualTeamOverrideValue();
+                                } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+                                    team = teamInfo.getTeam(match);
+                                }
+
+                                // Combine data (remove leading comma from cellData) - pit doesn't include team/match
+                                String qrData = cellData.substring(1) + "," + teamInfo.getScouterName();
+                                android.util.Log.d("Pit", "Final QR data: " + qrData);
+
+                                int finalTeam = team;
+                                requireActivity().runOnUiThread(() -> {
+                                    Bundle bundle = controller.saveState();
+                                    if (bundle != null) {
+                                        bundle.putString("qrData", qrData);
+                                        bundle.putBoolean("mode", true);
+                                        teamInfo.setTeam(finalTeam);
+                                        teamSpinner(String.valueOf(finalTeam),true, requireContext(),requireView());
+                                        controller.navigate(R.id.action_pitScoutFragment_to_QRFragment,
+                                            bundle);
+                                    }
+                                });
+                            }).start();
                         })
                         .setNegativeButton(R.string.cancel, (dialog, Identify) -> {
                             // CANCEL
@@ -246,18 +266,32 @@ public class Pit extends BaseScoutFragment {
     public void teamSpinner(String team, boolean remove, Context context, View v) {
         String[] origList = context.getResources().getStringArray(R.array.team_list);
         repository.setPitRemoveEnabled(true);
-        List<String> remainingList = repository.getPitTeamsRemainingList();
-        if (remainingList != null && !remainingList.isEmpty()) {
-            editedList = new ArrayList<>(remainingList);
-        } else {
-            editedList = new ArrayList<>(Arrays.asList(origList));
-        }
 
-        if (remove) {
-            editedList.remove(team);
-            repository.setPitTeamsRemainingList(editedList);
-        }
-        Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemChanged(1);
+        // Load remaining list on background thread
+        new Thread(() -> {
+            List<String> remainingList = repository.getPitTeamsRemainingList();
+            ArrayList<String> newEditedList;
+            if (remainingList != null && !remainingList.isEmpty()) {
+                newEditedList = new ArrayList<>(remainingList);
+            } else {
+                newEditedList = new ArrayList<>(Arrays.asList(origList));
+            }
+
+            if (remove) {
+                newEditedList.remove(team);
+                repository.setPitTeamsRemainingList(newEditedList);
+            }
+
+            editedList = newEditedList;
+            requireActivity().runOnUiThread(() -> {
+                // Update adapter cache with new list
+                if (mRecyclerView.getAdapter() instanceof com.databits.androidscouting.adapter.MultiviewTypeAdapter) {
+                    ((com.databits.androidscouting.adapter.MultiviewTypeAdapter) mRecyclerView.getAdapter())
+                        .updatePitTeamsRemainingCache(newEditedList);
+                }
+                Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemChanged(1);
+            });
+        }).start();
     }
 
     @Override

@@ -674,7 +674,10 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public String getTeamNumber(int matchNumber, int position) {
-        return teamMatchScheduleDao.getTeamNumber(matchNumber, position);
+        String teamNumber = teamMatchScheduleDao.getTeamNumber(matchNumber, position);
+        android.util.Log.d("PowerPreferenceRepository",
+            "getTeamNumber(match=" + matchNumber + ", pos=" + position + ") returned: " + teamNumber);
+        return teamNumber;
     }
 
     @Override
@@ -716,18 +719,48 @@ public class PowerPreferenceRepository implements PreferenceRepository {
     public void importTeamSchedule(String[][] csvData) {
         new Thread(() -> {
             List<com.databits.androidscouting.data.entity.TeamMatchSchedule> schedules = new ArrayList<>();
+            android.util.Log.d("PowerPreferenceRepository", "Importing " + csvData.length + " rows of match data");
+
             for (String[] row : csvData) {
-                if (row.length >= 4) {
-                    com.databits.androidscouting.data.entity.TeamMatchSchedule schedule =
-                        new com.databits.androidscouting.data.entity.TeamMatchSchedule();
-                    schedule.matchNumber = Integer.parseInt(row[0]);
-                    schedule.crowdPosition = Integer.parseInt(row[1]);
-                    schedule.teamNumber = row[2];
-                    schedule.alliance = row[3];
-                    schedules.add(schedule);
+                // CSV format: Match, Blue1, Blue2, Blue3, Red1, Red2, Red3
+                if (row.length >= 7) {
+                    try {
+                        int matchNumber = Integer.parseInt(row[0]);
+
+                        // Create 6 schedule entries (one for each position)
+                        String[] alliances = {"BLUE", "BLUE", "BLUE", "RED", "RED", "RED"};
+
+                        for (int i = 0; i < 6; i++) {
+                            com.databits.androidscouting.data.entity.TeamMatchSchedule schedule =
+                                new com.databits.androidscouting.data.entity.TeamMatchSchedule();
+                            schedule.matchNumber = matchNumber;
+                            schedule.crowdPosition = i + 1; // Positions 1-6
+                            schedule.teamNumber = row[i + 1]; // Columns 1-6 contain team numbers
+                            schedule.alliance = alliances[i];
+                            schedules.add(schedule);
+
+                            android.util.Log.d("PowerPreferenceRepository",
+                                "Importing: Match=" + schedule.matchNumber +
+                                ", Position=" + schedule.crowdPosition +
+                                ", Team=" + schedule.teamNumber +
+                                ", Alliance=" + schedule.alliance);
+                        }
+                    } catch (NumberFormatException e) {
+                        // Skip header row or invalid data
+                        android.util.Log.w("PowerPreferenceRepository", "Skipping invalid row: " + java.util.Arrays.toString(row));
+                        continue;
+                    }
+                } else {
+                    android.util.Log.w("PowerPreferenceRepository", "Skipping row with insufficient columns (need 7, got " + row.length + "): " + java.util.Arrays.toString(row));
                 }
             }
-            teamMatchScheduleDao.insertAll(schedules);
+
+            if (!schedules.isEmpty()) {
+                teamMatchScheduleDao.insertAll(schedules);
+                android.util.Log.d("PowerPreferenceRepository", "Successfully inserted " + schedules.size() + " team schedule entries");
+            } else {
+                android.util.Log.w("PowerPreferenceRepository", "No valid schedule entries to insert");
+            }
         }).start();
     }
 

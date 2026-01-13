@@ -44,6 +44,9 @@ public class LayoutPresenter {
         MultiviewTypeAdapter adapter = adapterFactory.create(cells);
         recyclerView.setAdapter(adapter);
 
+        // Load pit teams remaining cache to avoid database access in onBindViewHolder
+        adapter.loadPitTeamsRemainingCache();
+
         // Notify changes
         adapter.notifyDataSetChanged();
 
