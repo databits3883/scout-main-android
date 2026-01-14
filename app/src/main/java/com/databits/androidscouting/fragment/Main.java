@@ -84,6 +84,8 @@ public class Main extends Fragment {
         fileUtils = new FileUtils(requireContext());
         scoutUtils = new ScoutUtils(requireContext());
 
+        view.post(this::refreshActionBar);
+
         NavController controller = NavHostFragment.findNavController(Main.this);
 
         binding.buttonScanner.setOnClickListener(view1 -> controller

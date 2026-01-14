@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.ActivityMainBinding;
@@ -34,7 +35,10 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        setSupportActionBar(binding.toolbar);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
+            .findFragmentById(R.id.nav_host_fragment_content_main);
+        NavController navController = navHostFragment.getNavController();
 
         PowerPreference.init(this);
 

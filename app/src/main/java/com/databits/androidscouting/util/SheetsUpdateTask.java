@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
@@ -58,7 +58,7 @@ public class SheetsUpdateTask {
     String accountName = repository.getGoogleAccountName();
     credential.setSelectedAccountName(accountName);
 
-    HttpTransport transport = AndroidHttp.newCompatibleTransport();
+    HttpTransport transport = new NetHttpTransport();
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
     sheetsService = new Sheets.Builder(transport, jsonFactory, credential)
         .setApplicationName("Android Scouter")

@@ -511,7 +511,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             FileWriter uploadFile = new FileWriter(file, true);
             CSVWriter uploader = new CSVWriter(uploadFile, CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.NO_QUOTE_CHARACTER,
-                CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                CSVWriter.DEFAULT_LINE_END);
             List<String[]> upload_data = new ArrayList<>();
             String timeStamp = new SimpleDateFormat("MM-dd-yy hh:mmaaa",
                 Locale.getDefault()).format(new Date());

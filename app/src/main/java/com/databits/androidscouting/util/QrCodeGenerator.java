@@ -9,7 +9,7 @@ import com.databits.androidscouting.R;
 import com.github.sumimakito.awesomeqr.AwesomeQrRenderer;
 import com.github.sumimakito.awesomeqr.RenderResult;
 import com.github.sumimakito.awesomeqr.option.RenderOption;
-import com.github.sumimakito.awesomeqr.option.color.ColorQR;
+import com.github.sumimakito.awesomeqr.option.color.Color;
 import com.github.sumimakito.awesomeqr.option.logo.Logo;
 
 public class QrCodeGenerator {
@@ -40,7 +40,7 @@ public class QrCodeGenerator {
     qrLogo.setClippingRect(new RectF(0, 0, 200, 200));
 
     // Color for the QR code
-    ColorQR color = new ColorQR();
+    Color color = new Color();
     // for blank spaces
     color.setLight(context.getResources().getColor(R.color.white, null));
     // for non-blank spaces
@@ -54,11 +54,10 @@ public class QrCodeGenerator {
     renderOption.setSize(size);
     renderOption.setRoundedPatterns(false);
     renderOption.setBorderWidth(borderWidth);
-    renderOption.setQrCodeVersion(12);
     renderOption.setPatternScale(0.9f);
     // if set to true, the background will NOT be drawn on the border area
     renderOption.setClearBorder(false);
-    renderOption.setColorQR(color);
+    renderOption.setColor(color);
     if (logo) {
       renderOption.setLogo(qrLogo);
     }

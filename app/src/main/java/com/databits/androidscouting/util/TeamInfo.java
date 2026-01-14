@@ -6,6 +6,7 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -91,7 +92,7 @@ public class TeamInfo {
           List<String[]> list = csvReader.readAll();
           String[][] dataArr = list.toArray(new String[0][]);
           repository.importTeamSchedule(dataArr);
-      } catch (IOException e) {
+      } catch (IOException | CsvException e) {
           e.printStackTrace();
       }
 

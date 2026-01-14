@@ -30,6 +30,7 @@ import com.databits.androidscouting.viewmodel.ConfigViewModel;
 import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
 import com.google.android.material.textfield.TextInputEditText;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -267,7 +268,7 @@ public class GoogleConfig extends Fragment {
                         Toast.LENGTH_SHORT).show();
                   }
                 });
-              } catch (IOException e) {
+            } catch (IOException | CsvException e) {
                 e.printStackTrace();
                 // Show error on main thread
                 mainHandler.post(() -> {

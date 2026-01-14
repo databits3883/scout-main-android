@@ -30,7 +30,7 @@ enum class HelpPictureType(@DrawableRes val drawableRes: Int) {
     AUTO(R.drawable.auto),
 
     @Json(name = "None")
-    NONE(com.anggrayudi.storage.R.drawable.md_transparent);
+    NONE(android.R.color.transparent);
 
     companion object {
         /**
