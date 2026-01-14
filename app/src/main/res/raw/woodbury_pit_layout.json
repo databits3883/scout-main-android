@@ -1,0 +1,112 @@
+{
+  "cells": [
+    {
+      "id": 1,
+      "config": {
+        "type": "TeamSelect",
+        "helpText": "Select the team your currently scouting",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Default"
+      },
+      "title": "Set the team",
+      "typeString": "TeamSelect"
+    },
+    {
+      "id": 3,
+      "config": {
+        "segmentLabels": [
+          "Tank",
+          "Swerve",
+          "Mecanum",
+          "Other"
+        ],
+        "segments": 4,
+        "type": "Segment",
+        "helpText": "Default",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "title": "Drivetrain used?",
+      "typeString": "Segment"
+    },
+        {
+      "id": 9,
+      "config": {
+        "isTextHidden": false,
+        "type": "Text",
+        "helpText": "Be Specific, More info is always better",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Comments"
+      },
+      "title": "Auto routine Info",
+      "typeString": "Text"
+    },
+	{
+      "id": 9,
+      "config": {
+        "isTextHidden": false,
+        "type": "Text",
+        "helpText": "Be Specific, More info is always better",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Strategy"
+      },
+      "title": "Strategy-Coral,Algae,Barge,Floor",
+      "typeString": "Text"
+    },
+    {
+      "id": 3,
+      "config": {
+        "segmentLabels": [
+          "None",
+          "Feeder",
+          "Ground",
+          "Both"
+        ],
+        "segments": 4,
+        "type": "Segment",
+        "helpText": "Default",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "title": "Coral Intake",
+      "typeString": "Segment"
+    },
+    {
+      "id": 3,
+      "config": {
+        "segmentLabels": [
+          "None",
+          "Reef",
+          "Ground",
+          "Both"
+        ],
+        "segments": 4,
+        "type": "Segment",
+        "helpText": "Default",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "title": "Algae Intake",
+      "typeString": "Segment"
+    },
+    {
+      "id": 10,
+      "config": {
+        "isTextHidden": false,
+        "type": "Text",
+        "helpText": "Be Specific, More info is always better",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Comments"
+      },
+      "title": "Comments",
+      "typeString": "Text"
+    }
+  ]
+}

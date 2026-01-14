@@ -1,0 +1,309 @@
+{
+  "cells": [
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 1 A&S",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 2 A&S",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 12,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 3 A&S",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 4 A&S",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Algae Removed L & H",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "Counter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Algae Processed",
+      "typeString": "Counter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "Counter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Algae Barged",
+      "typeString": "Counter"
+    },
+    {
+      "id": 2,
+      "config": {
+        "type": "YesNo",
+        "helpText": "",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": ""
+      },
+      "title": "Moved in auto?",
+      "typeString": "YesNo"
+    },
+    {
+      "id": 10,
+      "config": {
+        "isTextHidden": false,
+        "type": "Text",
+        "helpText": "Be Specific, More info is always better",
+        "categoryString": "Auto",
+        "helpPictureSelector": "None",
+        "helpTitle": "Auton Comments"
+      },
+      "title": "Auton Comments",
+      "typeString": "Text"
+    },
+	{
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 1 A&s",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 2 A&S",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 12,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 3 A&s",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Coral Level 4 A&S",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "DoubleCounter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Algae Removed L & H",
+      "typeString": "DoubleCounter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "Counter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Algae Processed",
+      "typeString": "Counter"
+    },
+    {
+      "id": 0,
+      "config": {
+        "defaultValue": 0,
+        "max": 50,
+        "min": 0,
+        "type": "Counter",
+        "unit": 1,
+        "helpText": "",
+        "categoryString": "Teleop",
+        "helpPictureSelector": "Auto",
+        "helpTitle": ""
+      },
+      "title": "Algae Barged",
+      "typeString": "Counter"
+    },
+    {
+      "id": 3,
+      "config": {
+        "segmentLabels": [
+          "Dead",
+          "Parked",
+          "Shallow",
+          "Deep"
+        ],
+        "segments": 4,
+        "type": "Segment",
+        "helpText": "Default",
+        "categoryString": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "If not in list do other and leave a comment"
+      },
+      "title": "Endgame",
+      "typeString": "Segment"
+    },
+    {
+      "id": 1,
+      "config": {
+        "type": "YesNo",
+        "helpText": "You must leave a comment if you say yes to this, explaining what happened!",
+        "categoryString": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Did something go wrong with the robot?"
+      },
+      "title": "Did the robot break",
+      "typeString": "YesNo"
+    },
+    {
+      "id": 9,
+      "config": {
+        "type": "YesNo",
+        "helpText": "Did they block the other team or cause them to slow down",
+        "categoryString": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Defense"
+      },
+      "title": "Played defense?",
+      "typeString": "YesNo"
+    },
+    {
+      "id": 10,
+      "config": {
+        "isTextHidden": false,
+        "type": "Text",
+        "helpText": "Be Specific, More info is always better",
+        "categoryString": "Endgame",
+        "helpPictureSelector": "None",
+        "helpTitle": "Comments"
+      },
+      "title": "Comments",
+      "typeString": "Text"
+    }
+  ]
+}
