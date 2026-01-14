@@ -67,9 +67,9 @@ public class ConfigViewModel extends ViewModel {
     private final LiveData<Integer> pendingUploadCount;
     private final LiveData<List<String>> pitTeamsRemaining;
 
-    public ConfigViewModel(PreferenceRepository repository) {
+    public ConfigViewModel(PreferenceRepository repository, ExecutorService executor) {
         this.repository = repository;
-        this.executor = Executors.newSingleThreadExecutor();
+        this.executor = executor;
 
         // Initialize LiveData
         this.currentMatch = new MutableLiveData<>();

@@ -9,6 +9,8 @@ import com.databits.androidscouting.data.entity.UploadQueueItem;
 import com.preference.PowerPreference;
 import com.preference.Preference;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +58,31 @@ public class PowerPreferenceRepository implements PreferenceRepository {
      * @param context Application context for Room database initialization
      */
     private PowerPreferenceRepository(Context context) {
+        this(context, ScoutDatabase.getInstance(context.getApplicationContext()), Executors.newSingleThreadExecutor());
+    }
+
+    /**
+     * Constructor for testing that allows injecting a specific database instance.
+     *
+     * @param context Application context
+     * @param db ScoutDatabase instance (can be in-memory for testing)
+     */
+    @androidx.annotation.VisibleForTesting
+    protected PowerPreferenceRepository(Context context, ScoutDatabase db) {
+        this(context, db, Executors.newSingleThreadExecutor());
+    }
+
+    /**
+     * Constructor for testing that allows injecting a specific database instance and executor.
+     *
+     * @param context Application context
+     * @param db ScoutDatabase instance (can be in-memory for testing)
+     * @param executor ExecutorService for background tasks
+     */
+    @androidx.annotation.VisibleForTesting
+    protected PowerPreferenceRepository(Context context, ScoutDatabase db, ExecutorService executor) {
+        this.executor = executor;
+
         // Initialize PowerPreference files
         this.configPreference = PowerPreference.getFileByName("Config");
         this.debugPreference = PowerPreference.getFileByName("Debug");
@@ -63,8 +90,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
         this.matchPreference = PowerPreference.getFileByName("Match");
         this.pitDataPreference = PowerPreference.getFileByName("PitData");
 
-        // Initialize Room database and DAOs
-        ScoutDatabase db = ScoutDatabase.getInstance(context.getApplicationContext());
+        // Initialize Room DAOs
         this.uploadQueueDao = db.uploadQueueDao();
         this.teamMatchScheduleDao = db.teamMatchScheduleDao();
         this.matchDataDao = db.matchDataDao();
@@ -633,25 +659,25 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public void addUploadItem(UploadQueueItem item) {
-        new Thread(() -> uploadQueueDao.insert(item)).start();
+        executor.execute(() -> uploadQueueDao.insert(item));
     }
 
     @Override
     public void markUploadSuccess(long id) {
-        new Thread(() -> uploadQueueDao.markUploaded(id, "SUCCESS", System.currentTimeMillis())).start();
+        executor.execute(() -> uploadQueueDao.markUploaded(id, "SUCCESS", System.currentTimeMillis()));
     }
 
     @Override
     public void markUploadFailed(long id, String error) {
-        new Thread(() -> {
+        executor.execute(() -> {
             uploadQueueDao.incrementRetryCount(id, error);
             uploadQueueDao.updateStatus(id, "FAILED");
-        }).start();
+        });
     }
 
     @Override
     public void clearSuccessfulUploads() {
-        new Thread(() -> uploadQueueDao.deleteSuccessfulUploads()).start();
+        executor.execute(() -> uploadQueueDao.deleteSuccessfulUploads());
     }
 
     @Override
@@ -767,12 +793,12 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public void markChunkProcessed(int chunkId) {
-        new Thread(() -> {
+        executor.execute(() -> {
             com.databits.androidscouting.data.entity.ProcessedChunk chunk =
                 new com.databits.androidscouting.data.entity.ProcessedChunk();
             chunk.chunkId = chunkId;
             processedChunkDao.insert(chunk);
-        }).start();
+        });
     }
 
     @Override
@@ -782,7 +808,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public void clearProcessedChunks() {
-        new Thread(() -> processedChunkDao.deleteAll()).start();
+        executor.execute(() -> processedChunkDao.deleteAll());
     }
 
     // ==================== Room-based Seen Lines Operations ====================
@@ -794,23 +820,23 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public void markLineSeen(String lineHash, String dataType) {
-        new Thread(() -> {
+        executor.execute(() -> {
             com.databits.androidscouting.data.entity.SeenLine line =
                 new com.databits.androidscouting.data.entity.SeenLine();
             line.lineHash = lineHash;
             line.dataType = dataType;
             seenLineDao.insert(line);
-        }).start();
+        });
     }
 
     @Override
     public void clearSeenLines(String dataType) {
-        new Thread(() -> seenLineDao.clearType(dataType)).start();
+        executor.execute(() -> seenLineDao.clearType(dataType));
     }
 
     @Override
     public void clearAllSeenLines() {
-        new Thread(() -> seenLineDao.deleteAll()).start();
+        executor.execute(() -> seenLineDao.deleteAll());
     }
 
     // ==================== Room-based Scouter Operations ====================
@@ -839,7 +865,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public void setScouterList(List<String> scouters) {
-        new Thread(() -> {
+        executor.execute(() -> {
             List<com.databits.androidscouting.data.entity.Scouter> entities = new ArrayList<>();
             for (String name : scouters) {
                 com.databits.androidscouting.data.entity.Scouter s =
@@ -849,7 +875,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
             }
             scouterDao.deleteAll();
             scouterDao.insertAll(entities);
-        }).start();
+        });
     }
 
     // ==================== Room-based Pit Teams Remaining Operations ====================
@@ -866,7 +892,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public void setPitTeamsRemainingList(List<String> teams) {
-        new Thread(() -> {
+        executor.execute(() -> {
             List<com.databits.androidscouting.data.entity.PitTeamRemaining> entities = new ArrayList<>();
             for (String teamNumber : teams) {
                 com.databits.androidscouting.data.entity.PitTeamRemaining team =
@@ -876,11 +902,11 @@ public class PowerPreferenceRepository implements PreferenceRepository {
             }
             pitTeamRemainingDao.deleteAll();
             pitTeamRemainingDao.insertAll(entities);
-        }).start();
+        });
     }
 
     @Override
     public void removePitTeam(String teamNumber) {
-        new Thread(() -> pitTeamRemainingDao.removeTeam(teamNumber)).start();
+        executor.execute(() -> pitTeamRemainingDao.removeTeam(teamNumber));
     }
 }
