@@ -36,4 +36,16 @@ public class ParseResult {
     public static ParseResult error(String message) {
         return new ParseResult(null, message, false);
     }
+
+    public List<Cell> getCells() {
+        return cells;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public boolean isSuccess() {
+        return isSuccess;
+    }
 }

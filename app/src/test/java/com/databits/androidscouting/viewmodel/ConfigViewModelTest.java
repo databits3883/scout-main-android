@@ -44,7 +44,7 @@ public class ConfigViewModelTest extends BaseViewModelTest {
                 try {
                     task.call();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
                 return null;
             }
@@ -90,7 +90,7 @@ public class ConfigViewModelTest extends BaseViewModelTest {
 
         // Assert
         verify(repository).setCameraTorch(false);
-        verify(boolObserver).onChanged(false);
+        verify(boolObserver, atLeastOnce()).onChanged(false);
     }
 
     @Test

@@ -32,7 +32,7 @@ public class LayoutParserTest {
 
     @Test
     public void testParseValidJson() {
-        String json = "{\"cells\": [{\"type\": \"TITLE\", \"title\": \"Test Title\"}]}";
+        String json = "{\"cells\": [{\"id\": 1, \"title\": \"Test Title\", \"typeString\": \"Title\", \"config\": {}}]}";
         ParseResult result = parser.parse(json);
         
         assertTrue(result.isSuccess());
@@ -44,7 +44,7 @@ public class LayoutParserTest {
 
     @Test
     public void testParseJsonWithLegacyDelimiter() {
-        String json = "{\"cells\": [{\"type\": \"TITLE\", \"title\": \"Legacy\"}]}^SomeLegacySuffix";
+        String json = "{\"cells\": [{\"id\": 1, \"title\": \"Legacy\", \"typeString\": \"Title\", \"config\": {}}]}^SomeLegacySuffix";
         ParseResult result = parser.parse(json);
         
         assertTrue(result.isSuccess());

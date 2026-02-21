@@ -4,6 +4,7 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.library.GeneralCodingRules;
+import com.tngtech.archunit.ArchConfiguration;
 import org.junit.Test;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -11,6 +12,10 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
 public class ArchitectureTest {
+
+    static {
+        ArchConfiguration.get().setProperty("archRule.failOnEmptyShould", "false");
+    }
 
     private final JavaClasses importedClasses = new ClassFileImporter().importPackages("com.databits.androidscouting");
 

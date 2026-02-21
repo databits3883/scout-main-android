@@ -47,7 +47,7 @@ public class RepositoryIntegrationTest {
             @Override public boolean isTerminated() { return false; }
             @Override public boolean awaitTermination(long timeout, java.util.concurrent.TimeUnit unit) { return true; }
             @Override public <T> java.util.concurrent.Future<T> submit(java.util.concurrent.Callable<T> task) { 
-                try { task.call(); } catch (Exception e) { e.printStackTrace(); }
+                try { task.call(); } catch (Exception e) { throw new RuntimeException(e); }
                 return null;
             }
             @Override public <T> java.util.concurrent.Future<T> submit(Runnable task, T result) { task.run(); return null; }
@@ -74,8 +74,8 @@ public class RepositoryIntegrationTest {
         UploadQueueItem item = new UploadQueueItem();
         item.dataCsv = "Test,Data,CSV";
         item.uploadType = "CROWD";
-        item.status = "PENDING";
-        item.timestamp = System.currentTimeMillis();
+        item.uploadStatus = "PENDING";
+        item.createdAt = System.currentTimeMillis();
 
         // Act - Add item (runs synchronously now)
         repository.addUploadItem(item);

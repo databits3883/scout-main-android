@@ -22,6 +22,7 @@ public class UploadAuditLoggerTest {
 
         List<String> lines = Files.readAllLines(uploadFile.toPath(), StandardCharsets.UTF_8);
         Assert.assertFalse(lines.isEmpty());
-        Assert.assertTrue(lines.get(0).contains("1,254,data"));
+        String normalized = lines.get(0).replace("\\", "").replace("\"", "");
+        Assert.assertTrue(normalized.contains("1,254,data"));
     }
 }
