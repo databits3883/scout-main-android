@@ -18,8 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentSettingsGoogleconfigBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.GoogleAuthActivity;
@@ -66,7 +66,7 @@ public class GoogleConfig extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    repository = PowerPreferenceRepository.getInstance(requireContext());
+    repository = PreferenceRepositoryProvider.get(requireContext());
     ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
@@ -84,7 +84,7 @@ public class GoogleConfig extends Fragment {
     // Helper Classes
     scoutUtils = new ScoutUtils(requireContext());
     fileUtils = new FileUtils(requireContext());
-    matchInfo = new MatchInfo();
+    matchInfo = new MatchInfo(repository);
     teamInfo = new TeamInfo(requireContext());
 
     binding.buttonBack.setOnClickListener(v1 -> controller.navigateUp());

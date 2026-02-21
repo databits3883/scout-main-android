@@ -96,12 +96,12 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
     // Toggles
     @Override
     public boolean isRoleLocked() {
-        return configPreference.getBoolean("role_locked", false);
+        return configPreference.getBoolean("role_locked_toggle", false);
     }
 
     @Override
     public void setRoleLocked(boolean locked) {
-        configPreference.setBoolean("role_locked", locked);
+        configPreference.setBoolean("role_locked_toggle", locked);
     }
 
     @Override
@@ -116,12 +116,12 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public String getUploadMode() {
-        return configPreference.getString("upload_mode", null);
+        return configPreference.getString("uploadMode", null);
     }
 
     @Override
     public void setUploadMode(String mode) {
-        configPreference.setString("upload_mode", mode);
+        configPreference.setString("uploadMode", mode);
     }
 
     @Override
@@ -136,12 +136,12 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isForceUploadEnabled() {
-        return configPreference.getBoolean("force_upload", false);
+        return configPreference.getBoolean("force_upload_toggle", false);
     }
 
     @Override
     public void setForceUpload(boolean enabled) {
-        configPreference.setBoolean("force_upload", enabled);
+        configPreference.setBoolean("force_upload_toggle", enabled);
     }
 
     @Override
@@ -166,12 +166,12 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isSpecialSwitchEnabled() {
-        return configPreference.getBoolean("special_switch_enabled", false);
+        return configPreference.getBoolean("specialSwitch", false);
     }
 
     @Override
     public void setSpecialSwitch(boolean enabled) {
-        configPreference.setBoolean("special_switch_enabled", enabled);
+        configPreference.setBoolean("specialSwitch", enabled);
     }
 
     @Override
@@ -187,47 +187,47 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
     // Camera
     @Override
     public boolean isCameraTorchEnabled() {
-        return configPreference.getBoolean("camera_torch", false);
+        return configPreference.getBoolean("camera_torch_enabled", false);
     }
 
     @Override
     public void setCameraTorch(boolean enabled) {
-        configPreference.setBoolean("camera_torch", enabled);
+        configPreference.setBoolean("camera_torch_enabled", enabled);
     }
 
     @Override
     public boolean isCameraHapticFeedbackEnabled() {
-        return configPreference.getBoolean("camera_haptic", true);
+        return configPreference.getBoolean("camera_haptic_feedback", true);
     }
 
     @Override
     public void setCameraHapticFeedback(boolean enabled) {
-        configPreference.setBoolean("camera_haptic", enabled);
+        configPreference.setBoolean("camera_haptic_feedback", enabled);
     }
 
     @Override
     public boolean isCameraAudioFeedbackEnabled() {
-        return configPreference.getBoolean("camera_audio", true);
+        return configPreference.getBoolean("camera_audio_feedback", false);
     }
 
     @Override
     public void setCameraAudioFeedback(boolean enabled) {
-        configPreference.setBoolean("camera_audio", enabled);
+        configPreference.setBoolean("camera_audio_feedback", enabled);
     }
 
     @Override
     public boolean isCameraShowReticleEnabled() {
-        return configPreference.getBoolean("camera_reticle", true);
+        return configPreference.getBoolean("camera_show_reticle", true);
     }
 
     @Override
     public void setCameraShowReticle(boolean enabled) {
-        configPreference.setBoolean("camera_reticle", enabled);
+        configPreference.setBoolean("camera_show_reticle", enabled);
     }
 
     @Override
     public boolean isCameraAutoBrightnessEnabled() {
-        return configPreference.getBoolean("camera_auto_brightness", false);
+        return configPreference.getBoolean("camera_auto_brightness", true);
     }
 
     @Override
@@ -257,32 +257,32 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isCameraShowSuccessAnimationEnabled() {
-        return configPreference.getBoolean("camera_show_success_anim", true);
+        return configPreference.getBoolean("camera_show_success_animation", true);
     }
 
     @Override
     public void setCameraShowSuccessAnimation(boolean enabled) {
-        configPreference.setBoolean("camera_show_success_anim", enabled);
+        configPreference.setBoolean("camera_show_success_animation", enabled);
     }
 
     @Override
     public int getCameraExposureCompensation() {
-        return configPreference.getInt("camera_exposure", 0);
+        return configPreference.getInt("camera_exposure_compensation", 0);
     }
 
     @Override
     public void setCameraExposureCompensation(int exposure) {
-        configPreference.setInt("camera_exposure", exposure);
+        configPreference.setInt("camera_exposure_compensation", exposure);
     }
 
     @Override
     public float getCameraZoomLevel() {
-        return configPreference.getFloat("camera_zoom", 1.0f);
+        return configPreference.getFloat("camera_zoom_level", 1.0f);
     }
 
     @Override
     public void setCameraZoomLevel(float zoom) {
-        configPreference.setFloat("camera_zoom", zoom);
+        configPreference.setFloat("camera_zoom_level", zoom);
     }
 
     @Override
@@ -297,7 +297,7 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isCameraCenterWeightedEnabled() {
-        return configPreference.getBoolean("camera_center_weighted", false);
+        return configPreference.getBoolean("camera_center_weighted", true);
     }
 
     @Override
@@ -327,23 +327,23 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isCameraShowResolutionEnabled() {
-        return debugPreference.getBoolean("camera_show_res", false);
+        return debugPreference.getBoolean("camera_show_resolution", false);
     }
 
     @Override
     public void setCameraShowResolution(boolean enabled) {
-        debugPreference.setBoolean("camera_show_res", enabled);
+        debugPreference.setBoolean("camera_show_resolution", enabled);
     }
 
     // Debug
     @Override
     public boolean isManualTeamOverrideEnabled() {
-        return debugPreference.getBoolean("manual_team_override", false);
+        return debugPreference.getBoolean("manual_team_override_toggle", false);
     }
 
     @Override
     public void setManualTeamOverride(boolean enabled) {
-        debugPreference.setBoolean("manual_team_override", enabled);
+        debugPreference.setBoolean("manual_team_override_toggle", enabled);
     }
 
     @Override
@@ -358,12 +358,12 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isManualMatchOverrideEnabled() {
-        return debugPreference.getBoolean("manual_match_override", false);
+        return debugPreference.getBoolean("manual_match_override_toggle", false);
     }
 
     @Override
     public void setManualMatchOverride(boolean enabled) {
-        debugPreference.setBoolean("manual_match_override", enabled);
+        debugPreference.setBoolean("manual_match_override_toggle", enabled);
     }
 
     @Override
@@ -378,27 +378,27 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
 
     @Override
     public boolean isMaster() {
-        return debugPreference.getBoolean("is_master", false);
+        return debugPreference.getBoolean("isMaster", false);
     }
 
     @Override
     public void setMaster(boolean isMaster) {
-        debugPreference.setBoolean("is_master", isMaster);
+        debugPreference.setBoolean("isMaster", isMaster);
     }
 
     @Override
     public boolean isRedTeam() {
-        return debugPreference.getBoolean("is_red_team", false);
+        return debugPreference.getBoolean("isRedteam", false);
     }
 
     @Override
     public void setRedTeam(boolean isRedTeam) {
-        debugPreference.setBoolean("is_red_team", isRedTeam);
+        debugPreference.setBoolean("isRedteam", isRedTeam);
     }
 
     @Override
     public int getDebugMatch() {
-        return debugPreference.getInt("debug_match", 1);
+        return debugPreference.getInt("debug_match", getCurrentMatch());
     }
 
     @Override

@@ -17,8 +17,8 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +51,7 @@ public class SheetsUpdateTask {
     this.executor = Executors.newSingleThreadExecutor();
     this.mainHandler = new Handler(Looper.getMainLooper());
 
-    this.repository = PowerPreferenceRepository.getInstance();
+    this.repository = PreferenceRepositoryProvider.get(context);
 
     GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
             context, Arrays.asList(SheetsScopes.SPREADSHEETS))

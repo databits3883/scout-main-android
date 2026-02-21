@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.model.CellType;
 import com.travijuu.numberpicker.library.NumberPicker;
 
@@ -29,8 +29,7 @@ public class ScoutUtils {
 
   public ScoutUtils(Context context) {
     this.context = context;
-    // Use repository for centralized preference access
-    this.repository = PowerPreferenceRepository.getInstance();
+    this.repository = PreferenceRepositoryProvider.get(context);
   }
 
   public String exportCell(RecyclerView recyclerView) {

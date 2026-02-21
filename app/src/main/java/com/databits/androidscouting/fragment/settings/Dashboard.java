@@ -28,8 +28,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.anggrayudi.storage.SimpleStorageHelper;
 import com.databits.androidscouting.MainActivity;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentSettingsDashboardBinding;
 import com.databits.androidscouting.databinding.UiStatusIndicatorBinding;
 import com.databits.androidscouting.util.FileUtils;
@@ -64,7 +64,7 @@ public class Dashboard extends Fragment {
       @NonNull LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState
   ) {
-    repository = PowerPreferenceRepository.getInstance(requireContext());
+    repository = PreferenceRepositoryProvider.get(requireContext());
     binding = FragmentSettingsDashboardBinding.inflate(inflater, container, false);
     return binding.getRoot();
 
@@ -75,7 +75,7 @@ public class Dashboard extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+    PreferenceRepository repo = PreferenceRepositoryProvider.get(requireContext());
     ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
@@ -91,7 +91,7 @@ public class Dashboard extends Fragment {
     // Helper Classes
     scoutUtils = new ScoutUtils(requireContext());
     fileUtils = new FileUtils(requireContext());
-    matchInfo = new MatchInfo();
+    matchInfo = new MatchInfo(repository);
     teamInfo = new TeamInfo(requireContext());
 
 

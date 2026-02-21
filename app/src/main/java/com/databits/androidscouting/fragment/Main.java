@@ -24,8 +24,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentMainBinding;
 import com.databits.androidscouting.util.FileUtils;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
@@ -54,7 +54,7 @@ public class Main extends Fragment {
             Bundle savedInstanceState
     ) {
         // Set Sane Defaults to enable debugging and new install demo
-        repository = PowerPreferenceRepository.getInstance(requireContext());
+        repository = PreferenceRepositoryProvider.get(requireContext());
         repository.setConfigDefaults(R.xml.defaults_config);
         repository.setDebugDefaults(R.xml.defaults_debug);
         binding = FragmentMainBinding.inflate(inflater, container, false);
@@ -66,7 +66,7 @@ public class Main extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize ViewModel
-        PreferenceRepository repo = PowerPreferenceRepository.getInstance();
+        PreferenceRepository repo = PreferenceRepositoryProvider.get(requireContext());
         ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
         viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 

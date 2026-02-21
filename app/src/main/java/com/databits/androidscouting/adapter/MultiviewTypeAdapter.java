@@ -20,8 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButton;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellConfig;
 import com.databits.androidscouting.model.CellType;
@@ -306,8 +306,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             Context context = parent.getContext();
             inflater = LayoutInflater.from(context);
             teamInfo = new TeamInfo(context);
-            matchInfo = new MatchInfo();
-            repository = PowerPreferenceRepository.getInstance();
+            repository = PreferenceRepositoryProvider.get(context);
+            matchInfo = new MatchInfo(repository);
             helpBuilder = new Balloon.Builder(context)
                 .setArrowSize(15)
                 .setArrowOrientation(ArrowOrientation.TOP)

@@ -6,8 +6,8 @@ import com.databits.androidscouting.core.domain.scanner.FindMatchedTeamSlotUseCa
 import com.databits.androidscouting.core.domain.scanner.ProcessScanPayloadUseCase;
 import com.databits.androidscouting.core.domain.schedule.ImportMatchDataChunkUseCase;
 import com.databits.androidscouting.core.domain.upload.QueueScanDataUseCase;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.data.repository.adapter.PreferenceMatchDataImportGateway;
 import com.databits.androidscouting.data.repository.adapter.PreferenceRoleProvisionGateway;
 import com.databits.androidscouting.data.repository.adapter.PreferenceUploadQueueGateway;
@@ -29,7 +29,7 @@ final class ScannerDependencies {
     final QueueScanDataUseCase queueScanDataUseCase;
 
     static ScannerDependencies create(Context context) {
-        PreferenceRepository repository = PowerPreferenceRepository.getInstance(context);
+        PreferenceRepository repository = PreferenceRepositoryProvider.get(context);
         return new ScannerDependencies(
             repository,
             new ScannerCameraController(),

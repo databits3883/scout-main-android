@@ -1,29 +1,30 @@
 package com.databits.androidscouting.util;
 
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class MatchInfo {
-  private PreferenceRepository repository;
+  private final PreferenceRepository repository;
 
   // Lazy-loaded to avoid premature preference access during field initialization
   private Integer match = null;
 
-  private PreferenceRepository getRepository() {
-    if (repository == null) {
-      repository = PowerPreferenceRepository.getInstance();
-    }
-    return repository;
+  public MatchInfo(PreferenceRepository repository) {
+    this.repository = repository;
+  }
+
+  public MatchInfo(android.content.Context context) {
+    this(PreferenceRepositoryProvider.get(context));
   }
 
   public int getMatch() {
-    if (getRepository().isManualMatchOverrideEnabled()) {
-      return getRepository().getManualMatchOverrideValue();
+    if (repository.isManualMatchOverrideEnabled()) {
+      return repository.getManualMatchOverrideValue();
     } else {
       // Lazy load match value on first access
       if (match == null) {
-        match = getRepository().getCurrentMatch();
+        match = repository.getCurrentMatch();
       }
       return match;
     }
@@ -31,21 +32,21 @@ public class MatchInfo {
 
   public void setMatch(int val) {
     match = val; // Update cached value
-    getRepository().setCurrentMatch(val);
+    repository.setCurrentMatch(val);
   }
 
   public void incrementMatch() {
-    int newValue = getRepository().getCurrentMatch() + 1;
+    int newValue = repository.getCurrentMatch() + 1;
     match = newValue; // Update cached value
-    getRepository().setCurrentMatch(newValue);
+    repository.setCurrentMatch(newValue);
   }
 
   public void setTempMatch(int val) {
-    getRepository().setDebugMatch(val);
+    repository.setDebugMatch(val);
   }
 
   public int getTempMatch() {
-    return getRepository().getDebugMatch();
+    return repository.getDebugMatch();
   }
 
   // Default configuration for the match number picker

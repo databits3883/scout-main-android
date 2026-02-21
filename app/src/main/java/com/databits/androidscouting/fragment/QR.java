@@ -41,8 +41,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentQRBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
@@ -111,12 +111,12 @@ public class QR extends Fragment {
         Log.d("QR", "onViewCreated: Starting QR processing");
 
         // Initialize ViewModel
-        repository = PowerPreferenceRepository.getInstance(requireContext());
+        repository = PreferenceRepositoryProvider.get(requireContext());
         ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
         viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
         // --- Initialize Utility Classes ---
-        matchInfo = new MatchInfo();
+        matchInfo = new MatchInfo(repository);
         teamInfo = new TeamInfo(requireContext());
         fileUtils = new FileUtils(requireContext());
         qrCodeGenerator = new QrCodeGenerator(requireContext());

@@ -54,21 +54,64 @@ public class RoomScheduleRepository implements ScheduleRepository {
 
     @Override
     public String[][] exportTeamSchedule() {
-        // Implementation note: This might need to reconstruct the 2D array from DB
-        // Original likely used PowerPreference.getObject or similar if it was file-based
-        // But here we use DAO. 
-        // Need to check how PowerPreferenceRepository implemented this.
-        // Assuming it fetches all from DAO and formats.
-        // Returning null for now to be filled after checking original source if complex.
-        return null; 
+        List<com.databits.androidscouting.data.entity.TeamMatchSchedule> scheduleList =
+            teamMatchScheduleDao.getAllScheduleSync();
+
+        if (scheduleList == null || scheduleList.isEmpty()) {
+            return null;
+        }
+
+        java.util.Map<Integer, String[]> matchMap = new java.util.HashMap<>();
+        for (com.databits.androidscouting.data.entity.TeamMatchSchedule item : scheduleList) {
+            if (!matchMap.containsKey(item.matchNumber)) {
+                matchMap.put(item.matchNumber, new String[7]);
+                matchMap.get(item.matchNumber)[0] = String.valueOf(item.matchNumber);
+            }
+            matchMap.get(item.matchNumber)[item.crowdPosition] = item.teamNumber;
+        }
+
+        java.util.List<Integer> matchNumbers = new java.util.ArrayList<>(matchMap.keySet());
+        java.util.Collections.sort(matchNumbers);
+
+        String[][] result = new String[matchNumbers.size()][];
+        for (int i = 0; i < matchNumbers.size(); i++) {
+            result[i] = matchMap.get(matchNumbers.get(i));
+        }
+
+        return result;
     }
 
     @Override
     public void importTeamSchedule(String[][] csvData) {
-        // Logic to clear and insert into teamMatchScheduleDao
         teamMatchScheduleDao.deleteAll();
-        // Transformation logic needed here...
-        // Postpone full implementation until checking original code logic
+        List<com.databits.androidscouting.data.entity.TeamMatchSchedule> schedules = new ArrayList<>();
+
+        for (String[] row : csvData) {
+            if (row.length < 7) {
+                continue;
+            }
+
+            try {
+                int matchNumber = Integer.parseInt(row[0]);
+                String[] alliances = {"BLUE", "BLUE", "BLUE", "RED", "RED", "RED"};
+
+                for (int i = 0; i < 6; i++) {
+                    com.databits.androidscouting.data.entity.TeamMatchSchedule schedule =
+                        new com.databits.androidscouting.data.entity.TeamMatchSchedule();
+                    schedule.matchNumber = matchNumber;
+                    schedule.crowdPosition = i + 1;
+                    schedule.teamNumber = row[i + 1];
+                    schedule.alliance = alliances[i];
+                    schedules.add(schedule);
+                }
+            } catch (NumberFormatException ignored) {
+                // Skip headers or malformed rows.
+            }
+        }
+
+        if (!schedules.isEmpty()) {
+            teamMatchScheduleDao.insertAll(schedules);
+        }
     }
 
     // Pit Teams
@@ -99,12 +142,12 @@ public class RoomScheduleRepository implements ScheduleRepository {
 
     @Override
     public int getPitTeamListSize() {
-        return listPreference.getInt("pit_team_list_size", 0);
+        return debugPreference.getInt("pit_team_list_size", 0);
     }
 
     @Override
     public void setPitTeamListSize(int size) {
-        listPreference.setInt("pit_team_list_size", size);
+        debugPreference.setInt("pit_team_list_size", size);
     }
 
     @Override
@@ -120,22 +163,22 @@ public class RoomScheduleRepository implements ScheduleRepository {
     // Match Data
     @Override
     public String getMatchData(int matchNumber) {
-        return matchPreference.getString("Match" + matchNumber, "No Data");
+        return matchPreference.getString(String.format("Match%d", matchNumber), "No Data");
     }
 
     @Override
     public void setMatchData(int matchNumber, String data) {
-        matchPreference.setString("Match" + matchNumber, data);
+        matchPreference.setString(String.format("Match%d", matchNumber), data);
     }
 
     @Override
     public String getPitMatchData(int matchNumber) {
-        return pitDataPreference.getString("Match" + matchNumber, "No Data");
+        return pitDataPreference.getString(String.format("Match%d", matchNumber), "No Data");
     }
 
     @Override
     public void setPitMatchData(int matchNumber, String data) {
-        pitDataPreference.setString("Match" + matchNumber, data);
+        pitDataPreference.setString(String.format("Match%d", matchNumber), data);
     }
 
     @Override
@@ -151,13 +194,12 @@ public class RoomScheduleRepository implements ScheduleRepository {
     // Special Scout Data
     @Override
     public ArrayList<String> getSpecialScoutData() {
-        // PowerPreference returns ArrayList
-        return listPreference.getObject("special_scout_data", ArrayList.class);
+        return listPreference.getObject("special_scout", ArrayList.class);
     }
 
     @Override
     public void setSpecialScoutData(ArrayList<String> data) {
-        listPreference.setObject("special_scout_data", data);
+        listPreference.setObject("special_scout", data);
     }
 
     @Override
@@ -173,12 +215,12 @@ public class RoomScheduleRepository implements ScheduleRepository {
     // Misc List Sizes
     @Override
     public int getTeamMatchListSize() {
-        return listPreference.getInt("team_match_list_size", 0);
+        return teamMatchScheduleDao.getMatchCount();
     }
 
     @Override
     public void setTeamMatchListSize(int size) {
-        listPreference.setInt("team_match_list_size", size);
+        debugPreference.setInt("team_match_list_size", size);
     }
 
     // Google Config

@@ -3,8 +3,8 @@ package com.databits.androidscouting.util;
 import android.content.Context;
 import android.widget.Toast;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import java.io.File;
@@ -20,8 +20,7 @@ public class TeamInfo {
 
   public TeamInfo(Context context) {
     this.context = context;
-    // Use repository for centralized preference access
-    this.repository = PowerPreferenceRepository.getInstance();
+    this.repository = PreferenceRepositoryProvider.get(context);
   }
 
   public int getTeam(int match) {

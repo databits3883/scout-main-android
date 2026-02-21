@@ -15,8 +15,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.ActivityMainBinding;
 import com.databits.androidscouting.util.ConnectionReceiver;
 import com.databits.androidscouting.util.FileUtils;
@@ -42,8 +42,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
 
         PowerPreference.init(this);
 
-        // Initialize PowerPreferenceRepository with Room database
-        PowerPreferenceRepository.getInstance(this);
+        PreferenceRepositoryProvider.init(this);
 
         // Go Full screen
         View decorView = this.getWindow().getDecorView();
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
         decorView.setSystemUiVisibility(uiOptions);
 
         // Apply saved theme preference
-        PreferenceRepository repository = PowerPreferenceRepository.getInstance(this);
+        PreferenceRepository repository = PreferenceRepositoryProvider.get(this);
         String themeMode = repository.getThemeMode();
         int nightMode;
 

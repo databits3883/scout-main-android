@@ -17,8 +17,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentDrawingMapBinding;
 import com.databits.androidscouting.viewmodel.ConfigViewModel;
 import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
@@ -55,7 +55,7 @@ public class Drawing extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     // Initialize ViewModel
-    repository = PowerPreferenceRepository.getInstance(requireContext());
+    repository = PreferenceRepositoryProvider.get(requireContext());
     ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 

@@ -14,8 +14,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.factory.RecyclerViewConfig;
 import com.databits.androidscouting.factory.RecyclerViewFactory;
 import com.databits.androidscouting.layout.LayoutManager;
@@ -58,7 +58,7 @@ public abstract class BaseScoutFragment extends Fragment {
      */
     protected void initializeDependencies() {
         // Repository
-        repository = PowerPreferenceRepository.getInstance();
+        repository = PreferenceRepositoryProvider.get(requireContext());
 
         // Initialize ViewModel
         ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
@@ -67,7 +67,7 @@ public abstract class BaseScoutFragment extends Fragment {
         // Utilities
         fileUtils = new FileUtils(requireContext());
         scoutUtils = new ScoutUtils(requireContext());
-        matchInfo = new MatchInfo();
+        matchInfo = new MatchInfo(repository);
         teamInfo = new TeamInfo(requireContext());
 
         // Set matchInfo and teamInfo on scoutUtils

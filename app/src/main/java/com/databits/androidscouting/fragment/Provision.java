@@ -27,8 +27,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PowerPreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
@@ -79,7 +79,7 @@ public class Provision extends Fragment {
       Bundle savedInstanceState
   ) {
     // Initialize ViewModel
-    repository = PowerPreferenceRepository.getInstance(requireContext());
+    repository = PreferenceRepositoryProvider.get(requireContext());
     ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
     viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
 
@@ -158,7 +158,7 @@ public class Provision extends Fragment {
       return true;
     });
 
-    matchInfo = new MatchInfo();
+    matchInfo = new MatchInfo(repository);
 
     qrCodeGenerator = new QrCodeGenerator(requireContext());
 

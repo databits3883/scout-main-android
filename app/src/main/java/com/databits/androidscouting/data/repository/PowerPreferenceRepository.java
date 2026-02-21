@@ -6,6 +6,9 @@ import androidx.lifecycle.MediatorLiveData;
 import com.databits.androidscouting.data.database.ScoutDatabase;
 import com.databits.androidscouting.data.dao.*;
 import com.databits.androidscouting.data.entity.UploadQueueItem;
+import com.databits.androidscouting.data.repository.impl.PowerPreferenceSettingsRepository;
+import com.databits.androidscouting.data.repository.impl.RoomScheduleRepository;
+import com.databits.androidscouting.data.repository.impl.RoomUploadRepository;
 import com.preference.PowerPreference;
 import com.preference.Preference;
 
@@ -20,20 +23,8 @@ import java.util.Set;
 
 /**
  * Implementation of PreferenceRepository using PowerPreference library.
- *
- * This class provides a centralized, type-safe way to access all app preferences.
- * It uses the Singleton pattern to ensure a single instance across the app.
- *
- * Usage:
- * <pre>
- * PreferenceRepository repo = PowerPreferenceRepository.getInstance();
- * int match = repo.getCurrentMatch();
- * repo.setCurrentMatch(5);
- * </pre>
  */
 public class PowerPreferenceRepository implements PreferenceRepository {
-
-    private static PowerPreferenceRepository instance;
 
     // PowerPreference files for simple config/settings
     private final Preference configPreference;
@@ -42,23 +33,12 @@ public class PowerPreferenceRepository implements PreferenceRepository {
     private final Preference matchPreference;
     private final Preference pitDataPreference;
 
-    // Room DAOs for structured data
-    private final UploadQueueDao uploadQueueDao;
-    private final TeamMatchScheduleDao teamMatchScheduleDao;
-    private final MatchDataDao matchDataDao;
-    private final SeenLineDao seenLineDao;
-    private final ProcessedChunkDao processedChunkDao;
-    private final ScouterDao scouterDao;
-    private final PitTeamRemainingDao pitTeamRemainingDao;
     private final ExecutorService executor;
+    private final SettingsRepository settingsRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final UploadRepository uploadRepository;
 
-    /**
-     * Private constructor to enforce Singleton pattern.
-     * Initializes all preference file references and Room DAOs.
-     *
-     * @param context Application context for Room database initialization
-     */
-    private PowerPreferenceRepository(Context context) {
+    PowerPreferenceRepository(Context context) {
         this(context, ScoutDatabase.getInstance(context.getApplicationContext()), Executors.newSingleThreadExecutor());
     }
 
@@ -92,40 +72,23 @@ public class PowerPreferenceRepository implements PreferenceRepository {
         this.pitDataPreference = PowerPreference.getFileByName("PitData");
 
         // Initialize Room DAOs
-        this.uploadQueueDao = db.uploadQueueDao();
-        this.teamMatchScheduleDao = db.teamMatchScheduleDao();
-        this.matchDataDao = db.matchDataDao();
-        this.seenLineDao = db.seenLineDao();
-        this.processedChunkDao = db.processedChunkDao();
-        this.scouterDao = db.scouterDao();
-        this.pitTeamRemainingDao = db.pitTeamRemainingDao();
-    }
+        UploadQueueDao uploadQueueDao = db.uploadQueueDao();
+        TeamMatchScheduleDao teamMatchScheduleDao = db.teamMatchScheduleDao();
+        MatchDataDao matchDataDao = db.matchDataDao();
+        SeenLineDao seenLineDao = db.seenLineDao();
+        ProcessedChunkDao processedChunkDao = db.processedChunkDao();
+        ScouterDao scouterDao = db.scouterDao();
+        PitTeamRemainingDao pitTeamRemainingDao = db.pitTeamRemainingDao();
 
-    /**
-     * Get the singleton instance of PowerPreferenceRepository.
-     * Thread-safe lazy initialization.
-     *
-     * @param context Application context for Room database initialization
-     * @return Singleton instance
-     */
-    public static synchronized PowerPreferenceRepository getInstance(Context context) {
-        if (instance == null) {
-            instance = new PowerPreferenceRepository(context);
-        }
-        return instance;
-    }
-
-    /**
-     * Get existing instance without Context (use only after getInstance(Context) has been called)
-     *
-     * @return Singleton instance
-     * @throws IllegalStateException if called before getInstance(Context)
-     */
-    public static synchronized PowerPreferenceRepository getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("PowerPreferenceRepository must be initialized with Context first");
-        }
-        return instance;
+        this.settingsRepository = new PowerPreferenceSettingsRepository(scouterDao);
+        this.scheduleRepository = new RoomScheduleRepository(
+            teamMatchScheduleDao,
+            matchDataDao,
+            pitTeamRemainingDao,
+            processedChunkDao,
+            seenLineDao
+        );
+        this.uploadRepository = new RoomUploadRepository(uploadQueueDao);
     }
 
     // ==================== Initialization Methods ====================
@@ -650,264 +613,141 @@ public class PowerPreferenceRepository implements PreferenceRepository {
 
     @Override
     public List<UploadQueueItem> getPendingUploads() {
-        return uploadQueueDao.getPendingUploadsSync();
+        return uploadRepository.getPendingUploads();
     }
 
     @Override
     public LiveData<List<UploadQueueItem>> getPendingUploadsLive() {
-        return uploadQueueDao.getPendingUploads();
+        return uploadRepository.getPendingUploadsLive();
     }
 
     @Override
     public void addUploadItem(UploadQueueItem item) {
-        executor.execute(() -> uploadQueueDao.insert(item));
+        executor.execute(() -> uploadRepository.addUploadItem(item));
     }
 
     @Override
     public void markUploadSuccess(long id) {
-        executor.execute(() -> uploadQueueDao.markUploaded(id, "SUCCESS", System.currentTimeMillis()));
+        executor.execute(() -> uploadRepository.markUploadSuccess(id));
     }
 
     @Override
     public void markUploadFailed(long id, String error) {
-        executor.execute(() -> {
-            uploadQueueDao.incrementRetryCount(id, error);
-            uploadQueueDao.updateStatus(id, "FAILED");
-        });
+        executor.execute(() -> uploadRepository.markUploadFailed(id, error));
     }
 
     @Override
     public void clearSuccessfulUploads() {
-        executor.execute(() -> uploadQueueDao.deleteSuccessfulUploads());
+        executor.execute(uploadRepository::clearSuccessfulUploads);
     }
 
     @Override
     public LiveData<Integer> getPendingUploadCount() {
-        return uploadQueueDao.getPendingCount();
+        return uploadRepository.getPendingUploadCount();
     }
 
     // ==================== Room-based Team Schedule Operations ====================
 
     @Override
     public String getTeamNumber(int matchNumber, int position) {
-        String teamNumber = teamMatchScheduleDao.getTeamNumber(matchNumber, position);
-        android.util.Log.d("PowerPreferenceRepository",
-            "getTeamNumber(match=" + matchNumber + ", pos=" + position + ") returned: " + teamNumber);
-        return teamNumber;
+        return scheduleRepository.getTeamNumber(matchNumber, position);
     }
 
     @Override
     public String[][] exportTeamSchedule() {
-        // Get all team schedule data from Room
-        List<com.databits.androidscouting.data.entity.TeamMatchSchedule> scheduleList =
-            teamMatchScheduleDao.getAllScheduleSync();
-
-        if (scheduleList == null || scheduleList.isEmpty()) {
-            return null;
-        }
-
-        // Group by match number and sort
-        java.util.Map<Integer, String[]> matchMap = new java.util.HashMap<>();
-
-        for (com.databits.androidscouting.data.entity.TeamMatchSchedule item : scheduleList) {
-            if (!matchMap.containsKey(item.matchNumber)) {
-                // Initialize array: [matchNumber, team1, team2, team3, team4, team5, team6]
-                matchMap.put(item.matchNumber, new String[7]);
-                matchMap.get(item.matchNumber)[0] = String.valueOf(item.matchNumber);
-            }
-            // Position is 1-6, array index is 1-6
-            matchMap.get(item.matchNumber)[item.crowdPosition] = item.teamNumber;
-        }
-
-        // Convert map to sorted array
-        java.util.List<Integer> matchNumbers = new java.util.ArrayList<>(matchMap.keySet());
-        java.util.Collections.sort(matchNumbers);
-
-        String[][] result = new String[matchNumbers.size()][];
-        for (int i = 0; i < matchNumbers.size(); i++) {
-            result[i] = matchMap.get(matchNumbers.get(i));
-        }
-
-        return result;
+        return scheduleRepository.exportTeamSchedule();
     }
 
     @Override
     public void importTeamSchedule(String[][] csvData) {
-        new Thread(() -> {
-            List<com.databits.androidscouting.data.entity.TeamMatchSchedule> schedules = new ArrayList<>();
-            android.util.Log.d("PowerPreferenceRepository", "Importing " + csvData.length + " rows of match data");
-
-            for (String[] row : csvData) {
-                // CSV format: Match, Blue1, Blue2, Blue3, Red1, Red2, Red3
-                if (row.length >= 7) {
-                    try {
-                        int matchNumber = Integer.parseInt(row[0]);
-
-                        // Create 6 schedule entries (one for each position)
-                        String[] alliances = {"BLUE", "BLUE", "BLUE", "RED", "RED", "RED"};
-
-                        for (int i = 0; i < 6; i++) {
-                            com.databits.androidscouting.data.entity.TeamMatchSchedule schedule =
-                                new com.databits.androidscouting.data.entity.TeamMatchSchedule();
-                            schedule.matchNumber = matchNumber;
-                            schedule.crowdPosition = i + 1; // Positions 1-6
-                            schedule.teamNumber = row[i + 1]; // Columns 1-6 contain team numbers
-                            schedule.alliance = alliances[i];
-                            schedules.add(schedule);
-
-                            android.util.Log.d("PowerPreferenceRepository",
-                                "Importing: Match=" + schedule.matchNumber +
-                                ", Position=" + schedule.crowdPosition +
-                                ", Team=" + schedule.teamNumber +
-                                ", Alliance=" + schedule.alliance);
-                        }
-                    } catch (NumberFormatException e) {
-                        // Skip header row or invalid data
-                        android.util.Log.w("PowerPreferenceRepository", "Skipping invalid row: " + java.util.Arrays.toString(row));
-                        continue;
-                    }
-                } else {
-                    android.util.Log.w("PowerPreferenceRepository", "Skipping row with insufficient columns (need 7, got " + row.length + "): " + java.util.Arrays.toString(row));
-                }
-            }
-
-            if (!schedules.isEmpty()) {
-                teamMatchScheduleDao.insertAll(schedules);
-                android.util.Log.d("PowerPreferenceRepository", "Successfully inserted " + schedules.size() + " team schedule entries");
-            } else {
-                android.util.Log.w("PowerPreferenceRepository", "No valid schedule entries to insert");
-            }
-        }).start();
+        executor.execute(() -> scheduleRepository.importTeamSchedule(csvData));
     }
 
     @Override
     public int getTeamMatchListSize() {
-        return teamMatchScheduleDao.getMatchCount();
+        return scheduleRepository.getTeamMatchListSize();
     }
 
     // ==================== Room-based Processed Chunks Operations ====================
 
     @Override
     public boolean hasProcessedChunk(int chunkId) {
-        return processedChunkDao.hasProcessedChunk(chunkId);
+        return scheduleRepository.hasProcessedChunk(chunkId);
     }
 
     @Override
     public void markChunkProcessed(int chunkId) {
-        executor.execute(() -> {
-            com.databits.androidscouting.data.entity.ProcessedChunk chunk =
-                new com.databits.androidscouting.data.entity.ProcessedChunk();
-            chunk.chunkId = chunkId;
-            processedChunkDao.insert(chunk);
-        });
+        executor.execute(() -> scheduleRepository.markChunkProcessed(chunkId));
     }
 
     @Override
     public List<Integer> getAllProcessedChunks() {
-        return processedChunkDao.getAllChunkIds();
+        return scheduleRepository.getAllProcessedChunks();
     }
 
     @Override
     public void clearProcessedChunks() {
-        executor.execute(() -> processedChunkDao.deleteAll());
+        executor.execute(scheduleRepository::clearProcessedChunks);
     }
 
     // ==================== Room-based Seen Lines Operations ====================
 
     @Override
     public boolean hasSeenLine(String lineHash, String dataType) {
-        return seenLineDao.hasSeenLine(lineHash, dataType);
+        return scheduleRepository.hasSeenLine(lineHash, dataType);
     }
 
     @Override
     public void markLineSeen(String lineHash, String dataType) {
-        executor.execute(() -> {
-            com.databits.androidscouting.data.entity.SeenLine line =
-                new com.databits.androidscouting.data.entity.SeenLine();
-            line.lineHash = lineHash;
-            line.dataType = dataType;
-            seenLineDao.insert(line);
-        });
+        executor.execute(() -> scheduleRepository.markLineSeen(lineHash, dataType));
     }
 
     @Override
     public void clearSeenLines(String dataType) {
-        executor.execute(() -> seenLineDao.clearType(dataType));
+        executor.execute(() -> scheduleRepository.clearSeenLines(dataType));
     }
 
     @Override
     public void clearAllSeenLines() {
-        executor.execute(() -> seenLineDao.deleteAll());
+        executor.execute(scheduleRepository::clearAllSeenLines);
     }
 
     // ==================== Room-based Scouter Operations ====================
 
     @Override
     public LiveData<List<String>> getScouterListLive() {
-        LiveData<List<com.databits.androidscouting.data.entity.Scouter>> scoutersLive = scouterDao.getActiveScouters();
-        // Transform LiveData<List<Scouter>> to LiveData<List<String>>
-        return new androidx.lifecycle.MediatorLiveData<List<String>>() {{
-            addSource(scoutersLive, scouters -> {
-                if (scouters != null) {
-                    List<String> names = new ArrayList<>();
-                    for (com.databits.androidscouting.data.entity.Scouter s : scouters) {
-                        names.add(s.name);
-                    }
-                    setValue(names);
-                }
-            });
-        }};
+        return settingsRepository.getScouterListLive();
     }
 
     @Override
     public List<String> getScouterList() {
-        return scouterDao.getScouterNames();
+        return settingsRepository.getScouterList();
     }
 
     @Override
     public void setScouterList(List<String> scouters) {
-        executor.execute(() -> {
-            List<com.databits.androidscouting.data.entity.Scouter> entities = new ArrayList<>();
-            for (String name : scouters) {
-                com.databits.androidscouting.data.entity.Scouter s =
-                    new com.databits.androidscouting.data.entity.Scouter();
-                s.name = name;
-                entities.add(s);
-            }
-            scouterDao.deleteAll();
-            scouterDao.insertAll(entities);
-        });
+        executor.execute(() -> settingsRepository.setScouterList(scouters));
     }
 
     // ==================== Room-based Pit Teams Remaining Operations ====================
 
     @Override
     public List<String> getPitTeamsRemainingList() {
-        return pitTeamRemainingDao.getAllTeamNumbers();
+        return scheduleRepository.getPitTeamsRemainingList();
     }
 
     @Override
     public LiveData<List<String>> getPitTeamsRemainingLive() {
-        return pitTeamRemainingDao.getAllTeamNumbersLive();
+        return scheduleRepository.getPitTeamsRemainingLive();
     }
 
     @Override
     public void setPitTeamsRemainingList(List<String> teams) {
-        executor.execute(() -> {
-            List<com.databits.androidscouting.data.entity.PitTeamRemaining> entities = new ArrayList<>();
-            for (String teamNumber : teams) {
-                com.databits.androidscouting.data.entity.PitTeamRemaining team =
-                    new com.databits.androidscouting.data.entity.PitTeamRemaining();
-                team.teamNumber = teamNumber;
-                entities.add(team);
-            }
-            pitTeamRemainingDao.deleteAll();
-            pitTeamRemainingDao.insertAll(entities);
-        });
+        executor.execute(() -> scheduleRepository.setPitTeamsRemainingList(teams));
     }
 
     @Override
     public void removePitTeam(String teamNumber) {
-        executor.execute(() -> pitTeamRemainingDao.removeTeam(teamNumber));
+        executor.execute(() -> scheduleRepository.removePitTeam(teamNumber));
     }
 }

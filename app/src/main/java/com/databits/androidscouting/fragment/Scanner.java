@@ -235,7 +235,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
 
-        matchInfo = new MatchInfo();
+        matchInfo = new MatchInfo(repository);
         teamInfo = new TeamInfo(getContext());
         scoutUtils = new ScoutUtils(getContext());
         sheetsUpdateTask = new SheetsUpdateTask(requireContext(), this);

@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import java.lang.reflect.Field;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
@@ -22,14 +21,9 @@ public class MatchInfoTest {
     private MatchInfo matchInfo;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         MockitoAnnotations.openMocks(this);
-        matchInfo = new MatchInfo();
-        
-        // Inject mock repository using reflection since MatchInfo lazily initializes it
-        Field repoField = MatchInfo.class.getDeclaredField("repository");
-        repoField.setAccessible(true);
-        repoField.set(matchInfo, repository);
+        matchInfo = new MatchInfo(repository);
     }
 
     @Test
