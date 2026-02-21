@@ -4,6 +4,11 @@ import androidx.lifecycle.LiveData;
 import java.util.List;
 
 public interface SettingsRepository {
+    // Defaults / housekeeping
+    void setConfigDefaults(int xmlResourceId);
+    void setDebugDefaults(int xmlResourceId);
+    void removeManualTeamOverrideValue();
+
     // Config
     int getCurrentMatch();
     void setCurrentMatch(int match);

@@ -10,7 +10,7 @@ public final class PreferenceRepositoryProvider {
 
     public static synchronized void init(Context context) {
         if (repository == null) {
-            repository = new PowerPreferenceRepository(context.getApplicationContext());
+            repository = new DefaultPreferenceRepository(context.getApplicationContext());
         }
     }
 

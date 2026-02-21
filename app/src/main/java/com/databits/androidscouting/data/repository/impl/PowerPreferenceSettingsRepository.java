@@ -21,6 +21,21 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
         this.scouterDao = scouterDao;
     }
 
+    @Override
+    public void setConfigDefaults(int xmlResourceId) {
+        configPreference.setDefaults(xmlResourceId);
+    }
+
+    @Override
+    public void setDebugDefaults(int xmlResourceId) {
+        debugPreference.setDefaults(xmlResourceId);
+    }
+
+    @Override
+    public void removeManualTeamOverrideValue() {
+        debugPreference.remove("manual_team_override_value");
+    }
+
     // Config
     @Override
     public int getCurrentMatch() {

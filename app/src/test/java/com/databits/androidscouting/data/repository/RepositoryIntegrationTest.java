@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 public class RepositoryIntegrationTest {
 
     private ScoutDatabase db;
-    private PowerPreferenceRepository repository;
+    private DefaultPreferenceRepository repository;
     private ExecutorService synchronousExecutor;
 
     @Before
@@ -60,7 +60,7 @@ public class RepositoryIntegrationTest {
         };
 
         // Create repository with injected DB and Executor
-        repository = new PowerPreferenceRepository(context, db, synchronousExecutor);
+        repository = new DefaultPreferenceRepository(context, db, synchronousExecutor);
     }
 
     @After

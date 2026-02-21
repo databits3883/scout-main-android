@@ -24,7 +24,7 @@ import java.util.Set;
 /**
  * Implementation of PreferenceRepository using PowerPreference library.
  */
-public class PowerPreferenceRepository implements PreferenceRepository {
+public class DefaultPreferenceRepository implements PreferenceRepository {
 
     // PowerPreference files for simple config/settings
     private final Preference configPreference;
@@ -38,7 +38,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
     private final ScheduleRepository scheduleRepository;
     private final UploadRepository uploadRepository;
 
-    PowerPreferenceRepository(Context context) {
+    DefaultPreferenceRepository(Context context) {
         this(context, ScoutDatabase.getInstance(context.getApplicationContext()), Executors.newSingleThreadExecutor());
     }
 
@@ -49,7 +49,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
      * @param db ScoutDatabase instance (can be in-memory for testing)
      */
     @androidx.annotation.VisibleForTesting
-    protected PowerPreferenceRepository(Context context, ScoutDatabase db) {
+    protected DefaultPreferenceRepository(Context context, ScoutDatabase db) {
         this(context, db, Executors.newSingleThreadExecutor());
     }
 
@@ -61,7 +61,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
      * @param executor ExecutorService for background tasks
      */
     @androidx.annotation.VisibleForTesting
-    protected PowerPreferenceRepository(Context context, ScoutDatabase db, ExecutorService executor) {
+    protected DefaultPreferenceRepository(Context context, ScoutDatabase db, ExecutorService executor) {
         this.executor = executor;
 
         // Initialize PowerPreference files
