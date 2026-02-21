@@ -50,6 +50,7 @@ public class PowerPreferenceRepository implements PreferenceRepository {
     private final ProcessedChunkDao processedChunkDao;
     private final ScouterDao scouterDao;
     private final PitTeamRemainingDao pitTeamRemainingDao;
+    private final ExecutorService executor;
 
     /**
      * Private constructor to enforce Singleton pattern.

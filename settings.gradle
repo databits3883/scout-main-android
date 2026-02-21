@@ -16,3 +16,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Android scouting"
 include ':app'
+include ':core-model'
+include ':core-domain'
+include ':core-data'
+include ':feature-scanner'

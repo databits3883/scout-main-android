@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import com.databits.androidscouting.core.model.UploadMode;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
@@ -90,16 +91,16 @@ public class SheetsUpdateTask {
   }
 
   private SheetsUpdateTask.UploadData prepareUploadData() {
-    String uploadMode = repository.getUploadMode();
+    UploadMode uploadMode = UploadMode.fromRaw(repository.getUploadMode());
     String uploadType;
     switch (uploadMode) {
-      case "Crowd":
+      case CROWD:
         uploadType = "CROWD";
         break;
-      case "Pit":
+      case PIT:
         uploadType = "PIT";
         break;
-      case "Specialty":
+      case SPECIALTY:
         uploadType = "SPECIALTY";
         break;
       default:
@@ -135,7 +136,7 @@ public class SheetsUpdateTask {
       return null;
     }
 
-    String range = getRangeForUploadMode(uploadMode);
+    String range = getRangeForUploadMode(uploadMode.getRawValue());
     return new SheetsUpdateTask.UploadData(range, uploadValues, itemIds);
   }
 

@@ -34,6 +34,16 @@ public class ArchitectureTest {
         // Note: QrCodeViewModel might require exemption if it handles Rect or similar android specific non-view classes
         // but it shouldn't hold references to Views.
         // We catch strict View/Widget dependencies here.
+        rule.check(importedClasses);
+    }
+
+    @Test
+    public void scannerShouldNotDependOnRepositoryImplementations() {
+        ArchRule rule = noClasses()
+                .that().haveSimpleName("Scanner")
+                .should().dependOnClassesThat().resideInAPackage("..repository.impl..");
+
+        rule.check(importedClasses);
     }
 
     @Test
