@@ -22,9 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implementation of PreferenceRepository using PowerPreference library.
+ * Default store-backed repository implementation using PowerPreference and Room.
  */
-public class DefaultPreferenceRepository implements PreferenceRepository {
+public class DefaultPreferenceRepository implements CameraSettingsStore, ProvisionSettingsStore, SyncStore, ScheduleStore {
 
     // PowerPreference files for simple config/settings
     private final Preference configPreference;

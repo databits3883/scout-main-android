@@ -3,7 +3,7 @@ package com.databits.androidscouting.viewmodel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import com.databits.androidscouting.data.entity.UploadQueueItem;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.SyncStore;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 public class SyncStatusViewModelTest extends BaseViewModelTest {
 
-    @Mock private PreferenceRepository repository;
+    @Mock private SyncStore repository;
     @Mock private Observer<String> accountObserver;
 
     @Before

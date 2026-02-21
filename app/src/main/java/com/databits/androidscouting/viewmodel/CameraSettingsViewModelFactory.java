@@ -3,13 +3,13 @@ package com.databits.androidscouting.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import java.util.concurrent.Executors;
 
 public class CameraSettingsViewModelFactory implements ViewModelProvider.Factory {
-    private final PreferenceRepository repository;
+    private final CameraSettingsStore repository;
 
-    public CameraSettingsViewModelFactory(PreferenceRepository repository) {
+    public CameraSettingsViewModelFactory(CameraSettingsStore repository) {
         this.repository = repository;
     }
 

@@ -14,8 +14,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
+import com.databits.androidscouting.data.repository.SyncStore;
 import com.databits.androidscouting.factory.RecyclerViewConfig;
 import com.databits.androidscouting.factory.RecyclerViewFactory;
 import com.databits.androidscouting.layout.LayoutManager;
@@ -36,7 +39,9 @@ import java.util.Objects;
  */
 public abstract class BaseScoutFragment extends Fragment {
     protected RecyclerView mRecyclerView;
-    protected PreferenceRepository repository;
+    protected ProvisionSettingsStore provisionStore;
+    protected ScheduleStore scheduleStore;
+    protected SyncStore syncStore;
     protected ProvisionViewModel viewModel;
 
     // Dependencies
@@ -57,17 +62,19 @@ public abstract class BaseScoutFragment extends Fragment {
      * Called from onViewCreated before setupRecyclerView.
      */
     protected void initializeDependencies() {
-        // Repository
-        repository = PreferenceRepositoryProvider.get(requireContext());
+        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        provisionStore = appRepositories.provisionSettingsStore;
+        scheduleStore = appRepositories.scheduleStore;
+        syncStore = appRepositories.syncStore;
 
         // Initialize ViewModel
-        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
         viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
         // Utilities
         fileUtils = new FileUtils(requireContext());
         scoutUtils = new ScoutUtils(requireContext());
-        matchInfo = new MatchInfo(repository);
+        matchInfo = new MatchInfo(provisionStore);
         teamInfo = new TeamInfo(requireContext());
 
         // Set matchInfo and teamInfo on scoutUtils
@@ -79,11 +86,17 @@ public abstract class BaseScoutFragment extends Fragment {
 
         // Create layout system
         LayoutParser parser = new LayoutParser();
-        LayoutPresenter presenter = new LayoutPresenter(requireContext(), matchInfo, teamInfo, repository);
+        LayoutPresenter presenter = new LayoutPresenter(
+            requireContext(),
+            matchInfo,
+            teamInfo,
+            scheduleStore,
+            provisionStore
+        );
         layoutManager = new LayoutManager(parser, presenter, fileUtils);
 
         // Create RecyclerView factory
-        RecyclerViewConfig rvConfig = RecyclerViewConfig.fromRepository(repository);
+        RecyclerViewConfig rvConfig = RecyclerViewConfig.fromStores(provisionStore);
         recyclerViewFactory = new RecyclerViewFactory(requireContext(), rvConfig);
     }
 
@@ -215,15 +228,15 @@ public abstract class BaseScoutFragment extends Fragment {
                     new Thread(() -> {
                         int match = matchInfo.getMatch();
                         int team = 9999;
-                        if (repository.isManualTeamOverrideEnabled()) {
-                            team = repository.getManualTeamOverrideValue();
-                        } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+                        if (provisionStore.isManualTeamOverrideEnabled()) {
+                            team = provisionStore.getManualTeamOverrideValue();
+                        } else if (teamInfo.teamsLoaded() || scheduleStore.isPitRemoveEnabled()) {
                             team = teamInfo.getTeam(match);
                         }
 
                         // Combine and save data
                         String savedData;
-                        if (repository.isPitRemoveEnabled()) {
+                        if (scheduleStore.isPitRemoveEnabled()) {
                             savedData = cellData.substring(1) + "," + teamInfo.getScouterName();
                         } else if (shouldSaveWithSpecialFlag()) {
                             savedData = cellData.substring(1) + "," + teamInfo.getScouterName();
@@ -250,7 +263,13 @@ public abstract class BaseScoutFragment extends Fragment {
         super.onResume();
         if (mRecyclerView != null && mRecyclerView.getAdapter() != null) {
             mRecyclerView.post(() -> {
-                LayoutPresenter presenter = new LayoutPresenter(requireContext(), matchInfo, teamInfo, repository);
+                LayoutPresenter presenter = new LayoutPresenter(
+                    requireContext(),
+                    matchInfo,
+                    teamInfo,
+                    scheduleStore,
+                    provisionStore
+                );
                 presenter.updateTitleCells(mRecyclerView);
             });
         }

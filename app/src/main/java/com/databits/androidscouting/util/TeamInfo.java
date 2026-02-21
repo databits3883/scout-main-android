@@ -3,7 +3,9 @@ package com.databits.androidscouting.util;
 import android.content.Context;
 import android.widget.Toast;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -16,56 +18,59 @@ import java.util.List;
 public class TeamInfo {
 
   Context context;
-  private final PreferenceRepository repository;
+  private final ProvisionSettingsStore provisionStore;
+  private final ScheduleStore scheduleStore;
 
   public TeamInfo(Context context) {
     this.context = context;
-    this.repository = PreferenceRepositoryProvider.get(context);
+    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+    this.provisionStore = graph.provisionSettingsStore;
+    this.scheduleStore = graph.scheduleStore;
   }
 
   public int getTeam(int match) {
-    int pos = repository.getCrowdPosition();
+    int pos = provisionStore.getCrowdPosition();
 
-    if (repository.isManualTeamOverrideEnabled()) {
-      return repository.getManualTeamOverrideValue();
+    if (provisionStore.isManualTeamOverrideEnabled()) {
+      return provisionStore.getManualTeamOverrideValue();
     } else {
-      if (match >= repository.getTeamMatchListSize() || match < 0) {
+      if (match >= scheduleStore.getTeamMatchListSize() || match < 0) {
         // Toast.makeText(context, "No team data found", Toast.LENGTH_LONG).show();
         return 0;
       }
-      String teamNumber = repository.getTeamNumber(match, pos);
+      String teamNumber = scheduleStore.getTeamNumber(match, pos);
       return teamNumber != null ? Integer.parseInt(teamNumber) : 0;
     }
   }
 
   public String getMasterTeam(int match, int pos) {
-    if (match >= repository.getTeamMatchListSize() || match < 0) {
+    if (match >= scheduleStore.getTeamMatchListSize() || match < 0) {
       //Toast.makeText(context, "No team data found", Toast.LENGTH_LONG).show();
       return "0";
     }
-    String teamNumber = repository.getTeamNumber(match, pos);
+    String teamNumber = scheduleStore.getTeamNumber(match, pos);
     return teamNumber != null ? teamNumber : "0";
   }
 
   public boolean teamsLoaded() {
-    return repository.getTeamMatchListSize() > 0;
+    return scheduleStore.getTeamMatchListSize() > 0;
   }
 
   public void setTeam(int val) {
     // Note: team_number is not in repository interface, keeping direct access for now
     // TODO: Add to repository if this is a core preference
-    repository.setManualTeamOverrideValue(val);
+    provisionStore.setManualTeamOverrideValue(val);
   }
 
   public int getTeamCount() {
-    return repository.getTeamMatchListSize();
+    return scheduleStore.getTeamMatchListSize();
   }
 
   public int getPitTeamCount() {
     List<String> entryLabels = Arrays.asList(
         context.getResources().getStringArray(R.array.team_list));
     int size = entryLabels.size();
-    repository.setPitTeamListSize(size);
+    scheduleStore.setPitTeamListSize(size);
     return size;
   }
 
@@ -80,7 +85,7 @@ public class TeamInfo {
   }
 
   public String getScouterName() {
-    return repository.getCurrentScouter();
+    return provisionStore.getCurrentScouter();
   }
 
   // Read the team data for validator from match.csv
@@ -90,7 +95,7 @@ public class TeamInfo {
           CSVReader csvReader = new CSVReader(new FileReader(teams));
           List<String[]> list = csvReader.readAll();
           String[][] dataArr = list.toArray(new String[0][]);
-          repository.importTeamSchedule(dataArr);
+          scheduleStore.importTeamSchedule(dataArr);
       } catch (IOException | CsvException e) {
           e.printStackTrace();
       }

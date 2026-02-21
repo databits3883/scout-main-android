@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.ActivityMainBinding;
 import com.databits.androidscouting.util.ConnectionReceiver;
@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionReceive
         decorView.setSystemUiVisibility(uiOptions);
 
         // Apply saved theme preference
-        PreferenceRepository repository = PreferenceRepositoryProvider.get(this);
-        String themeMode = repository.getThemeMode();
+        AppRepositories graph = PreferenceRepositoryProvider.graph(this);
+        String themeMode = graph.provisionSettingsStore.getThemeMode();
         int nightMode;
 
         switch (themeMode) {

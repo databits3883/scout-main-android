@@ -17,8 +17,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
+import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.databinding.FragmentDrawingMapBinding;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
@@ -29,7 +29,6 @@ import com.travijuu.numberpicker.library.NumberPicker;
 import java.util.Objects;
 
 public class Drawing extends Fragment {
-  private PreferenceRepository repository;
   private ProvisionViewModel viewModel;
 
   private FragmentDrawingMapBinding binding;
@@ -55,8 +54,8 @@ public class Drawing extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     // Initialize ViewModel
-    repository = PreferenceRepositoryProvider.get(requireContext());
-    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
     viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
     // Go Full screen

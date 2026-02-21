@@ -3,13 +3,13 @@ package com.databits.androidscouting.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import java.util.concurrent.Executors;
 
 public class ProvisionViewModelFactory implements ViewModelProvider.Factory {
-    private final PreferenceRepository repository;
+    private final ProvisionSettingsStore repository;
 
-    public ProvisionViewModelFactory(PreferenceRepository repository) {
+    public ProvisionViewModelFactory(ProvisionSettingsStore repository) {
         this.repository = repository;
     }
 

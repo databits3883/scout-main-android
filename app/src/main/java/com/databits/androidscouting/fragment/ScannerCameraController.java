@@ -6,7 +6,7 @@ import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
@@ -41,7 +41,7 @@ final class ScannerCameraController {
         return cameraController;
     }
 
-    boolean checkBarcodeSize(Barcode barcode, PreferenceRepository repository) {
+    boolean checkBarcodeSize(Barcode barcode, CameraSettingsStore repository) {
         if (barcode.getBoundingBox() == null) {
             return true;
         }
@@ -52,7 +52,7 @@ final class ScannerCameraController {
         return width >= minSize && height >= minSize;
     }
 
-    boolean checkBarcodePosition(Barcode barcode, PreviewView preview, PreferenceRepository repository) {
+    boolean checkBarcodePosition(Barcode barcode, PreviewView preview, CameraSettingsStore repository) {
         if (!repository.isCameraCenterWeightedEnabled() || barcode.getBoundingBox() == null) {
             return true;
         }

@@ -52,6 +52,25 @@ public class ArchitectureTest {
     }
 
     @Test
+    public void viewModelsShouldDependOnNarrowStoresNotConcreteRepository() {
+        ArchRule rule = noClasses()
+                .that().resideInAPackage("..viewmodel..")
+                .and().haveSimpleNameEndingWith("ViewModel")
+                .should().dependOnClassesThat().haveSimpleName("DefaultPreferenceRepository");
+
+        rule.check(importedClasses);
+    }
+
+    @Test
+    public void fragmentsShouldNotDependOnRepositoryImplementations() {
+        ArchRule rule = noClasses()
+                .that().resideInAPackage("..fragment..")
+                .should().dependOnClassesThat().resideInAPackage("..repository.impl..");
+
+        rule.check(importedClasses);
+    }
+
+    @Test
     public void repositoriesShouldBeTheOnlyOnesAccessingDaos() {
         // Enforce repository pattern
         // DAOs should only be accessed by Repositories, Databases (creation), or Factories

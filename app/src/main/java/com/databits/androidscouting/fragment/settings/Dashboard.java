@@ -28,7 +28,10 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.anggrayudi.storage.SimpleStorageHelper;
 import com.databits.androidscouting.MainActivity;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
+import com.databits.androidscouting.data.repository.SyncStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentSettingsDashboardBinding;
 import com.databits.androidscouting.databinding.UiStatusIndicatorBinding;
@@ -48,7 +51,9 @@ import static android.content.ContentValues.TAG;
 
 public class Dashboard extends Fragment {
   private FragmentSettingsDashboardBinding binding;
-  private PreferenceRepository repository;
+  private ProvisionSettingsStore provisionStore;
+  private ScheduleStore scheduleStore;
+  private SyncStore syncStore;
   private SyncStatusViewModel viewModel;
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
@@ -64,7 +69,6 @@ public class Dashboard extends Fragment {
       @NonNull LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState
   ) {
-    repository = PreferenceRepositoryProvider.get(requireContext());
     binding = FragmentSettingsDashboardBinding.inflate(inflater, container, false);
     return binding.getRoot();
 
@@ -75,8 +79,11 @@ public class Dashboard extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    PreferenceRepository repo = PreferenceRepositoryProvider.get(requireContext());
-    SyncStatusViewModelFactory factory = new SyncStatusViewModelFactory(repo);
+    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    provisionStore = appRepositories.provisionSettingsStore;
+    scheduleStore = appRepositories.scheduleStore;
+    syncStore = appRepositories.syncStore;
+    SyncStatusViewModelFactory factory = new SyncStatusViewModelFactory(appRepositories.syncStore);
     viewModel = new ViewModelProvider(this, factory).get(SyncStatusViewModel.class);
 
     mainActivity = (MainActivity) requireContext();
@@ -91,7 +98,7 @@ public class Dashboard extends Fragment {
     // Helper Classes
     scoutUtils = new ScoutUtils(requireContext());
     fileUtils = new FileUtils(requireContext());
-    matchInfo = new MatchInfo(repository);
+    matchInfo = new MatchInfo(provisionStore);
     teamInfo = new TeamInfo(requireContext());
 
 
@@ -116,7 +123,7 @@ public class Dashboard extends Fragment {
 
     // Initialize theme toggle
     RadioGroup themeGroup = binding.themeRadioGroup;
-    String currentTheme = repository.getThemeMode();
+    String currentTheme = provisionStore.getThemeMode();
 
     // Set initial selection
     switch (currentTheme) {
@@ -142,7 +149,7 @@ public class Dashboard extends Fragment {
         mode = "system";
       }
 
-      repository.setThemeMode(mode);
+      provisionStore.setThemeMode(mode);
       applyTheme(mode);
     });
 
@@ -159,9 +166,9 @@ public class Dashboard extends Fragment {
         }).create();
 
     binding.scouterListStatusIndicator.indicatorButton.setOnClickListener(view -> {
-      // Load scouter list on background thread
-      new Thread(() -> {
-        List<String> scouterList = repository.getScouterList();
+        // Load scouter list on background thread
+        new Thread(() -> {
+        List<String> scouterList = syncStore.getScouterList();
         if (scouterList == null) {
           scouterList = new ArrayList<>();
         }
@@ -276,9 +283,9 @@ public class Dashboard extends Fragment {
     // Run database queries on background thread
     new Thread(() -> {
       // Query database on background thread
-      int teamMatchListSize = repository.getTeamMatchListSize();
-      List<String> scouterList = repository.getScouterList();
-      String googleAccountName = repository.getGoogleAccountName();
+      int teamMatchListSize = scheduleStore.getTeamMatchListSize();
+      List<String> scouterList = syncStore.getScouterList();
+      String googleAccountName = provisionStore.getGoogleAccountName();
 
       boolean matchListFileExists = fileUtils.fileExists(String.valueOf(
           new File(requireContext().getFilesDir() + "/" + "match.csv")));

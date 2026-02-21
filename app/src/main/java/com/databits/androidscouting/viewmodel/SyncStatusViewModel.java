@@ -4,12 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import com.databits.androidscouting.data.entity.UploadQueueItem;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.SyncStore;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class SyncStatusViewModel extends ViewModel {
-    private final PreferenceRepository repository;
+    private final SyncStore repository;
     private final ExecutorService executor;
 
     private final LiveData<List<String>> scouterList;
@@ -18,7 +18,7 @@ public class SyncStatusViewModel extends ViewModel {
     private final LiveData<List<String>> pitTeamsRemaining;
     private final MutableLiveData<String> googleAccountName = new MutableLiveData<>();
 
-    public SyncStatusViewModel(PreferenceRepository repository, ExecutorService executor) {
+    public SyncStatusViewModel(SyncStore repository, ExecutorService executor) {
         this.repository = repository;
         this.executor = executor;
         this.scouterList = repository.getScouterListLive();

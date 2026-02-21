@@ -1,7 +1,7 @@
 package com.databits.androidscouting.fragment;
 
 import androidx.fragment.app.Fragment;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.util.TeamInfo;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ final class ScannerTeamScheduleController {
     void ensureTeamsLoaded(
         Fragment fragment,
         ExecutorService backgroundExecutor,
-        PreferenceRepository repository,
+        ScheduleStore repository,
         TeamInfo teamInfo,
         Runnable onTeamsLoaded
     ) {

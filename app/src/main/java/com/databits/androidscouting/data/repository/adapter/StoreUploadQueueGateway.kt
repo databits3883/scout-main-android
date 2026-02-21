@@ -3,17 +3,17 @@ package com.databits.androidscouting.data.repository.adapter
 import com.databits.androidscouting.core.domain.upload.UploadQueueGateway
 import com.databits.androidscouting.core.model.UploadItem
 import com.databits.androidscouting.data.entity.UploadQueueItem
-import com.databits.androidscouting.data.repository.PreferenceRepository
+import com.databits.androidscouting.data.repository.ScheduleStore
 
-class PreferenceUploadQueueGateway(
-    private val repository: PreferenceRepository,
+class StoreUploadQueueGateway(
+    private val scheduleStore: ScheduleStore,
 ) : UploadQueueGateway {
     override fun hasSeenLine(lineHash: String, dataType: String): Boolean {
-        return repository.hasSeenLine(lineHash, dataType)
+        return scheduleStore.hasSeenLine(lineHash, dataType)
     }
 
     override fun markLineSeen(lineHash: String, dataType: String) {
-        repository.markLineSeen(lineHash, dataType)
+        scheduleStore.markLineSeen(lineHash, dataType)
     }
 
     override fun enqueueUpload(item: UploadItem) {
@@ -23,6 +23,6 @@ class PreferenceUploadQueueGateway(
             matchNumber = item.matchNumber
             teamNumber = item.teamNumber
         }
-        repository.addUploadItem(queueItem)
+        scheduleStore.addUploadItem(queueItem)
     }
 }

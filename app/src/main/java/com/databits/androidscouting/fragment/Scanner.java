@@ -30,8 +30,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.core.domain.scanner.FindMatchedTeamSlotUseCase;
 import com.databits.androidscouting.core.domain.scanner.ProcessScanPayloadUseCase;
 import com.databits.androidscouting.core.domain.provision.ApplyRoleProvisionUseCase;
@@ -73,7 +77,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     // Scanner boundary contract:
     // - Own lifecycle/view wiring and delegate feature behavior to collaborators.
-    // - Avoid direct data-source access patterns beyond PreferenceRepository + use-case orchestration.
+    // - Avoid direct data-source access patterns beyond dedicated stores + use-case orchestration.
     // - Keep QR payload decisions, upload side effects, and camera sub-behaviors in dedicated classes.
 
     protected BarcodeScanner qrScanner;
@@ -94,7 +98,9 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private QueueScanDataUseCase queueScanDataUseCase;
     private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
 
-    private PreferenceRepository repository;
+    private ProvisionSettingsStore provisionStore;
+    private CameraSettingsStore cameraSettingsStore;
+    private ScheduleStore scheduleStore;
 
     MatchInfo matchInfo;
     TeamInfo teamInfo;
@@ -119,8 +125,11 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        provisionStore = appRepositories.provisionSettingsStore;
+        cameraSettingsStore = appRepositories.cameraSettingsStore;
+        scheduleStore = appRepositories.scheduleStore;
         ScannerDependencies deps = ScannerDependencies.create(requireContext());
-        repository = deps.repository;
         scannerCameraController = deps.scannerCameraController;
         scannerUiFeedbackController = deps.scannerUiFeedbackController;
         scannerTeamScheduleController = deps.scannerTeamScheduleController;
@@ -132,9 +141,9 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         importMatchDataChunkUseCase = deps.importMatchDataChunkUseCase;
         queueScanDataUseCase = deps.queueScanDataUseCase;
 
-        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(ProvisionViewModel.class);
-        CameraSettingsViewModelFactory cameraFactory = new CameraSettingsViewModelFactory(repository);
+        CameraSettingsViewModelFactory cameraFactory = new CameraSettingsViewModelFactory(appRepositories.cameraSettingsStore);
         cameraSettingsViewModel = new ViewModelProvider(requireActivity(), cameraFactory).get(CameraSettingsViewModel.class);
         payloadCoordinator = deps.createPayloadCoordinator(new ScannerPayloadCoordinator.Actions() {
             @Override
@@ -240,7 +249,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
 
-        matchInfo = new MatchInfo(repository);
+        matchInfo = new MatchInfo(provisionStore);
         teamInfo = new TeamInfo(getContext());
         scoutUtils = new ScoutUtils(getContext());
         sheetsUpdateTask = new SheetsUpdateTask(requireContext(), this);
@@ -248,7 +257,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             this,
             binding,
             cameraSettingsViewModel,
-            repository,
+            cameraSettingsStore,
             scannerUiFeedbackController
         );
 
@@ -262,7 +271,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             .navigateUp());
 
         binding.buttonUpload.setOnClickListener(view1 -> {
-            scannerUploadCoordinator.callSheets(this, repository, googleAuthLauncher, sheetsUpdateTask);
+            scannerUploadCoordinator.callSheets(this, provisionStore, googleAuthLauncher, sheetsUpdateTask);
         });
 
         binding.buttonGroupUploadMode.setOnPositionChangedListener(position -> {
@@ -290,7 +299,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         scannerTeamScheduleController.ensureTeamsLoaded(
             this,
             backgroundExecutor,
-            repository,
+            scheduleStore,
             teamInfo,
             () -> setupTeamDisplay(match)
         );
@@ -329,8 +338,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
         // Update resolution display once preview is ready
         preview.post(() -> {
-            if (repository.isCameraShowResolutionEnabled()) {
-                scannerUiFeedbackController.updateResolutionDisplay(this, repository, binding, preview);
+            if (cameraSettingsStore.isCameraShowResolutionEnabled()) {
+                scannerUiFeedbackController.updateResolutionDisplay(this, cameraSettingsStore, binding, preview);
             }
         });
 
@@ -343,7 +352,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
             ContextCompat.getMainExecutor(requireContext()),
             result -> {
                 // Update FPS counter on every frame
-                scannerUiFeedbackController.onFrame(this, repository, binding);
+                scannerUiFeedbackController.onFrame(this, cameraSettingsStore, binding);
 
                 List<Barcode> qrResList = result.getValue(qrScanner);
                 if (qrResList == null || qrResList.isEmpty() || qrResList.get(0) == null) {
@@ -355,11 +364,11 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
                 Barcode qr = qrResList.get(0);
 
                 // Apply ML Kit enhancements - size and position filtering
-                if (!scannerCameraController.checkBarcodeSize(qr, repository)) {
+                if (!scannerCameraController.checkBarcodeSize(qr, cameraSettingsStore)) {
                     preview.getOverlay().clear();
                     return; // Too small, ignore
                 }
-                if (!scannerCameraController.checkBarcodePosition(qr, preview, repository)) {
+                if (!scannerCameraController.checkBarcodePosition(qr, preview, cameraSettingsStore)) {
                     preview.getOverlay().clear();
                     return; // Not centered, ignore
                 }
@@ -380,7 +389,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
                 assert bar_string != null;
 
-                scannerUiFeedbackController.onSuccessfulScan(this, repository, binding);
+                scannerUiFeedbackController.onSuccessfulScan(this, cameraSettingsStore, binding);
 
                 ScanPayload payload = processScanPayloadUseCase.invoke(bar_string);
                 payloadCoordinator.route(payload, bar_string);
@@ -425,7 +434,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     private void saveData(String bar_string) {
 
-        String uploadMode = repository.getUploadMode();
+        String uploadMode = provisionStore.getUploadMode();
         UploadMode typedMode = UploadMode.fromRaw(uploadMode);
 
         // Make upload.csv for debugging
@@ -460,7 +469,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     }
 
     protected void callSheets() {
-        scannerUploadCoordinator.callSheets(this, repository, googleAuthLauncher, sheetsUpdateTask);
+        scannerUploadCoordinator.callSheets(this, provisionStore, googleAuthLauncher, sheetsUpdateTask);
     }
 
     public void refreshActionBar() {

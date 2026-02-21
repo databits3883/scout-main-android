@@ -63,8 +63,8 @@ public class Crowd extends BaseScoutFragment {
                             new Thread(() -> {
                                 int match = matchInfo.getMatch();
                                 int team = 9999;
-                                if (repository.isManualTeamOverrideEnabled()) {
-                                    team = repository.getManualTeamOverrideValue();
+                                if (provisionStore.isManualTeamOverrideEnabled()) {
+                                    team = provisionStore.getManualTeamOverrideValue();
                                 } else if (teamInfo.teamsLoaded()) {
                                     team = teamInfo.getTeam(match);
                                 }
@@ -93,7 +93,7 @@ public class Crowd extends BaseScoutFragment {
                 if (id == R.id.actions_change_scouter) {
                     // Load scouter list on background thread
                     new Thread(() -> {
-                        List<String> loadedScouterList = repository.getScouterList();
+                        List<String> loadedScouterList = syncStore.getScouterList();
                         requireActivity().runOnUiThread(() -> {
                             scouterList = loadedScouterList;
                             View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
@@ -104,7 +104,7 @@ public class Crowd extends BaseScoutFragment {
                                     AutoCompleteTextView dropdown = ((AlertDialog) dialog1)
                                         .findViewById(R.id.scouter_select);
                                     // Save the scouter name to the common preference
-                                    repository.setCurrentScouter(
+                                    provisionStore.setCurrentScouter(
                                         Objects.requireNonNull(dropdown).getText().toString());
                                     refreshActionBar();
                                 })
@@ -137,12 +137,12 @@ public class Crowd extends BaseScoutFragment {
                             int teamNumber = Integer.parseInt(
                                 Objects.requireNonNull(editText.getText()).toString());
                             // Save the team number to the preference
-                            repository.setManualTeamOverride(true);
-                            repository.setManualTeamOverrideValue(teamNumber);
+                            provisionStore.setManualTeamOverride(true);
+                            provisionStore.setManualTeamOverrideValue(teamNumber);
                             mRecyclerView.post(() -> {
                                 com.databits.androidscouting.layout.LayoutPresenter presenter =
                                     new com.databits.androidscouting.layout.LayoutPresenter(
-                                        requireContext(), matchInfo, teamInfo, repository);
+                                        requireContext(), matchInfo, teamInfo, scheduleStore, provisionStore);
                                 presenter.updateTitleCells(mRecyclerView);
                             });
                             refreshActionBar();
@@ -156,8 +156,8 @@ public class Crowd extends BaseScoutFragment {
 
                 // Ask the user if they want to re-provision the device
                 if (id == R.id.action_reconfigure) {
-                    if (!repository.isRoleLocked()) {
-                        repository.setMaster(false);
+                    if (!provisionStore.isRoleLocked()) {
+                        provisionStore.setMaster(false);
                         controller.navigate(R.id.action_crowdScoutFragment_to_ScannerFragment);
                         return true;
                     }
@@ -191,8 +191,8 @@ public class Crowd extends BaseScoutFragment {
                             NumberPicker matchPicker =
                                 ((AlertDialog) dialog1).findViewById(R.id.number_counter_inside);
                             int match = Objects.requireNonNull(matchPicker).getValue();
-                            repository.setManualMatchOverride(true);
-                            repository.setManualMatchOverrideValue(match);
+                            provisionStore.setManualMatchOverride(true);
+                            provisionStore.setManualMatchOverrideValue(match);
                             refreshActionBar();
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -215,8 +215,8 @@ public class Crowd extends BaseScoutFragment {
                             "Are you sure you want to unlock?\n\nThis will bring you back to"
                                 + " the main menu and require that your device be re-provisioned")
                         .setPositiveButton("Yes", (dialog1, which1) -> {
-                            repository.setRoleLocked(false);
-                            repository.setAutoLoadCrowdLayout(false);
+                            provisionStore.setRoleLocked(false);
+                            provisionStore.setAutoLoadCrowdLayout(false);
                             controller.navigate(R.id.action_crowdScoutFragment_to_StartFragment);
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -260,7 +260,7 @@ public class Crowd extends BaseScoutFragment {
         assert activity != null;
         ActionBar actionBar = activity.getSupportActionBar();
         int match = matchInfo.getMatch();
-        int position = repository.getCrowdPosition();
+        int position = provisionStore.getCrowdPosition();
         String[] positionArray = getResources().getStringArray(R.array.positions);
 
         // Load team data on background thread to avoid Room database access on main thread

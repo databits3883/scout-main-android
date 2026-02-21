@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.model.CellType;
 import com.travijuu.numberpicker.library.NumberPicker;
@@ -20,7 +22,8 @@ public class ScoutUtils {
   public static final int REQUEST_CODE_PERMISSIONS = 10;
   public static final String[] REQUIRED_PERMISSIONS = { android.Manifest.permission.CAMERA };
 
-  private final PreferenceRepository repository;
+  private final ProvisionSettingsStore provisionStore;
+  private final ScheduleStore scheduleStore;
 
   public MatchInfo matchInfo;
   public TeamInfo teamInfo;
@@ -29,7 +32,9 @@ public class ScoutUtils {
 
   public ScoutUtils(Context context) {
     this.context = context;
-    this.repository = PreferenceRepositoryProvider.get(context);
+    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+    this.provisionStore = graph.provisionSettingsStore;
+    this.scheduleStore = graph.scheduleStore;
   }
 
   public String exportCell(RecyclerView recyclerView) {
@@ -111,14 +116,14 @@ public class ScoutUtils {
 
     int match = matchInfo.getMatch();
     int team = 9999;
-    if (repository.isManualTeamOverrideEnabled()) {
-      team = repository.getManualTeamOverrideValue();
-    } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+    if (provisionStore.isManualTeamOverrideEnabled()) {
+      team = provisionStore.getManualTeamOverrideValue();
+    } else if (teamInfo.teamsLoaded() || scheduleStore.isPitRemoveEnabled()) {
       team = teamInfo.getTeam(match);
     }
 
     //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
-    if (repository.isPitRemoveEnabled()) {
+    if (scheduleStore.isPitRemoveEnabled()) {
       cellData = exportCell(v.findViewById(R.id.recycler_view)).substring(1) + "," +
           teamInfo.getScouterName();
     } else if (special){

@@ -18,7 +18,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentSettingsGoogleconfigBinding;
 import com.databits.androidscouting.util.FileUtils;
@@ -41,7 +43,8 @@ import java.util.concurrent.Executors;
 
 public class GoogleConfig extends Fragment {
   private FragmentSettingsGoogleconfigBinding binding;
-  private PreferenceRepository repository;
+  private ProvisionSettingsStore provisionStore;
+  private ScheduleStore scheduleStore;
   private ProvisionViewModel viewModel;
   private ExecutorService executor;
   private Handler mainHandler;
@@ -66,8 +69,10 @@ public class GoogleConfig extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    repository = PreferenceRepositoryProvider.get(requireContext());
-    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    provisionStore = appRepositories.provisionSettingsStore;
+    scheduleStore = appRepositories.scheduleStore;
+    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
     viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
     // Initialize executor and handler for background operations
@@ -84,7 +89,7 @@ public class GoogleConfig extends Fragment {
     // Helper Classes
     scoutUtils = new ScoutUtils(requireContext());
     fileUtils = new FileUtils(requireContext());
-    matchInfo = new MatchInfo(repository);
+    matchInfo = new MatchInfo(provisionStore);
     teamInfo = new TeamInfo(requireContext());
 
     binding.buttonBack.setOnClickListener(v1 -> controller.navigateUp());
@@ -255,7 +260,7 @@ public class GoogleConfig extends Fragment {
                   viewModel.updatePitRange(row[2]);
                   viewModel.updateSpecialtyRange(row[3]);
                 }
-                repository.setGoogleConfig(dataArr);
+                scheduleStore.setGoogleConfig(dataArr);
 
                 // Update UI on main thread
                 mainHandler.post(() -> {

@@ -3,11 +3,11 @@ package com.databits.androidscouting.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import java.util.concurrent.ExecutorService;
 
 public class CameraSettingsViewModel extends ViewModel {
-    private final PreferenceRepository repository;
+    private final CameraSettingsStore repository;
     private final ExecutorService executor;
 
     private final MutableLiveData<Boolean> cameraTorch = new MutableLiveData<>();
@@ -26,7 +26,7 @@ public class CameraSettingsViewModel extends ViewModel {
     private final MutableLiveData<Boolean> cameraShowFps = new MutableLiveData<>();
     private final MutableLiveData<Boolean> cameraShowResolution = new MutableLiveData<>();
 
-    public CameraSettingsViewModel(PreferenceRepository repository, ExecutorService executor) {
+    public CameraSettingsViewModel(CameraSettingsStore repository, ExecutorService executor) {
         this.repository = repository;
         this.executor = executor;
         refresh();

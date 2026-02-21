@@ -2,7 +2,7 @@ package com.databits.androidscouting.viewmodel;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 public class ProvisionViewModelTest extends BaseViewModelTest {
 
-    @Mock private PreferenceRepository repository;
+    @Mock private ProvisionSettingsStore repository;
     @Mock private Observer<String> stringObserver;
 
     private ProvisionViewModel viewModel;

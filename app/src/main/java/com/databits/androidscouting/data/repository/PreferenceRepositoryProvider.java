@@ -3,26 +3,28 @@ package com.databits.androidscouting.data.repository;
 import android.content.Context;
 
 public final class PreferenceRepositoryProvider {
-    private static PreferenceRepository repository;
+    private static AppRepositories repositories;
 
     private PreferenceRepositoryProvider() {
     }
 
     public static synchronized void init(Context context) {
-        if (repository == null) {
-            repository = new DefaultPreferenceRepository(context.getApplicationContext());
+        if (repositories == null) {
+            DefaultPreferenceRepository repository = new DefaultPreferenceRepository(context.getApplicationContext());
+            repositories = new AppRepositories(repository, repository, repository, repository);
         }
     }
 
-    public static synchronized PreferenceRepository get(Context context) {
+    public static synchronized AppRepositories graph(Context context) {
         init(context);
-        return repository;
+        return repositories;
     }
 
-    public static synchronized PreferenceRepository get() {
-        if (repository == null) {
+    public static synchronized AppRepositories graph() {
+        if (repositories == null) {
             throw new IllegalStateException("PreferenceRepositoryProvider must be initialized first");
         }
-        return repository;
+        return repositories;
     }
+
 }

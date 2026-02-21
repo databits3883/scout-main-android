@@ -6,17 +6,20 @@ import com.databits.androidscouting.core.domain.scanner.FindMatchedTeamSlotUseCa
 import com.databits.androidscouting.core.domain.scanner.ProcessScanPayloadUseCase;
 import com.databits.androidscouting.core.domain.schedule.ImportMatchDataChunkUseCase;
 import com.databits.androidscouting.core.domain.upload.QueueScanDataUseCase;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
-import com.databits.androidscouting.data.repository.adapter.PreferenceMatchDataImportGateway;
-import com.databits.androidscouting.data.repository.adapter.PreferenceRoleProvisionGateway;
-import com.databits.androidscouting.data.repository.adapter.PreferenceUploadQueueGateway;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
+import com.databits.androidscouting.data.repository.adapter.StoreMatchDataImportGateway;
+import com.databits.androidscouting.data.repository.adapter.StoreRoleProvisionGateway;
+import com.databits.androidscouting.data.repository.adapter.StoreUploadQueueGateway;
 import com.databits.androidscouting.feature.scanner.ScannerFeatureBootstrap;
 
 final class ScannerDependencies {
     // Composition root for Scanner collaborators.
     // All dependency wiring for Scanner should happen here, not in Scanner lifecycle methods.
-    final PreferenceRepository repository;
+    final ProvisionSettingsStore provisionStore;
+    final ScheduleStore scheduleStore;
     final ScannerCameraController scannerCameraController;
     final ScannerUiFeedbackController scannerUiFeedbackController;
     final ScannerTeamScheduleController scannerTeamScheduleController;
@@ -29,9 +32,10 @@ final class ScannerDependencies {
     final QueueScanDataUseCase queueScanDataUseCase;
 
     static ScannerDependencies create(Context context) {
-        PreferenceRepository repository = PreferenceRepositoryProvider.get(context);
+        AppRepositories repositories = PreferenceRepositoryProvider.graph(context);
         return new ScannerDependencies(
-            repository,
+            repositories.provisionSettingsStore,
+            repositories.scheduleStore,
             new ScannerCameraController(),
             new ScannerUiFeedbackController(),
             new ScannerTeamScheduleController(),
@@ -39,9 +43,9 @@ final class ScannerDependencies {
             new UploadAuditLogger(context.getFilesDir()),
             new FindMatchedTeamSlotUseCase(),
             ScannerFeatureBootstrap.provideProcessScanPayloadUseCase(),
-            new ApplyRoleProvisionUseCase(new PreferenceRoleProvisionGateway(repository)),
-            new ImportMatchDataChunkUseCase(new PreferenceMatchDataImportGateway(repository)),
-            new QueueScanDataUseCase(new PreferenceUploadQueueGateway(repository))
+            new ApplyRoleProvisionUseCase(new StoreRoleProvisionGateway(repositories.provisionSettingsStore)),
+            new ImportMatchDataChunkUseCase(new StoreMatchDataImportGateway(repositories.scheduleStore)),
+            new QueueScanDataUseCase(new StoreUploadQueueGateway(repositories.scheduleStore))
         );
     }
 
@@ -50,7 +54,8 @@ final class ScannerDependencies {
     }
 
     private ScannerDependencies(
-        PreferenceRepository repository,
+        ProvisionSettingsStore provisionStore,
+        ScheduleStore scheduleStore,
         ScannerCameraController scannerCameraController,
         ScannerUiFeedbackController scannerUiFeedbackController,
         ScannerTeamScheduleController scannerTeamScheduleController,
@@ -62,7 +67,8 @@ final class ScannerDependencies {
         ImportMatchDataChunkUseCase importMatchDataChunkUseCase,
         QueueScanDataUseCase queueScanDataUseCase
     ) {
-        this.repository = repository;
+        this.provisionStore = provisionStore;
+        this.scheduleStore = scheduleStore;
         this.scannerCameraController = scannerCameraController;
         this.scannerUiFeedbackController = scannerUiFeedbackController;
         this.scannerTeamScheduleController = scannerTeamScheduleController;

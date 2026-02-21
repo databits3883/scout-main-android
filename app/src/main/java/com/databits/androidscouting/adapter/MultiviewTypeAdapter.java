@@ -20,7 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButton;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellConfig;
@@ -49,7 +51,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     List<String> entryLabels = new ArrayList<>();
     private TeamInfo teamInfo;
     private MatchInfo matchInfo;
-    private PreferenceRepository repository;
+    private ScheduleStore scheduleStore;
+    private ProvisionSettingsStore provisionStore;
     private LayoutInflater inflater;
     private Balloon.Builder helpBuilder;
 
@@ -218,11 +221,11 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     /**
-     * Set the preference repository for the adapter.
-     * Required for pit teams remaining cache to work.
+     * Set stores required by the adapter.
      */
-    public void setRepository(PreferenceRepository repository) {
-        this.repository = repository;
+    public void setStores(ScheduleStore scheduleStore, ProvisionSettingsStore provisionStore) {
+        this.scheduleStore = scheduleStore;
+        this.provisionStore = provisionStore;
     }
 
     /**
@@ -247,8 +250,8 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
      */
     public void loadPitTeamsRemainingCache() {
         new Thread(() -> {
-            if (repository != null) {
-                cachedPitTeamsRemainingList = repository.getPitTeamsRemainingList();
+            if (scheduleStore != null) {
+                cachedPitTeamsRemainingList = scheduleStore.getPitTeamsRemainingList();
             }
         }).start();
     }
@@ -306,8 +309,10 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
             Context context = parent.getContext();
             inflater = LayoutInflater.from(context);
             teamInfo = new TeamInfo(context);
-            repository = PreferenceRepositoryProvider.get(context);
-            matchInfo = new MatchInfo(repository);
+            AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+            scheduleStore = graph.scheduleStore;
+            provisionStore = graph.provisionSettingsStore;
+            matchInfo = new MatchInfo(provisionStore);
             helpBuilder = new Balloon.Builder(context)
                 .setArrowSize(15)
                 .setArrowOrientation(ArrowOrientation.TOP)
@@ -577,7 +582,7 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                         ContextCompat.getColor(mContext, categoryColor));
 
                     // Use cached pit teams list to avoid database access on main thread
-                    if (repository.isPitRemoveEnabled() && cachedPitTeamsRemainingList != null) {
+                    if (scheduleStore != null && scheduleStore.isPitRemoveEnabled() && cachedPitTeamsRemainingList != null) {
                         entryLabels = cachedPitTeamsRemainingList;
                     } else {
                         entryLabels = Arrays.asList(mContext.getResources().getStringArray(

@@ -10,7 +10,7 @@ import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
 import com.databits.androidscouting.viewmodel.CameraSettingsViewModel;
 
@@ -18,7 +18,7 @@ final class ScannerCameraUiController {
     private final Fragment fragment;
     private final FragmentScannerBinding binding;
     private final CameraSettingsViewModel viewModel;
-    private final PreferenceRepository repository;
+    private final CameraSettingsStore repository;
     private final ScannerUiFeedbackController feedbackController;
 
     private LifecycleCameraController camController;
@@ -31,7 +31,7 @@ final class ScannerCameraUiController {
         Fragment fragment,
         FragmentScannerBinding binding,
         CameraSettingsViewModel viewModel,
-        PreferenceRepository repository,
+        CameraSettingsStore repository,
         ScannerUiFeedbackController feedbackController
     ) {
         this.fragment = fragment;

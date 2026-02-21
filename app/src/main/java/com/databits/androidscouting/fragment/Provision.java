@@ -27,7 +27,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
@@ -69,7 +71,8 @@ public class Provision extends Fragment {
 
   List<String> entryLabels = new ArrayList<>();
 
-  private PreferenceRepository repository;
+  private ProvisionSettingsStore provisionStore;
+  private ScheduleStore scheduleStore;
 
   boolean lock;
 
@@ -79,8 +82,10 @@ public class Provision extends Fragment {
       Bundle savedInstanceState
   ) {
     // Initialize ViewModel
-    repository = PreferenceRepositoryProvider.get(requireContext());
-    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    provisionStore = appRepositories.provisionSettingsStore;
+    scheduleStore = appRepositories.scheduleStore;
+    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
     viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
     requireActivity().addMenuProvider(new MenuProvider() {
@@ -158,7 +163,7 @@ public class Provision extends Fragment {
       return true;
     });
 
-    matchInfo = new MatchInfo(repository);
+    matchInfo = new MatchInfo(provisionStore);
 
     qrCodeGenerator = new QrCodeGenerator(requireContext());
 
@@ -172,7 +177,7 @@ public class Provision extends Fragment {
       alertDialog.setMessage("Config");
       //alertDialog.show();
 
-      String[][] matchData = repository.exportTeamSchedule();
+      String[][] matchData = scheduleStore.exportTeamSchedule();
       if (matchData == null) {
         Toast.makeText(requireContext(), "Not all data was found", Toast.LENGTH_LONG).show();
       } else {

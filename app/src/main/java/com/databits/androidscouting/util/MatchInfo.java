@@ -1,21 +1,23 @@
 package com.databits.androidscouting.util;
 
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class MatchInfo {
-  private final PreferenceRepository repository;
+  private final ProvisionSettingsStore repository;
 
   // Lazy-loaded to avoid premature preference access during field initialization
   private Integer match = null;
 
-  public MatchInfo(PreferenceRepository repository) {
+  public MatchInfo(ProvisionSettingsStore repository) {
     this.repository = repository;
   }
 
   public MatchInfo(android.content.Context context) {
-    this(PreferenceRepositoryProvider.get(context));
+    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+    this.repository = graph.provisionSettingsStore;
   }
 
   public int getMatch() {

@@ -69,9 +69,9 @@ public class Special extends BaseScoutFragment {
                 new Thread(() -> {
                   int match = matchInfo.getMatch();
                   int team = 9999;
-                  if (repository.isManualTeamOverrideEnabled()) {
-                    team = repository.getManualTeamOverrideValue();
-                  } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+                  if (provisionStore.isManualTeamOverrideEnabled()) {
+                    team = provisionStore.getManualTeamOverrideValue();
+                  } else if (teamInfo.teamsLoaded() || scheduleStore.isPitRemoveEnabled()) {
                     team = teamInfo.getTeam(match);
                   }
 
@@ -106,7 +106,7 @@ public class Special extends BaseScoutFragment {
         if (id == R.id.actions_change_scouter) {
           // Load scouter list on background thread
           new Thread(() -> {
-            List<String> loadedScouterList = repository.getScouterList();
+            List<String> loadedScouterList = syncStore.getScouterList();
             requireActivity().runOnUiThread(() -> {
               scouterList = loadedScouterList;
               View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
@@ -117,7 +117,7 @@ public class Special extends BaseScoutFragment {
                     AutoCompleteTextView dropdown = ((AlertDialog) dialog1)
                         .findViewById(R.id.scouter_select);
                     // Save the scouter name to the common preference
-                    repository.setCurrentScouter(
+                    provisionStore.setCurrentScouter(
                         Objects.requireNonNull(dropdown).getText().toString());
                     refreshActionBar();
                   })
@@ -150,12 +150,12 @@ public class Special extends BaseScoutFragment {
                 int teamNumber = Integer.parseInt(
                     Objects.requireNonNull(editText.getText()).toString());
                 // Save the team number to the preference
-                repository.setManualTeamOverride(true);
-                repository.setManualTeamOverrideValue(teamNumber);
+                provisionStore.setManualTeamOverride(true);
+                provisionStore.setManualTeamOverrideValue(teamNumber);
                 mRecyclerView.post(() -> {
                   com.databits.androidscouting.layout.LayoutPresenter presenter =
                       new com.databits.androidscouting.layout.LayoutPresenter(
-                          requireContext(), matchInfo, teamInfo, repository);
+                          requireContext(), matchInfo, teamInfo, scheduleStore, provisionStore);
                   presenter.updateTitleCells(mRecyclerView);
                 });
               })
@@ -168,7 +168,7 @@ public class Special extends BaseScoutFragment {
 
         // Ask the user if they want to re-provision the device
         if (id == R.id.action_reconfigure) {
-          if (!repository.isRoleLocked()) {
+          if (!provisionStore.isRoleLocked()) {
             controller.navigate(R.id.action_SpecialFragment_to_ScannerFragment);
             return true;
           }
@@ -202,8 +202,8 @@ public class Special extends BaseScoutFragment {
                 NumberPicker matchPicker =
                     ((AlertDialog) dialog1).findViewById(R.id.number_counter_inside);
                 int match = Objects.requireNonNull(matchPicker).getValue();
-                repository.setManualMatchOverride(true);
-                repository.setManualMatchOverrideValue(match);
+                provisionStore.setManualMatchOverride(true);
+                provisionStore.setManualMatchOverrideValue(match);
                 refreshActionBar();
               })
               .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -226,7 +226,7 @@ public class Special extends BaseScoutFragment {
                   "Are you sure you want to unlock?\n\nThis will bring you back to"
                       + " the main menu and require that your device be re-provisioned")
               .setPositiveButton("Yes", (dialog1, which1) -> {
-                repository.setRoleLocked(false);
+                provisionStore.setRoleLocked(false);
                 controller.navigate(R.id.action_SpecialFragment_to_StartFragment);
               })
               .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -275,8 +275,8 @@ public class Special extends BaseScoutFragment {
 
   public void teamSpinner(String team, boolean remove, Context context, View v) {
     String[] origList = context.getResources().getStringArray(R.array.team_list);
-    repository.setSpecialRemoveEnabled(true);
-    ArrayList<String> remainingList = repository.getSpecialScoutData();
+    scheduleStore.setSpecialRemoveEnabled(true);
+    ArrayList<String> remainingList = scheduleStore.getSpecialScoutData();
     if (remainingList != null) {
       editedList = remainingList;
     } else {
@@ -285,7 +285,7 @@ public class Special extends BaseScoutFragment {
 
     if (remove) {
       editedList.remove(team);
-      repository.setSpecialScoutData(editedList);
+      scheduleStore.setSpecialScoutData(editedList);
     }
     Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemChanged(1);
   }

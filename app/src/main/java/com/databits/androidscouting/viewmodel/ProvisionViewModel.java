@@ -3,13 +3,13 @@ package com.databits.androidscouting.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 public class ProvisionViewModel extends ViewModel {
-    private final PreferenceRepository repository;
+    private final ProvisionSettingsStore repository;
     private final ExecutorService executor;
 
     private final MutableLiveData<String> currentScouter = new MutableLiveData<>();
@@ -31,7 +31,7 @@ public class ProvisionViewModel extends ViewModel {
 
     private final LiveData<List<String>> scouterList;
 
-    public ProvisionViewModel(PreferenceRepository repository, ExecutorService executor) {
+    public ProvisionViewModel(ProvisionSettingsStore repository, ExecutorService executor) {
         this.repository = repository;
         this.executor = executor;
         this.scouterList = repository.getScouterListLive();

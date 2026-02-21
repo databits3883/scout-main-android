@@ -68,9 +68,9 @@ public class Pit extends BaseScoutFragment {
                             new Thread(() -> {
                                 int match = matchInfo.getMatch();
                                 int team = 9999;
-                                if (repository.isManualTeamOverrideEnabled()) {
-                                    team = repository.getManualTeamOverrideValue();
-                                } else if (teamInfo.teamsLoaded() || repository.isPitRemoveEnabled()) {
+                                if (provisionStore.isManualTeamOverrideEnabled()) {
+                                    team = provisionStore.getManualTeamOverrideValue();
+                                } else if (teamInfo.teamsLoaded() || scheduleStore.isPitRemoveEnabled()) {
                                     team = teamInfo.getTeam(match);
                                 }
 
@@ -101,7 +101,7 @@ public class Pit extends BaseScoutFragment {
                 if (id == R.id.actions_change_scouter) {
                     // Load scouter list on background thread
                     new Thread(() -> {
-                        List<String> loadedScouterList = repository.getScouterList();
+                        List<String> loadedScouterList = syncStore.getScouterList();
                         requireActivity().runOnUiThread(() -> {
                             scouterList = loadedScouterList;
                             View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
@@ -112,7 +112,7 @@ public class Pit extends BaseScoutFragment {
                                     AutoCompleteTextView dropdown = ((AlertDialog) dialog1)
                                         .findViewById(R.id.scouter_select);
                                     // Save the scouter name to the common preference
-                                    repository.setCurrentScouter(
+                                    provisionStore.setCurrentScouter(
                                         Objects.requireNonNull(dropdown).getText().toString());
                                     refreshActionBar();
                                 })
@@ -145,12 +145,12 @@ public class Pit extends BaseScoutFragment {
                             int teamNumber = Integer.parseInt(
                                 Objects.requireNonNull(editText.getText()).toString());
                             // Save the team number to the preference
-                            repository.setManualTeamOverride(true);
-                            repository.setManualTeamOverrideValue(teamNumber);
+                            provisionStore.setManualTeamOverride(true);
+                            provisionStore.setManualTeamOverrideValue(teamNumber);
                             mRecyclerView.post(() -> {
                                 com.databits.androidscouting.layout.LayoutPresenter presenter =
                                     new com.databits.androidscouting.layout.LayoutPresenter(
-                                        requireContext(), matchInfo, teamInfo, repository);
+                                        requireContext(), matchInfo, teamInfo, scheduleStore, provisionStore);
                                 presenter.updateTitleCells(mRecyclerView);
                             });
                         })
@@ -163,7 +163,7 @@ public class Pit extends BaseScoutFragment {
 
                 // Ask the user if they want to re-provision the device
                 if (id == R.id.action_reconfigure) {
-                    if (!repository.isRoleLocked()) {
+                    if (!provisionStore.isRoleLocked()) {
                         controller.navigate(R.id.action_pitScoutFragment_to_ScannerFragment);
                         return true;
                     }
@@ -197,8 +197,8 @@ public class Pit extends BaseScoutFragment {
                             NumberPicker matchPicker =
                                 ((AlertDialog) dialog1).findViewById(R.id.number_counter_inside);
                             int match = Objects.requireNonNull(matchPicker).getValue();
-                            repository.setManualMatchOverride(true);
-                            repository.setManualMatchOverrideValue(match);
+                            provisionStore.setManualMatchOverride(true);
+                            provisionStore.setManualMatchOverrideValue(match);
                             refreshActionBar();
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -221,7 +221,7 @@ public class Pit extends BaseScoutFragment {
                             "Are you sure you want to unlock?\n\nThis will bring you back to"
                                 + " the main menu and require that your device be re-provisioned")
                         .setPositiveButton("Yes", (dialog1, which1) -> {
-                            repository.setRoleLocked(false);
+                            provisionStore.setRoleLocked(false);
                             controller.navigate(R.id.action_pitScoutFragment_to_StartFragment);
                         })
                         .setNegativeButton("Cancel", (dialog1, which1) -> {
@@ -265,11 +265,11 @@ public class Pit extends BaseScoutFragment {
 
     public void teamSpinner(String team, boolean remove, Context context, View v) {
         String[] origList = context.getResources().getStringArray(R.array.team_list);
-        repository.setPitRemoveEnabled(true);
+        scheduleStore.setPitRemoveEnabled(true);
 
         // Load remaining list on background thread
         new Thread(() -> {
-            List<String> remainingList = repository.getPitTeamsRemainingList();
+            List<String> remainingList = scheduleStore.getPitTeamsRemainingList();
             ArrayList<String> newEditedList;
             if (remainingList != null && !remainingList.isEmpty()) {
                 newEditedList = new ArrayList<>(remainingList);
@@ -279,7 +279,7 @@ public class Pit extends BaseScoutFragment {
 
             if (remove) {
                 newEditedList.remove(team);
-                repository.setPitTeamsRemainingList(newEditedList);
+                scheduleStore.setPitTeamsRemainingList(newEditedList);
             }
 
             editedList = newEditedList;

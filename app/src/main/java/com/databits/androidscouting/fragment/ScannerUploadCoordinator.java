@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.fragment.app.Fragment;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.SheetsUpdateTask;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -46,7 +46,7 @@ final class ScannerUploadCoordinator {
 
     void callSheets(
         Fragment fragment,
-        PreferenceRepository repository,
+        ProvisionSettingsStore repository,
         ActivityResultLauncher<Intent> googleAuthLauncher,
         SheetsUpdateTask sheetsUpdateTask
     ) {

@@ -3,13 +3,13 @@ package com.databits.androidscouting.viewmodel;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.SyncStore;
 import java.util.concurrent.Executors;
 
 public class SyncStatusViewModelFactory implements ViewModelProvider.Factory {
-    private final PreferenceRepository repository;
+    private final SyncStore repository;
 
-    public SyncStatusViewModelFactory(PreferenceRepository repository) {
+    public SyncStatusViewModelFactory(SyncStore repository) {
         this.repository = repository;
     }
 

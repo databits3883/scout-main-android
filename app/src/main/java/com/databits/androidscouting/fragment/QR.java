@@ -41,7 +41,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentQRBinding;
 import com.databits.androidscouting.util.FileUtils;
@@ -93,7 +95,8 @@ public class QR extends Fragment {
     private int matchCounter = 1; // Initialized to 1
 
     // Repository for centralized preference access
-    private PreferenceRepository repository;
+    private ProvisionSettingsStore provisionStore;
+    private ScheduleStore scheduleStore;
     private ProvisionViewModel viewModel;
 
     // Handler for cycle button animation
@@ -111,12 +114,14 @@ public class QR extends Fragment {
         Log.d("QR", "onViewCreated: Starting QR processing");
 
         // Initialize ViewModel
-        repository = PreferenceRepositoryProvider.get(requireContext());
-        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        provisionStore = appRepositories.provisionSettingsStore;
+        scheduleStore = appRepositories.scheduleStore;
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
         viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
         // --- Initialize Utility Classes ---
-        matchInfo = new MatchInfo(repository);
+        matchInfo = new MatchInfo(provisionStore);
         teamInfo = new TeamInfo(requireContext());
         fileUtils = new FileUtils(requireContext());
         qrCodeGenerator = new QrCodeGenerator(requireContext());
@@ -196,7 +201,7 @@ public class QR extends Fragment {
         binding.buttonNext.setOnClickListener(v -> {
             viewModel.updateManualTeamOverride(false);
             viewModel.updateManualMatchOverride(false);
-            repository.removeManualTeamOverrideValue();
+            provisionStore.removeManualTeamOverrideValue();
             matchInfo.incrementMatch();
             matchInfo.setTempMatch(matchInfo.getMatch());
             controller.navigateUp();
@@ -226,8 +231,8 @@ public class QR extends Fragment {
                 cycleHandler.removeCallbacksAndMessages(null);
             }
             cycleHandler = new Handler();
-            Map<String, ?> pitData = repository.getAllPitData();
-            Map<String, ?> matchData = repository.getAllMatchData();
+            Map<String, ?> pitData = scheduleStore.getAllPitData();
+            Map<String, ?> matchData = scheduleStore.getAllMatchData();
             cycleHandler.postDelayed(new Runnable() {
                 int i = 0;
                 public void run() {
@@ -395,10 +400,10 @@ public class QR extends Fragment {
             binding.qrMatchText.setText(String.format(Locale.US, "Match: %d", value));
             setTeamText(false, 0);
             String matchData;
-            if (repository.isPitRemoveEnabled()) {
-                matchData = repository.getPitMatchData(value);
+            if (scheduleStore.isPitRemoveEnabled()) {
+                matchData = scheduleStore.getPitMatchData(value);
             } else {
-                matchData = repository.getMatchData(value);
+                matchData = scheduleStore.getMatchData(value);
             }
             if ("No Data".equals(matchData)) {
                 binding.qrImg.setImageBitmap(textAsBitmap("No Data", 100, R.color.green_900));
@@ -441,7 +446,7 @@ public class QR extends Fragment {
     private void saveData(String data, boolean mode) {
         try {
             if (mode) {
-                repository.setPitMatchData(matchInfo.getTempMatch(), data);
+                scheduleStore.setPitMatchData(matchInfo.getTempMatch(), data);
                 // Parse team number from CSV data.
                 String[] fields = QrCsvParser.parseCsv(data, 1);
                 if (fields != null && fields.length > 0) {
@@ -450,7 +455,7 @@ public class QR extends Fragment {
                     Log.e("QR", "Failed to parse team number from data");
                 }
             } else {
-                repository.setMatchData(matchInfo.getTempMatch(), data);
+                scheduleStore.setMatchData(matchInfo.getTempMatch(), data);
             }
         } catch (Exception e) {
             Log.e("QR", "Error saving data: " + e.getMessage());

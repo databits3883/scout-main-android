@@ -6,7 +6,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.View;
 import androidx.fragment.app.Fragment;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
 import java.util.Locale;
 
@@ -18,7 +18,7 @@ final class ScannerUiFeedbackController {
     private long frameCount = 0;
     private long lastFpsTime = System.currentTimeMillis();
 
-    void onSuccessfulScan(Fragment fragment, PreferenceRepository repository, FragmentScannerBinding binding) {
+    void onSuccessfulScan(Fragment fragment, CameraSettingsStore repository, FragmentScannerBinding binding) {
         showScanFeedback(fragment, repository);
         animateScanSuccess(fragment, repository, binding);
 
@@ -33,7 +33,7 @@ final class ScannerUiFeedbackController {
         updateScanStatistics(binding);
     }
 
-    void onFrame(Fragment fragment, PreferenceRepository repository, FragmentScannerBinding binding) {
+    void onFrame(Fragment fragment, CameraSettingsStore repository, FragmentScannerBinding binding) {
         if (!repository.isCameraShowFpsEnabled() || !fragment.isAdded()) {
             return;
         }
@@ -52,7 +52,7 @@ final class ScannerUiFeedbackController {
         }
     }
 
-    void updateResolutionDisplay(Fragment fragment, PreferenceRepository repository, FragmentScannerBinding binding, View preview) {
+    void updateResolutionDisplay(Fragment fragment, CameraSettingsStore repository, FragmentScannerBinding binding, View preview) {
         if (!repository.isCameraShowResolutionEnabled() || !fragment.isAdded()) {
             return;
         }
@@ -66,7 +66,7 @@ final class ScannerUiFeedbackController {
         });
     }
 
-    void updateDebugInfoPanelVisibility(PreferenceRepository repository, FragmentScannerBinding binding) {
+    void updateDebugInfoPanelVisibility(CameraSettingsStore repository, FragmentScannerBinding binding) {
         boolean showAny = repository.isCameraShowFpsEnabled() || repository.isCameraShowResolutionEnabled();
         binding.debugInfoPanel.setVisibility(showAny ? View.VISIBLE : View.GONE);
     }
@@ -78,7 +78,7 @@ final class ScannerUiFeedbackController {
         }
     }
 
-    private void showScanFeedback(Fragment fragment, PreferenceRepository repository) {
+    private void showScanFeedback(Fragment fragment, CameraSettingsStore repository) {
         if (!fragment.isAdded()) {
             return;
         }
@@ -100,7 +100,7 @@ final class ScannerUiFeedbackController {
         }
     }
 
-    private void animateScanSuccess(Fragment fragment, PreferenceRepository repository, FragmentScannerBinding binding) {
+    private void animateScanSuccess(Fragment fragment, CameraSettingsStore repository, FragmentScannerBinding binding) {
         if (!repository.isCameraShowSuccessAnimationEnabled() || !fragment.isAdded()) {
             return;
         }

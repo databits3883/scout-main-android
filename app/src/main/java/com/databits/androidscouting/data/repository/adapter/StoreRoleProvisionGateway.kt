@@ -1,33 +1,33 @@
 package com.databits.androidscouting.data.repository.adapter
 
 import com.databits.androidscouting.core.domain.provision.RoleProvisionGateway
-import com.databits.androidscouting.data.repository.PreferenceRepository
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore
 import com.preference.PowerPreference
 
-class PreferenceRoleProvisionGateway(
-    private val repository: PreferenceRepository,
+class StoreRoleProvisionGateway(
+    private val provisionStore: ProvisionSettingsStore,
 ) : RoleProvisionGateway {
     override fun clearAllData() {
         PowerPreference.clearAllData()
     }
 
     override fun updateDeviceRole(role: String) {
-        repository.setDeviceRole(role)
+        provisionStore.setDeviceRole(role)
     }
 
     override fun updateCrowdPosition(position: Int) {
-        repository.setCrowdPosition(position)
+        provisionStore.setCrowdPosition(position)
     }
 
     override fun updateCurrentScouter(name: String) {
-        repository.setCurrentScouter(name)
+        provisionStore.setCurrentScouter(name)
     }
 
     override fun updateRoleLocked(locked: Boolean) {
-        repository.setRoleLocked(locked)
+        provisionStore.setRoleLocked(locked)
     }
 
     override fun updateSpecialSwitch(enabled: Boolean) {
-        repository.setSpecialSwitch(enabled)
+        provisionStore.setSpecialSwitch(enabled)
     }
 }

@@ -1,6 +1,6 @@
 package com.databits.androidscouting.factory;
 
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.preference.Preference;
 
 /**
@@ -38,13 +38,12 @@ public class RecyclerViewConfig {
     }
 
     /**
-     * Create configuration from preference repository
-     * @param repository PreferenceRepository containing configuration values
-     * @return RecyclerViewConfig built from repository
+     * Create configuration from provision settings store
+     * @return RecyclerViewConfig built from store values
      */
-    public static RecyclerViewConfig fromRepository(PreferenceRepository repository) {
+    public static RecyclerViewConfig fromStores(ProvisionSettingsStore provisionStore) {
         return new RecyclerViewConfig(
-            repository.isGridToggleEnabled(),
+            provisionStore.isGridToggleEnabled(),
             false,  // reorder_cells_toggle not yet in repository, defaulting to false
             2  // Default grid column count
         );

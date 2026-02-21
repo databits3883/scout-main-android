@@ -1,6 +1,6 @@
 package com.databits.androidscouting.util;
 
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.travijuu.numberpicker.library.NumberPicker;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class MatchInfoTest {
 
     @Mock
-    private PreferenceRepository repository;
+    private ProvisionSettingsStore repository;
 
     @Mock
     private NumberPicker numberPicker;

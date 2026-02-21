@@ -1,7 +1,7 @@
 package com.databits.androidscouting.viewmodel;
 
 import androidx.lifecycle.Observer;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 public class CameraSettingsViewModelTest extends BaseViewModelTest {
 
-    @Mock private PreferenceRepository repository;
+    @Mock private CameraSettingsStore repository;
     @Mock private Observer<Boolean> boolObserver;
 
     private CameraSettingsViewModel viewModel;

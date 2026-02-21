@@ -17,7 +17,9 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.databits.androidscouting.data.repository.PreferenceRepository;
+import com.databits.androidscouting.data.repository.AppRepositories;
+import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
+import com.databits.androidscouting.data.repository.SyncStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +38,8 @@ public class SheetsUpdateTask {
   private final ExecutorService executor;
   private final Handler mainHandler;
   private final SheetsUpdateTask.UiCallback uiCallback;
-  private final PreferenceRepository repository;
+  private final ProvisionSettingsStore provisionStore;
+  private final SyncStore syncStore;
 
   public interface UiCallback {
     void onAuthorizationRequired(UserRecoverableAuthIOException e);
@@ -51,12 +54,14 @@ public class SheetsUpdateTask {
     this.executor = Executors.newSingleThreadExecutor();
     this.mainHandler = new Handler(Looper.getMainLooper());
 
-    this.repository = PreferenceRepositoryProvider.get(context);
+    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+    this.provisionStore = graph.provisionSettingsStore;
+    this.syncStore = graph.syncStore;
 
     GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
             context, Arrays.asList(SheetsScopes.SPREADSHEETS))
         .setBackOff(new ExponentialBackOff());
-    String accountName = repository.getGoogleAccountName();
+    String accountName = provisionStore.getGoogleAccountName();
     credential.setSelectedAccountName(accountName);
 
     HttpTransport transport = new NetHttpTransport();
@@ -91,7 +96,7 @@ public class SheetsUpdateTask {
   }
 
   private SheetsUpdateTask.UploadData prepareUploadData() {
-    UploadMode uploadMode = UploadMode.fromRaw(repository.getUploadMode());
+    UploadMode uploadMode = UploadMode.fromRaw(provisionStore.getUploadMode());
     String uploadType;
     switch (uploadMode) {
       case CROWD:
@@ -109,7 +114,7 @@ public class SheetsUpdateTask {
 
     // Get pending uploads from Room database
     List<com.databits.androidscouting.data.entity.UploadQueueItem> pendingItems =
-        repository.getPendingUploads();
+        syncStore.getPendingUploads();
 
     if (pendingItems == null || pendingItems.isEmpty()) {
       return null;
@@ -143,11 +148,11 @@ public class SheetsUpdateTask {
   private String getRangeForUploadMode(String uploadMode) {
     switch (uploadMode) {
       case "Crowd":
-        return repository.getCrowdRange();
+        return provisionStore.getCrowdRange();
       case "Pit":
-        return repository.getPitRange();
+        return provisionStore.getPitRange();
       case "Specialty":
-        return repository.getSpecialtyRange();
+        return provisionStore.getSpecialtyRange();
       default:
         return "Sheet1!A1";
     }
@@ -167,9 +172,9 @@ public class SheetsUpdateTask {
           // Mark uploaded items as successful and clear from queue
           mainHandler.post(() -> {
             for (Long itemId : uploadData.itemIds) {
-              repository.markUploadSuccess(itemId);
+              syncStore.markUploadSuccess(itemId);
             }
-            repository.clearSuccessfulUploads();
+            syncStore.clearSuccessfulUploads();
           });
         } else {
           handleUploadFailure(attempt.getAndIncrement(), spreadsheetId, uploadData);

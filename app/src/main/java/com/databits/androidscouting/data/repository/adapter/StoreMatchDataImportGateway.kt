@@ -1,21 +1,21 @@
 package com.databits.androidscouting.data.repository.adapter
 
 import com.databits.androidscouting.core.domain.schedule.MatchDataImportGateway
-import com.databits.androidscouting.data.repository.PreferenceRepository
+import com.databits.androidscouting.data.repository.ScheduleStore
 
-class PreferenceMatchDataImportGateway(
-    private val repository: PreferenceRepository,
+class StoreMatchDataImportGateway(
+    private val scheduleStore: ScheduleStore,
 ) : MatchDataImportGateway {
     override fun hasProcessedChunk(chunkId: Int): Boolean {
-        return repository.hasProcessedChunk(chunkId)
+        return scheduleStore.hasProcessedChunk(chunkId)
     }
 
     override fun markChunkProcessed(chunkId: Int) {
-        repository.markChunkProcessed(chunkId)
+        scheduleStore.markChunkProcessed(chunkId)
     }
 
     override fun importTeamSchedule(rows: List<List<String>>) {
         val csvData = Array(rows.size) { index -> rows[index].toTypedArray() }
-        repository.importTeamSchedule(csvData)
+        scheduleStore.importTeamSchedule(csvData)
     }
 }
