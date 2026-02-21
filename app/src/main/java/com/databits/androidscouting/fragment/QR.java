@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,6 +59,8 @@ import com.travijuu.numberpicker.library.NumberPicker;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * QR.java
@@ -98,6 +101,8 @@ public class QR extends Fragment {
     private ProvisionSettingsStore provisionStore;
     private ScheduleStore scheduleStore;
     private ProvisionViewModel viewModel;
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     // Handler for cycle button animation
     private Handler cycleHandler;
@@ -122,7 +127,7 @@ public class QR extends Fragment {
 
         // --- Initialize Utility Classes ---
         matchInfo = new MatchInfo(provisionStore);
-        teamInfo = new TeamInfo(requireContext());
+        teamInfo = new TeamInfo(requireContext(), provisionStore, scheduleStore);
         fileUtils = new FileUtils(requireContext());
         qrCodeGenerator = new QrCodeGenerator(requireContext());
 
@@ -261,8 +266,15 @@ public class QR extends Fragment {
             cycleHandler.removeCallbacksAndMessages(null);
             cycleHandler = null;
         }
+        mainHandler.removeCallbacksAndMessages(null);
         super.onDestroyView();
         binding = null; // Prevent memory leaks.
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        backgroundExecutor.shutdownNow();
     }
 
     // --- UI Update & Helper Methods ---
@@ -274,13 +286,16 @@ public class QR extends Fragment {
         Log.d("QR", "Updating UI - Team: " + team + ", Temp Match: " + matchInfo.getTempMatch());
         int tempMatch = matchInfo.getTempMatch();
         // Load team data on background thread
-        new Thread(() -> {
+        backgroundExecutor.execute(() -> {
             int teamNumber = teamInfo.getTeam(tempMatch);
-            requireActivity().runOnUiThread(() -> {
+            mainHandler.post(() -> {
+                if (!isAdded() || binding == null) {
+                    return;
+                }
                 binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", teamNumber));
                 binding.qrMatchText.setText(String.format(Locale.US, "Match: %d", tempMatch));
             });
-        }).start();
+        });
     }
 
     /**
@@ -373,12 +388,15 @@ public class QR extends Fragment {
             binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", team));
         } else {
             // Load team data on background thread for default display
-            new Thread(() -> {
+            backgroundExecutor.execute(() -> {
                 int teamNumber = teamInfo.getTeam(tempMatch);
-                requireActivity().runOnUiThread(() -> {
+                mainHandler.post(() -> {
+                    if (!isAdded() || binding == null) {
+                        return;
+                    }
                     binding.qrTeamText.setText(String.format(Locale.US, "Team: %d", teamNumber));
                 });
-            }).start();
+            });
         }
     }
 

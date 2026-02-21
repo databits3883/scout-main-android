@@ -96,10 +96,10 @@ public class Dashboard extends Fragment {
     NavController controller = NavHostFragment.findNavController(Dashboard.this);
 
     // Helper Classes
-    scoutUtils = new ScoutUtils(requireContext());
+    scoutUtils = new ScoutUtils(requireContext(), provisionStore, scheduleStore);
     fileUtils = new FileUtils(requireContext());
     matchInfo = new MatchInfo(provisionStore);
-    teamInfo = new TeamInfo(requireContext());
+    teamInfo = new TeamInfo(requireContext(), provisionStore, scheduleStore);
 
 
     // Set Action Bar Title

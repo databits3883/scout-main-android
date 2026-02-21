@@ -87,10 +87,10 @@ public class GoogleConfig extends Fragment {
     NavController controller = NavHostFragment.findNavController(GoogleConfig.this);
 
     // Helper Classes
-    scoutUtils = new ScoutUtils(requireContext());
+    scoutUtils = new ScoutUtils(requireContext(), provisionStore, scheduleStore);
     fileUtils = new FileUtils(requireContext());
     matchInfo = new MatchInfo(provisionStore);
-    teamInfo = new TeamInfo(requireContext());
+    teamInfo = new TeamInfo(requireContext(), provisionStore, scheduleStore);
 
     binding.buttonBack.setOnClickListener(v1 -> controller.navigateUp());
 

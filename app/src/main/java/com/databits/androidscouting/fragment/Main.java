@@ -79,9 +79,11 @@ public class Main extends Fragment {
 
         viewModel.updateIsRedTeam(pos != 1 && pos != 2 && pos != 3);
 
-        teamInfo = new TeamInfo(requireContext());
+        teamInfo = new TeamInfo(requireContext(), appRepositories.provisionSettingsStore,
+            appRepositories.scheduleStore);
         fileUtils = new FileUtils(requireContext());
-        scoutUtils = new ScoutUtils(requireContext());
+        scoutUtils = new ScoutUtils(requireContext(), appRepositories.provisionSettingsStore,
+            appRepositories.scheduleStore);
 
         view.post(this::refreshActionBar);
 

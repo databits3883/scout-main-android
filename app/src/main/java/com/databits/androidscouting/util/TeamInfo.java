@@ -22,10 +22,16 @@ public class TeamInfo {
   private final ScheduleStore scheduleStore;
 
   public TeamInfo(Context context) {
-    this.context = context;
     AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+    this.context = context;
     this.provisionStore = graph.provisionSettingsStore;
     this.scheduleStore = graph.scheduleStore;
+  }
+
+  public TeamInfo(Context context, ProvisionSettingsStore provisionStore, ScheduleStore scheduleStore) {
+    this.context = context;
+    this.provisionStore = provisionStore;
+    this.scheduleStore = scheduleStore;
   }
 
   public int getTeam(int match) {

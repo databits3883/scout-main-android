@@ -36,6 +36,7 @@ import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.CameraSettingsStore;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
+import com.databits.androidscouting.data.repository.SyncStore;
 import com.databits.androidscouting.core.domain.scanner.FindMatchedTeamSlotUseCase;
 import com.databits.androidscouting.core.domain.scanner.ProcessScanPayloadUseCase;
 import com.databits.androidscouting.core.domain.provision.ApplyRoleProvisionUseCase;
@@ -101,6 +102,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     private ProvisionSettingsStore provisionStore;
     private CameraSettingsStore cameraSettingsStore;
     private ScheduleStore scheduleStore;
+    private SyncStore syncStore;
 
     MatchInfo matchInfo;
     TeamInfo teamInfo;
@@ -129,6 +131,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         provisionStore = appRepositories.provisionSettingsStore;
         cameraSettingsStore = appRepositories.cameraSettingsStore;
         scheduleStore = appRepositories.scheduleStore;
+        syncStore = appRepositories.syncStore;
         ScannerDependencies deps = ScannerDependencies.create(requireContext());
         scannerCameraController = deps.scannerCameraController;
         scannerUiFeedbackController = deps.scannerUiFeedbackController;
@@ -250,9 +253,9 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         decorView.setSystemUiVisibility(uiOptions);
 
         matchInfo = new MatchInfo(provisionStore);
-        teamInfo = new TeamInfo(getContext());
-        scoutUtils = new ScoutUtils(getContext());
-        sheetsUpdateTask = new SheetsUpdateTask(requireContext(), this);
+        teamInfo = new TeamInfo(requireContext(), provisionStore, scheduleStore);
+        scoutUtils = new ScoutUtils(requireContext(), provisionStore, scheduleStore);
+        sheetsUpdateTask = new SheetsUpdateTask(requireContext(), this, provisionStore, syncStore);
         scannerCameraUiController = new ScannerCameraUiController(
             this,
             binding,
@@ -538,6 +541,9 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         super.onDestroyView();
 
         backgroundExecutor.shutdown();
+        if (sheetsUpdateTask != null) {
+            sheetsUpdateTask.shutdown();
+        }
         scannerUiFeedbackController.release();
         scannerCameraUiController.restoreWindowSettings();
     }

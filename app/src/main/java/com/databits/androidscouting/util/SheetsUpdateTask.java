@@ -17,7 +17,6 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.SyncStore;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
@@ -27,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class SheetsUpdateTask {
   private static final String TAG = "SheetsUpdateTask";
@@ -50,14 +48,49 @@ public class SheetsUpdateTask {
   }
 
   public SheetsUpdateTask(Context context, SheetsUpdateTask.UiCallback uiCallback) {
+    this(
+        uiCallback,
+        PreferenceRepositoryProvider.graph(context).provisionSettingsStore,
+        PreferenceRepositoryProvider.graph(context).syncStore,
+        createSheetsService(context, PreferenceRepositoryProvider.graph(context).provisionSettingsStore),
+        Executors.newSingleThreadExecutor(),
+        new Handler(Looper.getMainLooper())
+    );
+  }
+
+  public SheetsUpdateTask(
+      Context context,
+      SheetsUpdateTask.UiCallback uiCallback,
+      ProvisionSettingsStore provisionStore,
+      SyncStore syncStore
+  ) {
+    this(
+        uiCallback,
+        provisionStore,
+        syncStore,
+        createSheetsService(context, provisionStore),
+        Executors.newSingleThreadExecutor(),
+        new Handler(Looper.getMainLooper())
+    );
+  }
+
+  SheetsUpdateTask(
+      SheetsUpdateTask.UiCallback uiCallback,
+      ProvisionSettingsStore provisionStore,
+      SyncStore syncStore,
+      Sheets sheetsService,
+      ExecutorService executor,
+      Handler mainHandler
+  ) {
     this.uiCallback = uiCallback;
-    this.executor = Executors.newSingleThreadExecutor();
-    this.mainHandler = new Handler(Looper.getMainLooper());
+    this.provisionStore = provisionStore;
+    this.syncStore = syncStore;
+    this.sheetsService = sheetsService;
+    this.executor = executor;
+    this.mainHandler = mainHandler;
+  }
 
-    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
-    this.provisionStore = graph.provisionSettingsStore;
-    this.syncStore = graph.syncStore;
-
+  private static Sheets createSheetsService(Context context, ProvisionSettingsStore provisionStore) {
     GoogleAccountCredential credential = GoogleAccountCredential.usingOAuth2(
             context, Arrays.asList(SheetsScopes.SPREADSHEETS))
         .setBackOff(new ExponentialBackOff());
@@ -66,7 +99,7 @@ public class SheetsUpdateTask {
 
     HttpTransport transport = new NetHttpTransport();
     JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-    sheetsService = new Sheets.Builder(transport, jsonFactory, credential)
+    return new Sheets.Builder(transport, jsonFactory, credential)
         .setApplicationName("Android Scouter")
         .build();
   }
@@ -75,22 +108,22 @@ public class SheetsUpdateTask {
     executor.execute(() -> {
       SheetsUpdateTask.UploadData uploadData = prepareUploadData();
       if (uploadData == null) {
-        uiCallback.onNoDataToUpload();
+        postNoDataToUpload();
         return;
       }
 
       try {
         if (isDataDuplicate(spreadsheetId, uploadData.range, uploadData.values)) {
-          uiCallback.onDuplicateData();
+          postDuplicateData();
           return;
         }
 
         attemptUploadWithRetries(spreadsheetId, uploadData);
       } catch (UserRecoverableAuthIOException e) {
-        uiCallback.onAuthorizationRequired(e);
+        postAuthorizationRequired(e);
       } catch (IOException e) {
         Log.e(TAG, "Error checking for duplicate data or uploading.", e);
-        uiCallback.onUploadFailed();
+        postUploadFailed();
       }
     });
   }
@@ -165,49 +198,43 @@ public class SheetsUpdateTask {
   }
 
   private void attemptUploadWithRetries(String spreadsheetId, SheetsUpdateTask.UploadData uploadData) {
-    AtomicInteger attempt = new AtomicInteger(0);
-    Runnable uploadRunnable = () -> {
+    for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
       try {
-        if (performUpload(spreadsheetId, uploadData)) {
-          // Mark uploaded items as successful and clear from queue
-          mainHandler.post(() -> {
-            for (Long itemId : uploadData.itemIds) {
-              syncStore.markUploadSuccess(itemId);
-            }
-            syncStore.clearSuccessfulUploads();
-          });
-        } else {
-          handleUploadFailure(attempt.getAndIncrement(), spreadsheetId, uploadData);
+        String updatedRange = performUpload(spreadsheetId, uploadData);
+        if (updatedRange != null) {
+          for (Long itemId : uploadData.itemIds) {
+            syncStore.markUploadSuccess(itemId);
+          }
+          syncStore.clearSuccessfulUploads();
+          postUploadSuccess(updatedRange);
+          return;
         }
       } catch (UserRecoverableAuthIOException e) {
-        uiCallback.onAuthorizationRequired(e);
+        postAuthorizationRequired(e);
+        return;
       } catch (IOException e) {
-        Log.e(TAG, "IOException during upload attempt: " + attempt.get(), e);
-        handleUploadFailure(attempt.getAndIncrement(), spreadsheetId, uploadData);
+        Log.e(TAG, "IOException during upload attempt: " + (attempt + 1), e);
       }
-    };
-    executor.execute(uploadRunnable);
-  }
 
-  private void handleUploadFailure(int attempt, String spreadsheetId, SheetsUpdateTask.UploadData uploadData) {
-    if (attempt < MAX_RETRIES) {
-      long delay = BASE_DELAY_MS * (1L << attempt); // Exponential backoff
-      Log.d(TAG, "Upload failed. Retrying in " + delay + "ms...");
-      try {
-        Thread.sleep(delay);
-        attemptUploadWithRetries(spreadsheetId, uploadData);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        uiCallback.onUploadFailed();
+      if (attempt < MAX_RETRIES - 1) {
+        long delay = BASE_DELAY_MS * (1L << attempt);
+        Log.d(TAG, "Upload failed. Retrying in " + delay + "ms...");
+        try {
+          Thread.sleep(delay);
+        } catch (InterruptedException interruptedException) {
+          Thread.currentThread().interrupt();
+          postUploadFailed();
+          return;
+        }
       }
-    } else {
-      Log.e(TAG, "Upload failed after " + MAX_RETRIES + " attempts.");
-      uiCallback.onUploadFailed();
     }
+
+    Log.e(TAG, "Upload failed after " + MAX_RETRIES + " attempts.");
+    postUploadFailed();
   }
 
 
-  private boolean performUpload(String spreadsheetId, SheetsUpdateTask.UploadData uploadData) throws IOException {
+  private String performUpload(String spreadsheetId, SheetsUpdateTask.UploadData uploadData) throws IOException {
     ValueRange content = new ValueRange()
         .setValues(uploadData.values)
         .setMajorDimension("ROWS")
@@ -221,8 +248,7 @@ public class SheetsUpdateTask {
           .execute();
       if (updateResponse != null && updateResponse.getUpdatedCells() > 0) {
         Log.d(TAG, "Update success: " + updateResponse.getUpdatedRange());
-        uiCallback.onUploadSuccess(updateResponse.getUpdatedRange());
-        return true;
+        return updateResponse.getUpdatedRange();
       }
     } catch (IOException e) {
       Log.w(TAG, "Update failed, trying append.", e);
@@ -237,15 +263,39 @@ public class SheetsUpdateTask {
           .execute();
       if (appendResponse != null && appendResponse.getUpdates() != null && appendResponse.getUpdates().getUpdatedCells() > 0) {
         Log.d(TAG, "Append success: " + appendResponse.getUpdates().getUpdatedRange());
-        uiCallback.onUploadSuccess(appendResponse.getUpdates().getUpdatedRange());
-        return true;
+        return appendResponse.getUpdates().getUpdatedRange();
       }
     } catch (IOException e) {
       Log.e(TAG, "Append also failed.", e);
       throw e;
     }
 
-    return false;
+    return null;
+  }
+
+  private void postAuthorizationRequired(UserRecoverableAuthIOException e) {
+    mainHandler.post(() -> uiCallback.onAuthorizationRequired(e));
+  }
+
+  private void postUploadSuccess(String updatedRange) {
+    mainHandler.post(() -> uiCallback.onUploadSuccess(updatedRange));
+  }
+
+  private void postUploadFailed() {
+    mainHandler.post(uiCallback::onUploadFailed);
+  }
+
+  private void postNoDataToUpload() {
+    mainHandler.post(uiCallback::onNoDataToUpload);
+  }
+
+  private void postDuplicateData() {
+    mainHandler.post(uiCallback::onDuplicateData);
+  }
+
+  public void shutdown() {
+    executor.shutdownNow();
+    mainHandler.removeCallbacksAndMessages(null);
   }
 
   private static class UploadData {

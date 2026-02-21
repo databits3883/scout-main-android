@@ -98,7 +98,7 @@ public class Provision extends Fragment {
       @Override
       public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
         NavController controller = NavHostFragment.findNavController(Provision.this);
-        teamInfo = new TeamInfo(requireContext());
+        teamInfo = new TeamInfo(requireContext(), provisionStore, scheduleStore);
         int id = menuItem.getItemId();
 
         if (id == R.id.action_provision_self) {

@@ -65,7 +65,7 @@ public class Pit extends BaseScoutFragment {
                             android.util.Log.d("Pit", "Cell data extracted: " + cellData);
 
                             // Get team data on background thread since it accesses Room database
-                            new Thread(() -> {
+                            runInBackground(() -> {
                                 int match = matchInfo.getMatch();
                                 int team = 9999;
                                 if (provisionStore.isManualTeamOverrideEnabled()) {
@@ -79,7 +79,7 @@ public class Pit extends BaseScoutFragment {
                                 android.util.Log.d("Pit", "Final QR data: " + qrData);
 
                                 int finalTeam = team;
-                                requireActivity().runOnUiThread(() -> {
+                                runOnUiIfActive(() -> {
                                     Bundle bundle = controller.saveState();
                                     if (bundle != null) {
                                         bundle.putString("qrData", qrData);
@@ -90,7 +90,7 @@ public class Pit extends BaseScoutFragment {
                                             bundle);
                                     }
                                 });
-                            }).start();
+                            });
                         })
                         .setNegativeButton(R.string.cancel, (dialog, Identify) -> {
                             // CANCEL
@@ -100,9 +100,9 @@ public class Pit extends BaseScoutFragment {
 
                 if (id == R.id.actions_change_scouter) {
                     // Load scouter list on background thread
-                    new Thread(() -> {
+                    runInBackground(() -> {
                         List<String> loadedScouterList = syncStore.getScouterList();
-                        requireActivity().runOnUiThread(() -> {
+                        runOnUiIfActive(() -> {
                             scouterList = loadedScouterList;
                             View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
                             AlertDialog scouterDialog = new AlertDialog.Builder(requireContext())
@@ -128,7 +128,7 @@ public class Pit extends BaseScoutFragment {
                             dropdown.setThreshold(0);
                             scouterDialog.show();
                         });
-                    }).start();
+                    });
                 }
 
                 // Support manually setting the team number
@@ -268,7 +268,7 @@ public class Pit extends BaseScoutFragment {
         scheduleStore.setPitRemoveEnabled(true);
 
         // Load remaining list on background thread
-        new Thread(() -> {
+        runInBackground(() -> {
             List<String> remainingList = scheduleStore.getPitTeamsRemainingList();
             ArrayList<String> newEditedList;
             if (remainingList != null && !remainingList.isEmpty()) {
@@ -283,7 +283,7 @@ public class Pit extends BaseScoutFragment {
             }
 
             editedList = newEditedList;
-            requireActivity().runOnUiThread(() -> {
+            runOnUiIfActive(() -> {
                 // Update adapter cache with new list
                 if (mRecyclerView.getAdapter() instanceof com.databits.androidscouting.adapter.MultiviewTypeAdapter) {
                     ((com.databits.androidscouting.adapter.MultiviewTypeAdapter) mRecyclerView.getAdapter())
@@ -291,7 +291,7 @@ public class Pit extends BaseScoutFragment {
                 }
                 Objects.requireNonNull(mRecyclerView.getAdapter()).notifyItemChanged(1);
             });
-        }).start();
+        });
     }
 
     @Override

@@ -20,10 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButton;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.model.Cell;
 import com.databits.androidscouting.model.CellConfig;
 import com.databits.androidscouting.model.CellType;
@@ -308,11 +306,15 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (inflater == null) {
             Context context = parent.getContext();
             inflater = LayoutInflater.from(context);
-            teamInfo = new TeamInfo(context);
-            AppRepositories graph = PreferenceRepositoryProvider.graph(context);
-            scheduleStore = graph.scheduleStore;
-            provisionStore = graph.provisionSettingsStore;
-            matchInfo = new MatchInfo(provisionStore);
+            if (provisionStore == null || scheduleStore == null) {
+                throw new IllegalStateException("MultiviewTypeAdapter requires stores before binding");
+            }
+            if (teamInfo == null) {
+                teamInfo = new TeamInfo(context, provisionStore, scheduleStore);
+            }
+            if (matchInfo == null) {
+                matchInfo = new MatchInfo(provisionStore);
+            }
             helpBuilder = new Balloon.Builder(context)
                 .setArrowSize(15)
                 .setArrowOrientation(ArrowOrientation.TOP)

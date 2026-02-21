@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -32,6 +34,8 @@ import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import java.io.File;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Base class for scout fragments (Crowd, Pit, Special).
@@ -51,6 +55,8 @@ public abstract class BaseScoutFragment extends Fragment {
     protected ScoutUtils scoutUtils;
     protected MatchInfo matchInfo;
     protected TeamInfo teamInfo;
+    private final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     // UI Components
     protected Button loadButton;
@@ -73,9 +79,9 @@ public abstract class BaseScoutFragment extends Fragment {
 
         // Utilities
         fileUtils = new FileUtils(requireContext());
-        scoutUtils = new ScoutUtils(requireContext());
+        scoutUtils = new ScoutUtils(requireContext(), provisionStore, scheduleStore);
         matchInfo = new MatchInfo(provisionStore);
-        teamInfo = new TeamInfo(requireContext());
+        teamInfo = new TeamInfo(requireContext(), provisionStore, scheduleStore);
 
         // Set matchInfo and teamInfo on scoutUtils
         scoutUtils.matchInfo = matchInfo;
@@ -225,7 +231,7 @@ public abstract class BaseScoutFragment extends Fragment {
                     String cellData = scoutUtils.exportCell(requireView().findViewById(R.id.recycler_view));
 
                     // Save current data before loading new layout (get team data on background thread)
-                    new Thread(() -> {
+                    runInBackground(() -> {
                         int match = matchInfo.getMatch();
                         int team = 9999;
                         if (provisionStore.isManualTeamOverrideEnabled()) {
@@ -245,18 +251,43 @@ public abstract class BaseScoutFragment extends Fragment {
                         }
                         // TODO: Actually save this data somewhere if needed
 
-                        requireActivity().runOnUiThread(() -> {
+                        runOnUiIfActive(() -> {
                             // Load new layout
                             boolean loaded = layoutManager.loadLayout(file, mRecyclerView, getViewLifecycleOwner());
                             if (loaded) {
                                 hideLayoutButtons();
                             }
                         });
-                    }).start();
+                    });
                 }
             }
         }
     );
+
+    protected void runInBackground(Runnable action) {
+        backgroundExecutor.execute(action);
+    }
+
+    protected void runOnUiIfActive(Runnable action) {
+        mainHandler.post(() -> {
+            if (!isAdded() || getView() == null) {
+                return;
+            }
+            action.run();
+        });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mainHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        backgroundExecutor.shutdownNow();
+    }
 
     @Override
     public void onResume() {

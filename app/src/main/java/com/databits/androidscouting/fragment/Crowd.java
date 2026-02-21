@@ -60,7 +60,7 @@ public class Crowd extends BaseScoutFragment {
                             android.util.Log.d("Crowd", "Cell data extracted: " + cellData);
 
                             // Get team/match data on background thread since it accesses Room database
-                            new Thread(() -> {
+                            runInBackground(() -> {
                                 int match = matchInfo.getMatch();
                                 int team = 9999;
                                 if (provisionStore.isManualTeamOverrideEnabled()) {
@@ -73,7 +73,7 @@ public class Crowd extends BaseScoutFragment {
                                 String qrData = team + "," + match + "," + cellData.substring(1) + "," + teamInfo.getScouterName();
                                 android.util.Log.d("Crowd", "Final QR data: " + qrData);
 
-                                requireActivity().runOnUiThread(() -> {
+                                runOnUiIfActive(() -> {
                                     Bundle bundle = controller.saveState();
                                     if (bundle != null) {
                                         bundle.putString("qrData", qrData);
@@ -82,7 +82,7 @@ public class Crowd extends BaseScoutFragment {
                                             bundle);
                                     }
                                 });
-                            }).start();
+                            });
                         })
                         .setNegativeButton(R.string.cancel, (dialog, Identify) -> {
                             // CANCEL
@@ -92,9 +92,9 @@ public class Crowd extends BaseScoutFragment {
 
                 if (id == R.id.actions_change_scouter) {
                     // Load scouter list on background thread
-                    new Thread(() -> {
+                    runInBackground(() -> {
                         List<String> loadedScouterList = syncStore.getScouterList();
-                        requireActivity().runOnUiThread(() -> {
+                        runOnUiIfActive(() -> {
                             scouterList = loadedScouterList;
                             View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
                             AlertDialog scouterDialog = new AlertDialog.Builder(requireContext())
@@ -120,7 +120,7 @@ public class Crowd extends BaseScoutFragment {
                             dropdown.setThreshold(0);
                             scouterDialog.show();
                         });
-                    }).start();
+                    });
                 }
 
                 // Support manually setting the team number
@@ -264,14 +264,14 @@ public class Crowd extends BaseScoutFragment {
         String[] positionArray = getResources().getStringArray(R.array.positions);
 
         // Load team data on background thread to avoid Room database access on main thread
-        new Thread(() -> {
+        runInBackground(() -> {
             int team = teamInfo.getTeam(match);
             String scouterName = teamInfo.getScouterName();
-            requireActivity().runOnUiThread(() -> {
+            runOnUiIfActive(() -> {
                 Objects.requireNonNull(actionBar).setTitle("Team: " + team + " Match " + match);
                 actionBar.setSubtitle(scouterName + " - " + positionArray[position]);
             });
-        }).start();
+        });
     }
 
     @Override

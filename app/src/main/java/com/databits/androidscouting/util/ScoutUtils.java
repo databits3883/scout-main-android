@@ -31,10 +31,16 @@ public class ScoutUtils {
   Context context;
 
   public ScoutUtils(Context context) {
-    this.context = context;
     AppRepositories graph = PreferenceRepositoryProvider.graph(context);
+    this.context = context;
     this.provisionStore = graph.provisionSettingsStore;
     this.scheduleStore = graph.scheduleStore;
+  }
+
+  public ScoutUtils(Context context, ProvisionSettingsStore provisionStore, ScheduleStore scheduleStore) {
+    this.context = context;
+    this.provisionStore = provisionStore;
+    this.scheduleStore = scheduleStore;
   }
 
   public String exportCell(RecyclerView recyclerView) {
