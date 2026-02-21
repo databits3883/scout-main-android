@@ -29,8 +29,8 @@ import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import java.io.File;
 import java.util.Objects;
 
@@ -39,7 +39,7 @@ public class Main extends Fragment {
     private FragmentMainBinding binding;
 
     private PreferenceRepository repository;
-    private ConfigViewModel viewModel;
+    private ProvisionViewModel viewModel;
 
     TeamInfo teamInfo;
     FileUtils fileUtils;
@@ -67,8 +67,8 @@ public class Main extends Fragment {
 
         // Initialize ViewModel
         PreferenceRepository repo = PreferenceRepositoryProvider.get(requireContext());
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
-        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repo);
+        viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
         role = viewModel.getDeviceRoleSync();
 

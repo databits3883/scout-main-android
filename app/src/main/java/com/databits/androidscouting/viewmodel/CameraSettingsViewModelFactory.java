@@ -4,17 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
-
 import java.util.concurrent.Executors;
 
-/**
- * Factory for creating ConfigViewModel with PreferenceRepository dependency injection.
- * Required because ConfigViewModel takes constructor parameters.
- */
-public class ConfigViewModelFactory implements ViewModelProvider.Factory {
+public class CameraSettingsViewModelFactory implements ViewModelProvider.Factory {
     private final PreferenceRepository repository;
 
-    public ConfigViewModelFactory(PreferenceRepository repository) {
+    public CameraSettingsViewModelFactory(PreferenceRepository repository) {
         this.repository = repository;
     }
 
@@ -22,8 +17,8 @@ public class ConfigViewModelFactory implements ViewModelProvider.Factory {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        if (modelClass.isAssignableFrom(ConfigViewModel.class)) {
-            return (T) new ConfigViewModel(repository, Executors.newSingleThreadExecutor());
+        if (modelClass.isAssignableFrom(CameraSettingsViewModel.class)) {
+            return (T) new CameraSettingsViewModel(repository, Executors.newSingleThreadExecutor());
         }
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
     }

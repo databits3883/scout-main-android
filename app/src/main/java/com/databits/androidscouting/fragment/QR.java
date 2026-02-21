@@ -49,8 +49,8 @@ import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.QrCsvParser;  // Robust CSV parser that trims spaces and supports various separators
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 import java.util.ArrayList;
@@ -94,7 +94,7 @@ public class QR extends Fragment {
 
     // Repository for centralized preference access
     private PreferenceRepository repository;
-    private ConfigViewModel viewModel;
+    private ProvisionViewModel viewModel;
 
     // Handler for cycle button animation
     private Handler cycleHandler;
@@ -112,8 +112,8 @@ public class QR extends Fragment {
 
         // Initialize ViewModel
         repository = PreferenceRepositoryProvider.get(requireContext());
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+        viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
         // --- Initialize Utility Classes ---
         matchInfo = new MatchInfo(repository);

@@ -20,8 +20,8 @@ import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentDrawingMapBinding;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.github.dhaval2404.colorpicker.ColorPickerDialog;
 import com.github.dhaval2404.colorpicker.model.ColorShape;
 import com.mihir.drawingcanvas.drawingView;
@@ -30,7 +30,7 @@ import java.util.Objects;
 
 public class Drawing extends Fragment {
   private PreferenceRepository repository;
-  private ConfigViewModel viewModel;
+  private ProvisionViewModel viewModel;
 
   private FragmentDrawingMapBinding binding;
 
@@ -56,8 +56,8 @@ public class Drawing extends Fragment {
 
     // Initialize ViewModel
     repository = PreferenceRepositoryProvider.get(requireContext());
-    ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+    viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
     // Go Full screen
     View decorView = requireActivity().getWindow().getDecorView();

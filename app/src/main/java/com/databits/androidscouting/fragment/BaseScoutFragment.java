@@ -25,8 +25,8 @@ import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import java.io.File;
 import java.util.Objects;
 
@@ -37,7 +37,7 @@ import java.util.Objects;
 public abstract class BaseScoutFragment extends Fragment {
     protected RecyclerView mRecyclerView;
     protected PreferenceRepository repository;
-    protected ConfigViewModel viewModel;
+    protected ProvisionViewModel viewModel;
 
     // Dependencies
     protected LayoutManager layoutManager;
@@ -61,8 +61,8 @@ public abstract class BaseScoutFragment extends Fragment {
         repository = PreferenceRepositoryProvider.get(requireContext());
 
         // Initialize ViewModel
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-        viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+        viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
         // Utilities
         fileUtils = new FileUtils(requireContext());

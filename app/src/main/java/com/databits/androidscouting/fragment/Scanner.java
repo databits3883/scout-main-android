@@ -47,8 +47,10 @@ import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.SheetsUpdateTask;
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.CameraSettingsViewModel;
+import com.databits.androidscouting.viewmodel.CameraSettingsViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.common.Barcode;
@@ -76,7 +78,8 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
 
     protected BarcodeScanner qrScanner;
     private FragmentScannerBinding binding;
-    private ConfigViewModel viewModel;
+    private ProvisionViewModel viewModel;
+    private CameraSettingsViewModel cameraSettingsViewModel;
     private ScannerCameraController scannerCameraController;
     private ScannerCameraUiController scannerCameraUiController;
     private ScannerUiFeedbackController scannerUiFeedbackController;
@@ -129,8 +132,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         importMatchDataChunkUseCase = deps.importMatchDataChunkUseCase;
         queueScanDataUseCase = deps.queueScanDataUseCase;
 
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-        viewModel = new ViewModelProvider(requireActivity(), factory).get(ConfigViewModel.class);
+        ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+        viewModel = new ViewModelProvider(requireActivity(), factory).get(ProvisionViewModel.class);
+        CameraSettingsViewModelFactory cameraFactory = new CameraSettingsViewModelFactory(repository);
+        cameraSettingsViewModel = new ViewModelProvider(requireActivity(), cameraFactory).get(CameraSettingsViewModel.class);
         payloadCoordinator = deps.createPayloadCoordinator(new ScannerPayloadCoordinator.Actions() {
             @Override
             public void onScouterList(List<String> scouters) {
@@ -242,7 +247,7 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
         scannerCameraUiController = new ScannerCameraUiController(
             this,
             binding,
-            viewModel,
+            cameraSettingsViewModel,
             repository,
             scannerUiFeedbackController
         );

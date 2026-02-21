@@ -26,8 +26,8 @@ import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.google.android.material.textfield.TextInputEditText;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -42,7 +42,7 @@ import java.util.concurrent.Executors;
 public class GoogleConfig extends Fragment {
   private FragmentSettingsGoogleconfigBinding binding;
   private PreferenceRepository repository;
-  private ConfigViewModel viewModel;
+  private ProvisionViewModel viewModel;
   private ExecutorService executor;
   private Handler mainHandler;
   ScoutUtils scoutUtils;
@@ -67,8 +67,8 @@ public class GoogleConfig extends Fragment {
 
     // Initialize ViewModel
     repository = PreferenceRepositoryProvider.get(requireContext());
-    ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+    viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
     // Initialize executor and handler for background operations
     executor = Executors.newSingleThreadExecutor();

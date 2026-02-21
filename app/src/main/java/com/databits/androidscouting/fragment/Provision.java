@@ -33,8 +33,8 @@ import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.ProvisionViewModel;
+import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class Provision extends Fragment {
 
   private FragmentProvisionBinding binding;
-  private ConfigViewModel viewModel;
+  private ProvisionViewModel viewModel;
 
   AtomicReference<String> lock_status = new AtomicReference<>("true");
   AtomicReference<String> scouter_name = new AtomicReference<>("");
@@ -80,8 +80,8 @@ public class Provision extends Fragment {
   ) {
     // Initialize ViewModel
     repository = PreferenceRepositoryProvider.get(requireContext());
-    ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+    ProvisionViewModelFactory factory = new ProvisionViewModelFactory(repository);
+    viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 
     requireActivity().addMenuProvider(new MenuProvider() {
       @Override

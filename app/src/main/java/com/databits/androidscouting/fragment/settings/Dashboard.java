@@ -36,8 +36,8 @@ import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.SyncStatusViewModel;
+import com.databits.androidscouting.viewmodel.SyncStatusViewModelFactory;
 import com.preference.PowerPreference;
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ import static android.content.ContentValues.TAG;
 public class Dashboard extends Fragment {
   private FragmentSettingsDashboardBinding binding;
   private PreferenceRepository repository;
-  private ConfigViewModel viewModel;
+  private SyncStatusViewModel viewModel;
   ScoutUtils scoutUtils;
   FileUtils fileUtils;
   MatchInfo matchInfo;
@@ -76,8 +76,8 @@ public class Dashboard extends Fragment {
 
     // Initialize ViewModel
     PreferenceRepository repo = PreferenceRepositoryProvider.get(requireContext());
-    ConfigViewModelFactory factory = new ConfigViewModelFactory(repo);
-    viewModel = new ViewModelProvider(this, factory).get(ConfigViewModel.class);
+    SyncStatusViewModelFactory factory = new SyncStatusViewModelFactory(repo);
+    viewModel = new ViewModelProvider(this, factory).get(SyncStatusViewModel.class);
 
     mainActivity = (MainActivity) requireContext();
 

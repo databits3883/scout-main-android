@@ -90,7 +90,9 @@ public class ArchitectureTest {
         ArchRule viewModels = classes()
                 .that().resideInAPackage("..viewmodel..")
                 .and().areTopLevelClasses()
-                .and().doNotHaveSimpleName("ConfigViewModelFactory") // Factory exception
+                .and().doNotHaveSimpleName("CameraSettingsViewModelFactory")
+                .and().doNotHaveSimpleName("ProvisionViewModelFactory")
+                .and().doNotHaveSimpleName("SyncStatusViewModelFactory")
                 .and().doNotHaveSimpleName("BaseViewModelTest") // Test helper exception
                 .should().haveSimpleNameEndingWith("ViewModel");
 

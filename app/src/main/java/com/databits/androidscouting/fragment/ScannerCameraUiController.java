@@ -12,12 +12,12 @@ import androidx.fragment.app.Fragment;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
+import com.databits.androidscouting.viewmodel.CameraSettingsViewModel;
 
 final class ScannerCameraUiController {
     private final Fragment fragment;
     private final FragmentScannerBinding binding;
-    private final ConfigViewModel viewModel;
+    private final CameraSettingsViewModel viewModel;
     private final PreferenceRepository repository;
     private final ScannerUiFeedbackController feedbackController;
 
@@ -30,7 +30,7 @@ final class ScannerCameraUiController {
     ScannerCameraUiController(
         Fragment fragment,
         FragmentScannerBinding binding,
-        ConfigViewModel viewModel,
+        CameraSettingsViewModel viewModel,
         PreferenceRepository repository,
         ScannerUiFeedbackController feedbackController
     ) {

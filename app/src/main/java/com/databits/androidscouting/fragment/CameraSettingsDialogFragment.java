@@ -21,8 +21,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.PreferenceRepository;
 import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
-import com.databits.androidscouting.viewmodel.ConfigViewModel;
-import com.databits.androidscouting.viewmodel.ConfigViewModelFactory;
+import com.databits.androidscouting.viewmodel.CameraSettingsViewModel;
+import com.databits.androidscouting.viewmodel.CameraSettingsViewModelFactory;
 
 import java.util.Locale;
 
@@ -39,7 +39,7 @@ public class CameraSettingsDialogFragment extends DialogFragment {
         void onSettingsApplied();
     }
 
-    private ConfigViewModel viewModel;
+    private CameraSettingsViewModel viewModel;
     private PreferenceRepository repository;
     private OnSettingsAppliedListener settingsAppliedListener;
 
@@ -74,8 +74,8 @@ public class CameraSettingsDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Initialize ViewModel and Repository
         repository = PreferenceRepositoryProvider.get(requireContext());
-        ConfigViewModelFactory factory = new ConfigViewModelFactory(repository);
-        viewModel = new ViewModelProvider(requireActivity(), factory).get(ConfigViewModel.class);
+        CameraSettingsViewModelFactory factory = new CameraSettingsViewModelFactory(repository);
+        viewModel = new ViewModelProvider(requireActivity(), factory).get(CameraSettingsViewModel.class);
 
         // Inflate the dialog layout
         View view = LayoutInflater.from(getContext()).inflate(
