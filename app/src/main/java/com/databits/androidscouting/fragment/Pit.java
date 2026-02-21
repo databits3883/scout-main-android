@@ -8,8 +8,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -20,10 +18,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentPitScoutBinding;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 import com.preference.PowerPreference;
-import com.travijuu.numberpicker.library.NumberPicker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +28,6 @@ public class Pit extends BaseScoutFragment {
 
     private FragmentPitScoutBinding binding;
     ArrayList<String> editedList;
-    List<String> scouterList;
 
     @Override
     public View onCreateView(
@@ -97,140 +91,16 @@ public class Pit extends BaseScoutFragment {
                         })
                         .show();
                 }
-
-                if (id == R.id.actions_change_scouter) {
-                    // Load scouter list on background thread
-                    runInBackground(() -> {
-                        List<String> loadedScouterList = syncStore.getScouterList();
-                        runOnUiIfActive(() -> {
-                            scouterList = loadedScouterList;
-                            View dialogView = View.inflate(requireContext(), R.layout.popup_scouter_select, null);
-                            AlertDialog scouterDialog = new AlertDialog.Builder(requireContext())
-                                .setTitle("Select Scouter")
-                                .setView(dialogView)
-                                .setPositiveButton("Set", (dialog1, which1) -> {
-                                    AutoCompleteTextView dropdown = ((AlertDialog) dialog1)
-                                        .findViewById(R.id.scouter_select);
-                                    // Save the scouter name to the common preference
-                                    provisionStore.setCurrentScouter(
-                                        Objects.requireNonNull(dropdown).getText().toString());
-                                    refreshActionBar();
-                                })
-                                .setNegativeButton("Cancel", (dialog1, which1) -> {
-                                    // Do nothing
-                                })
-                                .create();
-                            ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                                R.layout.ui_list_item,
-                                scouterList);
-                            AutoCompleteTextView dropdown = dialogView.findViewById(R.id.scouter_select);
-                            dropdown.setAdapter(adapter);
-                            dropdown.setThreshold(0);
-                            scouterDialog.show();
-                        });
-                    });
-                }
-
-                // Support manually setting the team number
-                if (id == R.id.action_team_entry) {
-                    AlertDialog teamNumberDialog = new AlertDialog.Builder(requireContext())
-                        .setTitle("Enter Team Number")
-                        .setView(R.layout.popup_team_num_submit)
-                        .setPositiveButton("Set", (dialog1, which1) -> {
-                            TextInputLayout textInputLayout =
-                                ((AlertDialog) dialog1).findViewById(R.id.textbox_text_layout);
-                            assert textInputLayout != null;
-                            TextInputEditText editText =
-                                textInputLayout.findViewById(R.id.enteredText);
-                            int teamNumber = Integer.parseInt(
-                                Objects.requireNonNull(editText.getText()).toString());
-                            // Save the team number to the preference
-                            provisionStore.setManualTeamOverride(true);
-                            provisionStore.setManualTeamOverrideValue(teamNumber);
-                            mRecyclerView.post(() -> {
-                                com.databits.androidscouting.layout.LayoutPresenter presenter =
-                                    new com.databits.androidscouting.layout.LayoutPresenter(
-                                        requireContext(), matchInfo, teamInfo, scheduleStore, provisionStore);
-                                presenter.updateTitleCells(mRecyclerView);
-                            });
-                        })
-                        .setNegativeButton("Cancel", (dialog1, which1) -> {
-                            // Do nothing
-                        })
-                        .create();
-                    teamNumberDialog.show();
-                }
-
-                // Ask the user if they want to re-provision the device
-                if (id == R.id.action_reconfigure) {
-                    if (!provisionStore.isRoleLocked()) {
-                        controller.navigate(R.id.action_pitScoutFragment_to_ScannerFragment);
-                        return true;
-                    }
-                    AlertDialog alertDialogFragment = new AlertDialog.Builder(requireContext())
-                        .setTitle("Reconfigure your device?")
-                        .setMessage("This will clear your data and require the device to be"
-                            + "reconfigured via the Master scouter.")
-                        .setPositiveButton("Yes", (dialog, which) ->
-                            controller.navigate(R.id.action_pitScoutFragment_to_ScannerFragment))
-                        .setNegativeButton("No", (dialog, which) -> {
-                            // Do nothing
-                        })
-                        .create();
-                    alertDialogFragment.show();
-                    return true;
-                }
-
-                // Launch the Power Preference debug screen
-                if (id == R.id.action_debug) {
-                    PowerPreference.showDebugScreen(true);
-                }
-
-                if (id == R.id.action_change_match) {
-                    View dialogView = View.inflate(requireContext(), R.layout.popup_match_select,
-                        null);
-
-                    AlertDialog scouterDialog = new AlertDialog.Builder(requireContext())
-                        .setTitle("Select Match")
-                        .setView(dialogView)
-                        .setPositiveButton("Set", (dialog1, which1) -> {
-                            NumberPicker matchPicker =
-                                ((AlertDialog) dialog1).findViewById(R.id.number_counter_inside);
-                            int match = Objects.requireNonNull(matchPicker).getValue();
-                            provisionStore.setManualMatchOverride(true);
-                            provisionStore.setManualMatchOverrideValue(match);
-                            refreshActionBar();
-                        })
-                        .setNegativeButton("Cancel", (dialog1, which1) -> {
-                            // Do nothing
-                        })
-                        .create();
-                    NumberPicker matchPicker = dialogView.findViewById(R.id.number_counter_inside);
-                    matchPicker.setValue(matchInfo.getMatch());
-                    matchPicker.setMax(100);
-                    matchPicker.setMin(1);
-                    matchPicker.setDisplayFocusable(true);
-                    scouterDialog.show();
-                    return true;
-                }
-
-                if (id == R.id.action_reset) {
-                    new AlertDialog.Builder(requireContext())
-                        .setTitle("Unlock the View")
-                        .setMessage(
-                            "Are you sure you want to unlock?\n\nThis will bring you back to"
-                                + " the main menu and require that your device be re-provisioned")
-                        .setPositiveButton("Yes", (dialog1, which1) -> {
-                            provisionStore.setRoleLocked(false);
-                            controller.navigate(R.id.action_pitScoutFragment_to_StartFragment);
-                        })
-                        .setNegativeButton("Cancel", (dialog1, which1) -> {
-                            // Do nothing
-                        })
-                        .show();
-                }
-
-                return false;
+                ScoutMenuController menuController = new ScoutMenuController(
+                    Pit.this,
+                    controller,
+                    R.id.action_pitScoutFragment_to_ScannerFragment,
+                    R.id.action_pitScoutFragment_to_StartFragment,
+                    null,
+                    null,
+                    false
+                );
+                return menuController.handle(menuItem);
             }
 
         }, this.getViewLifecycleOwner(), Lifecycle.State.CREATED);
