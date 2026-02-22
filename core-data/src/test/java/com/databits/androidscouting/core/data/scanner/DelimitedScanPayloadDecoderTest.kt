@@ -29,4 +29,33 @@ class DelimitedScanPayloadDecoderTest {
         assertEquals("Pit!A1", payload.pitRange)
         assertEquals("Specialty!A1", payload.specialtyRange)
     }
+
+    @Test
+    fun decode_scouterList_ignoresEmptyEntries() {
+        val payload = decoder.decode("ScoutData,Avery,, ,Jordan,")
+
+        assertTrue(payload is ScanPayload.ScouterList)
+        payload as ScanPayload.ScouterList
+        assertEquals(listOf("Avery", "Jordan"), payload.scouters)
+    }
+
+    @Test
+    fun decode_matchData_acceptsMalformedRowLengthsWithoutCrash() {
+        val payload = decoder.decode("MatchData,4,[1,2][3,4,5,6][7]")
+
+        assertTrue(payload is ScanPayload.MatchDataChunk)
+        payload as ScanPayload.MatchDataChunk
+        assertEquals(4, payload.chunkIndex)
+        assertEquals(3, payload.rows.size)
+        assertEquals(2, payload.rows[0].size)
+        assertEquals(4, payload.rows[1].size)
+        assertEquals(1, payload.rows[2].size)
+    }
+
+    @Test
+    fun decode_matchData_invalidChunkIndex_returnsUnknown() {
+        val payload = decoder.decode("MatchData,abc,[1,2,3]")
+
+        assertTrue(payload is ScanPayload.Unknown)
+    }
 }

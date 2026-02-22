@@ -45,9 +45,24 @@ public class MatchInfoTest {
     }
 
     @Test
+    public void testGetMatch_InvalidOverrideFallsBack() {
+        when(repository.isManualMatchOverrideEnabled()).thenReturn(true);
+        when(repository.getManualMatchOverrideValue()).thenReturn(0);
+        when(repository.getCurrentMatch()).thenReturn(7);
+
+        assertEquals(7, matchInfo.getMatch());
+    }
+
+    @Test
     public void testSetMatch() {
         matchInfo.setMatch(8);
         verify(repository).setCurrentMatch(8);
+    }
+
+    @Test
+    public void testSetMatch_ClampsInvalidValue() {
+        matchInfo.setMatch(0);
+        verify(repository).setCurrentMatch(1);
     }
 
     @Test

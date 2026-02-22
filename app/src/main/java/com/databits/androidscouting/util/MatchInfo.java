@@ -22,19 +22,27 @@ public class MatchInfo {
 
   public int getMatch() {
     if (repository.isManualMatchOverrideEnabled()) {
-      return repository.getManualMatchOverrideValue();
+      int override = repository.getManualMatchOverrideValue();
+      if (override > 0) {
+        return override;
+      }
     } else {
       // Lazy load match value on first access
       if (match == null) {
         match = repository.getCurrentMatch();
       }
-      return match;
     }
+
+    if (match == null) {
+      match = repository.getCurrentMatch();
+    }
+    return match;
   }
 
   public void setMatch(int val) {
-    match = val; // Update cached value
-    repository.setCurrentMatch(val);
+    int safeValue = Math.max(1, val);
+    match = safeValue; // Update cached value
+    repository.setCurrentMatch(safeValue);
   }
 
   public void incrementMatch() {

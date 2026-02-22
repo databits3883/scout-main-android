@@ -45,7 +45,14 @@ public class TeamInfo {
         return 0;
       }
       String teamNumber = scheduleStore.getTeamNumber(match, pos);
-      return teamNumber != null ? Integer.parseInt(teamNumber) : 0;
+      if (teamNumber == null) {
+        return 0;
+      }
+      try {
+        return Integer.parseInt(teamNumber);
+      } catch (NumberFormatException ignored) {
+        return 0;
+      }
     }
   }
 
@@ -91,7 +98,8 @@ public class TeamInfo {
   }
 
   public String getScouterName() {
-    return provisionStore.getCurrentScouter();
+    String name = provisionStore.getCurrentScouter();
+    return name != null ? name : "";
   }
 
   // Read the team data for validator from match.csv

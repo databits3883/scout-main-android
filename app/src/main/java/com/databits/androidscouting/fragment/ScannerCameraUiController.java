@@ -50,6 +50,10 @@ final class ScannerCameraUiController {
         return isScanningPaused;
     }
 
+    void setScanningPaused(boolean paused) {
+        isScanningPaused = paused;
+    }
+
     void setupControls() {
         setupTorchButton();
         setupZoomButtons();
@@ -254,7 +258,7 @@ final class ScannerCameraUiController {
 
     private void setupPauseScanButton() {
         binding.pauseScanButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            isScanningPaused = isChecked;
+            setScanningPaused(isChecked);
             binding.pauseScanButton.setText(isChecked ? R.string.resume_scanning : R.string.pause_scanning);
         });
     }
