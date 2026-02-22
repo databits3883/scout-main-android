@@ -3,10 +3,8 @@ package com.databits.androidscouting.util;
 import android.content.Context;
 import android.widget.Toast;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import java.io.File;
@@ -20,13 +18,6 @@ public class TeamInfo {
   Context context;
   private final ProvisionSettingsStore provisionStore;
   private final ScheduleStore scheduleStore;
-
-  public TeamInfo(Context context) {
-    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
-    this.context = context;
-    this.provisionStore = graph.provisionSettingsStore;
-    this.scheduleStore = graph.scheduleStore;
-  }
 
   public TeamInfo(Context context, ProvisionSettingsStore provisionStore, ScheduleStore scheduleStore) {
     this.context = context;

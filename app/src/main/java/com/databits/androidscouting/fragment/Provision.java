@@ -27,14 +27,18 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.core.domain.config.GoogleConfigPayloadCodec;
+import com.databits.androidscouting.core.domain.provision.RoleProvisionPayloadComposer;
+import com.databits.androidscouting.core.domain.provision.ScouterListPayloadComposer;
+import com.databits.androidscouting.core.domain.schedule.MatchDataChunkPayloadComposer;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentProvisionBinding;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -82,7 +86,10 @@ public class Provision extends Fragment {
       Bundle savedInstanceState
   ) {
     // Initialize ViewModel
-    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    AppRepositories appRepositories = new ViewModelProvider(
+        requireActivity(),
+        new AppRepositoriesViewModel.Factory(requireContext())
+    ).get(AppRepositoriesViewModel.class).getRepositories();
     provisionStore = appRepositories.provisionSettingsStore;
     scheduleStore = appRepositories.scheduleStore;
     ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
@@ -103,7 +110,7 @@ public class Provision extends Fragment {
 
         if (id == R.id.action_provision_self) {
           if (data_erase.get().equals("true")) {
-            PowerPreference.clearAllData();
+            provisionStore.clearAllSettingsData();
             data_erase.set("false");
           }
 
@@ -189,38 +196,25 @@ public class Provision extends Fragment {
           // Add two more slot for the scouter list and google QR codes
           Bitmap[] qr_img = new Bitmap[numChunks + 2];
 
-          for (int i = 0; i < numChunks; i++) {
-            StringBuilder chunkData = new StringBuilder();
-            int start = i * chunkSize;
-            int end = Math.min(start + chunkSize, numMatches);
-
-            for (int j = start; j < end; j++) {
-              chunkData.append(Arrays.toString(matchData[j]));
+            for (int i = 0; i < numChunks; i++) {
+              int start = i * chunkSize;
+              int end = Math.min(start + chunkSize, numMatches);
+              qr[i] = MatchDataChunkPayloadComposer.compose(i, matchData, start, end);
+              // Save bitmap for each match
+              qr_img[i] = qrCodeGenerator.generateQRCode(qr[i], 1000, 35, false);
             }
-            qr[i] = "MatchData" + "," + i + "," + chunkData;
-            // Save bitmap for each match
-            qr_img[i] = qrCodeGenerator.generateQRCode(qr[i], 1000, 35, false);
-          }
 
-          // Use scouterList from LiveData observer
-          // Add all scouterList strings to one string with a , separating each
-          String scouterListString = "ScoutData"
-              + ","
-              + String.join(",", scouterList != null ? scouterList : new ArrayList<>());
+          String scouterListString = ScouterListPayloadComposer.compose(scouterList);
           // Store the scouter list QR code in the 2nd to last slot
           qr_img[numChunks] = qrCodeGenerator.generateQRCode(scouterListString,
               1000, 35, false);
 
           // Build the google config string from preferences (sync)
-          String googleConfig = "GoogleConfig"
-              + ","
-              + viewModel.getWorkbookId().getValue()
-              + ","
-              + viewModel.getCrowdRange().getValue()
-              + ","
-              + viewModel.getPitRange().getValue()
-              + ","
-              + viewModel.getSpecialtyRange().getValue();
+          String googleConfig = GoogleConfigPayloadCodec.composePayload(
+              viewModel.getWorkbookId().getValue(),
+              viewModel.getCrowdRange().getValue(),
+              viewModel.getPitRange().getValue(),
+              viewModel.getSpecialtyRange().getValue());
 
           // Store the google config QR code in the last slot
           qr_img[numChunks+1] = qrCodeGenerator.generateQRCode(googleConfig,
@@ -387,10 +381,14 @@ public class Provision extends Fragment {
       scouter_name.set(dropdown.getText().toString());
     }
 
-    content_string.set(
-        String.format("role,%s,crowd_position,%s,name,%s,lock,%s,match,%s,format,%s,special,%s",
-        role.get(), crowd_position.get(), scouter_name.get(), lock_status.get(),
-        match.get(), data_erase.get(), special_selector.get()));
+    content_string.set(RoleProvisionPayloadComposer.compose(
+        role.get(),
+        crowd_position.get(),
+        scouter_name.get(),
+        lock_status.get(),
+        match.get(),
+        data_erase.get(),
+        special_selector.get()));
 
     ImageView qr_img = requireView().findViewById(R.id.qr_img);
     qr_img.setImageBitmap(qrCodeGenerator.generateQRCode(content_string.get(),

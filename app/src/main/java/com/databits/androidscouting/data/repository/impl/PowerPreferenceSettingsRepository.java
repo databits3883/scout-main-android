@@ -32,6 +32,11 @@ public class PowerPreferenceSettingsRepository implements SettingsRepository {
     }
 
     @Override
+    public void clearAllSettingsData() {
+        PowerPreference.clearAllData();
+    }
+
+    @Override
     public void removeManualTeamOverrideValue() {
         debugPreference.remove("manual_team_override_value");
     }

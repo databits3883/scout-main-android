@@ -24,11 +24,11 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.databinding.FragmentMainBinding;
 import com.databits.androidscouting.util.FileUtils;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import java.io.File;
@@ -54,7 +54,10 @@ public class Main extends Fragment {
             Bundle savedInstanceState
     ) {
         // Set Sane Defaults to enable debugging and new install demo
-        appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        appRepositories = new ViewModelProvider(
+            requireActivity(),
+            new AppRepositoriesViewModel.Factory(requireContext())
+        ).get(AppRepositoriesViewModel.class).getRepositories();
         appRepositories.provisionSettingsStore.setConfigDefaults(R.xml.defaults_config);
         appRepositories.provisionSettingsStore.setDebugDefaults(R.xml.defaults_debug);
         binding = FragmentMainBinding.inflate(inflater, container, false);

@@ -2,13 +2,12 @@ package com.databits.androidscouting.data.repository.adapter
 
 import com.databits.androidscouting.core.domain.provision.RoleProvisionGateway
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore
-import com.preference.PowerPreference
 
 class StoreRoleProvisionGateway(
     private val provisionStore: ProvisionSettingsStore,
 ) : RoleProvisionGateway {
     override fun clearAllData() {
-        PowerPreference.clearAllData()
+        provisionStore.clearAllSettingsData()
     }
 
     override fun updateDeviceRole(role: String) {

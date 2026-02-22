@@ -18,16 +18,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.core.domain.config.GoogleConfigPayloadCodec;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentSettingsGoogleconfigBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.GoogleAuthActivity;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.google.android.material.textfield.TextInputEditText;
@@ -69,7 +70,10 @@ public class GoogleConfig extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    AppRepositories appRepositories = new ViewModelProvider(
+        requireActivity(),
+        new AppRepositoriesViewModel.Factory(requireContext())
+    ).get(AppRepositoriesViewModel.class).getRepositories();
     provisionStore = appRepositories.provisionSettingsStore;
     scheduleStore = appRepositories.scheduleStore;
     ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
@@ -148,10 +152,10 @@ public class GoogleConfig extends Fragment {
     }
 
     if (save) {
-      // Range is name!lower:upper ex= StatsRaw!A2:Z700
-      String range = Objects.requireNonNull(name.getText()) + "!" + Objects.requireNonNull(
-          lower.getText()) + ":" +
-          Objects.requireNonNull(upper.getText());
+      String range = GoogleConfigPayloadCodec.composeRange(
+          Objects.requireNonNull(name.getText()).toString(),
+          Objects.requireNonNull(lower.getText()).toString(),
+          Objects.requireNonNull(upper.getText()).toString());
 
       // Set range based on id_prefix
       switch (id_prefix) {
@@ -180,11 +184,10 @@ public class GoogleConfig extends Fragment {
           break;
       }
       if (range != null && !range.isEmpty()) {
-        String[] split = range.split("!");
-        name.setText(split[0]);
-        split = split[1].split(":");
-        lower.setText(split[0]);
-        upper.setText(split[1]);
+        GoogleConfigPayloadCodec.RangeParts parts = GoogleConfigPayloadCodec.parseRange(range);
+        name.setText(parts.sheetName);
+        lower.setText(parts.lowerBound);
+        upper.setText(parts.upperBound);
       }
     }
 

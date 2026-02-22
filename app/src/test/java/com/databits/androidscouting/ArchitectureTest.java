@@ -1,5 +1,6 @@
 package com.databits.androidscouting;
 
+import androidx.fragment.app.Fragment;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
@@ -75,6 +76,7 @@ public class ArchitectureTest {
         ArchRule rule = noClasses()
                 .that().resideInAPackage("..viewmodel..")
                 .and().haveSimpleNameEndingWith("ViewModel")
+                .and().doNotHaveSimpleName("AppRepositoriesViewModel")
                 .should().dependOnClassesThat().haveSimpleName("PreferenceRepositoryProvider")
                 .orShould().dependOnClassesThat().haveSimpleName("AppRepositories")
                 .orShould().dependOnClassesThat().resideInAPackage("..data.repository.impl..");
@@ -87,6 +89,7 @@ public class ArchitectureTest {
         ArchRule rule = noClasses()
                 .that().resideInAPackage("..viewmodel..")
                 .and().haveSimpleNameEndingWith("ViewModel")
+                .and().doNotHaveSimpleName("AppRepositoriesViewModel")
                 .should().dependOnClassesThat().haveSimpleNameEndingWith("Repository");
 
         rule.check(importedClasses);
@@ -100,6 +103,16 @@ public class ArchitectureTest {
                 .should().haveSimpleNameStartingWith("Store");
 
         rule.check(importedClasses);
+    }
+
+    @Test
+    public void fragmentsAndUtilsShouldNotCallRepositoryProviderGraphDirectly() {
+        ArchRule fragmentsRule = noClasses()
+                .that().areAssignableTo(Fragment.class)
+                .or().resideInAPackage("..util..")
+                .should().dependOnClassesThat().haveSimpleName("PreferenceRepositoryProvider");
+
+        fragmentsRule.check(importedClasses);
     }
 
     @Test

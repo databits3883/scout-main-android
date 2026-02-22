@@ -17,9 +17,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.databinding.FragmentDrawingMapBinding;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.github.dhaval2404.colorpicker.ColorPickerDialog;
@@ -54,7 +54,10 @@ public class Drawing extends Fragment {
     super.onViewCreated(view, savedInstanceState);
 
     // Initialize ViewModel
-    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    AppRepositories appRepositories = new ViewModelProvider(
+        requireActivity(),
+        new AppRepositoriesViewModel.Factory(requireContext())
+    ).get(AppRepositoriesViewModel.class).getRepositories();
     ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
     viewModel = new ViewModelProvider(this, factory).get(ProvisionViewModel.class);
 

@@ -1,8 +1,6 @@
 package com.databits.androidscouting.util;
 
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
-import com.databits.androidscouting.data.repository.AppRepositories;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 public class MatchInfo {
@@ -13,11 +11,6 @@ public class MatchInfo {
 
   public MatchInfo(ProvisionSettingsStore repository) {
     this.repository = repository;
-  }
-
-  public MatchInfo(android.content.Context context) {
-    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
-    this.repository = graph.provisionSettingsStore;
   }
 
   public int getMatch() {

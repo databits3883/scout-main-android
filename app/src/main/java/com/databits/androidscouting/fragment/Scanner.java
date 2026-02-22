@@ -30,7 +30,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import com.databits.androidscouting.R;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentScannerBinding;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.CameraSettingsStore;
@@ -54,6 +53,7 @@ import com.databits.androidscouting.util.SheetsUpdateTask;
 import com.databits.androidscouting.util.TeamInfo;
 import com.databits.androidscouting.viewmodel.CameraSettingsViewModel;
 import com.databits.androidscouting.viewmodel.CameraSettingsViewModelFactory;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
@@ -127,7 +127,10 @@ public class Scanner extends Fragment implements SheetsUpdateTask.UiCallback {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        AppRepositories appRepositories = new ViewModelProvider(
+            requireActivity(),
+            new AppRepositoriesViewModel.Factory(requireContext())
+        ).get(AppRepositoriesViewModel.class).getRepositories();
         provisionStore = appRepositories.provisionSettingsStore;
         cameraSettingsStore = appRepositories.cameraSettingsStore;
         scheduleStore = appRepositories.scheduleStore;

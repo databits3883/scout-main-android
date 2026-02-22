@@ -42,16 +42,16 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.databits.androidscouting.R;
+import com.databits.androidscouting.core.data.csv.FlexibleCsvParser;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentQRBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.QrCodeGenerator;
-import com.databits.androidscouting.util.QrCsvParser;  // Robust CSV parser that trims spaces and supports various separators
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import com.travijuu.numberpicker.library.NumberPicker;
@@ -71,7 +71,7 @@ import java.util.concurrent.Executors;
  * • Error Handling: Critical parsing sections (e.g., QR data extraction, team number parsing)
  *   are wrapped in try–catch blocks; errors are logged and Toast messages are shown to prevent crashes.
  *
- * • QR Code Content Parsing: Uses QrCsvParser to robustly handle various CSV formats (handles extra spaces,
+ * • QR Code Content Parsing: Uses shared core parser to robustly handle various CSV formats (handles extra spaces,
  *   multiple separators, etc.) and validates the parsed array before processing.
  *
  * • Local Preference Handling: Scanned data is saved into shared preferences efficiently (using PowerPreference)
@@ -119,7 +119,10 @@ public class QR extends Fragment {
         Log.d("QR", "onViewCreated: Starting QR processing");
 
         // Initialize ViewModel
-        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        AppRepositories appRepositories = new ViewModelProvider(
+            requireActivity(),
+            new AppRepositoriesViewModel.Factory(requireContext())
+        ).get(AppRepositoriesViewModel.class).getRepositories();
         provisionStore = appRepositories.provisionSettingsStore;
         scheduleStore = appRepositories.scheduleStore;
         ProvisionViewModelFactory factory = new ProvisionViewModelFactory(appRepositories.provisionSettingsStore);
@@ -151,8 +154,7 @@ public class QR extends Fragment {
                 return;
             }
 
-            // Parse the CSV data using QrCsvParser.
-            String[] fields = QrCsvParser.parseCsv(data, 1);
+            String[] fields = FlexibleCsvParser.parse(data, 1);
             if (fields == null || fields.length == 0) {
                 Log.e("QR", "Malformed or empty QR data: " + data);
                 Toast.makeText(requireContext(), "Invalid QR code data!", Toast.LENGTH_SHORT).show();
@@ -466,7 +468,7 @@ public class QR extends Fragment {
             if (mode) {
                 scheduleStore.setPitMatchData(matchInfo.getTempMatch(), data);
                 // Parse team number from CSV data.
-                String[] fields = QrCsvParser.parseCsv(data, 1);
+                String[] fields = FlexibleCsvParser.parse(data, 1);
                 if (fields != null && fields.length > 0) {
                     teamInfo.setTeam(Integer.parseInt(fields[0]));
                 } else {

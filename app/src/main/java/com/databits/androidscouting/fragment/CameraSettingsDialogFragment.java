@@ -21,7 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.CameraSettingsStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.CameraSettingsViewModel;
 import com.databits.androidscouting.viewmodel.CameraSettingsViewModelFactory;
 
@@ -74,7 +74,10 @@ public class CameraSettingsDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         // Initialize ViewModel and Repository
-        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        AppRepositories appRepositories = new ViewModelProvider(
+            requireActivity(),
+            new AppRepositoriesViewModel.Factory(requireContext())
+        ).get(AppRepositoriesViewModel.class).getRepositories();
         repository = appRepositories.cameraSettingsStore;
         CameraSettingsViewModelFactory factory = new CameraSettingsViewModelFactory(appRepositories.cameraSettingsStore);
         viewModel = new ViewModelProvider(requireActivity(), factory).get(CameraSettingsViewModel.class);

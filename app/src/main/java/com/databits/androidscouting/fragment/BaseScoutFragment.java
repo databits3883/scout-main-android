@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.data.repository.AppRepositories;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.SyncStore;
@@ -30,6 +29,7 @@ import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModel;
 import com.databits.androidscouting.viewmodel.ProvisionViewModelFactory;
 import java.io.File;
@@ -68,7 +68,10 @@ public abstract class BaseScoutFragment extends Fragment {
      * Called from onViewCreated before setupRecyclerView.
      */
     protected void initializeDependencies() {
-        AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+        AppRepositories appRepositories = new ViewModelProvider(
+            requireActivity(),
+            new AppRepositoriesViewModel.Factory(requireContext())
+        ).get(AppRepositoriesViewModel.class).getRepositories();
         provisionStore = appRepositories.provisionSettingsStore;
         scheduleStore = appRepositories.scheduleStore;
         syncStore = appRepositories.syncStore;

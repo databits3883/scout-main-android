@@ -7,6 +7,7 @@ public interface SettingsRepository {
     // Defaults / housekeeping
     void setConfigDefaults(int xmlResourceId);
     void setDebugDefaults(int xmlResourceId);
+    void clearAllSettingsData();
     void removeManualTeamOverrideValue();
 
     // Config

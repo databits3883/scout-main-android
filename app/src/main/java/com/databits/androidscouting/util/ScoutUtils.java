@@ -11,10 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.addisonelliott.segmentedbutton.SegmentedButtonGroup;
 import com.databits.androidscouting.R;
 import com.databits.androidscouting.adapter.MultiviewTypeAdapter;
-import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.model.CellType;
 import com.travijuu.numberpicker.library.NumberPicker;
 
@@ -29,13 +27,6 @@ public class ScoutUtils {
   public TeamInfo teamInfo;
 
   Context context;
-
-  public ScoutUtils(Context context) {
-    AppRepositories graph = PreferenceRepositoryProvider.graph(context);
-    this.context = context;
-    this.provisionStore = graph.provisionSettingsStore;
-    this.scheduleStore = graph.scheduleStore;
-  }
 
   public ScoutUtils(Context context, ProvisionSettingsStore provisionStore, ScheduleStore scheduleStore) {
     this.context = context;

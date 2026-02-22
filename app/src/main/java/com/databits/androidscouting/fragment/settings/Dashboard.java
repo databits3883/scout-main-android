@@ -32,13 +32,13 @@ import com.databits.androidscouting.data.repository.AppRepositories;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.ScheduleStore;
 import com.databits.androidscouting.data.repository.SyncStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import com.databits.androidscouting.databinding.FragmentSettingsDashboardBinding;
 import com.databits.androidscouting.databinding.UiStatusIndicatorBinding;
 import com.databits.androidscouting.util.FileUtils;
 import com.databits.androidscouting.util.MatchInfo;
 import com.databits.androidscouting.util.ScoutUtils;
 import com.databits.androidscouting.util.TeamInfo;
+import com.databits.androidscouting.viewmodel.AppRepositoriesViewModel;
 import com.databits.androidscouting.viewmodel.SyncStatusViewModel;
 import com.databits.androidscouting.viewmodel.SyncStatusViewModelFactory;
 import com.preference.PowerPreference;
@@ -79,7 +79,10 @@ public class Dashboard extends Fragment {
     super.onViewCreated(v, savedInstanceState);
 
     // Initialize ViewModel
-    AppRepositories appRepositories = PreferenceRepositoryProvider.graph(requireContext());
+    AppRepositories appRepositories = new ViewModelProvider(
+        requireActivity(),
+        new AppRepositoriesViewModel.Factory(requireContext())
+    ).get(AppRepositoriesViewModel.class).getRepositories();
     provisionStore = appRepositories.provisionSettingsStore;
     scheduleStore = appRepositories.scheduleStore;
     syncStore = appRepositories.syncStore;

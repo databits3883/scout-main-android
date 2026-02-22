@@ -19,7 +19,6 @@ import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.databits.androidscouting.data.repository.ProvisionSettingsStore;
 import com.databits.androidscouting.data.repository.SyncStore;
-import com.databits.androidscouting.data.repository.PreferenceRepositoryProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,17 +44,6 @@ public class SheetsUpdateTask {
     void onUploadFailed();
     void onNoDataToUpload();
     void onDuplicateData();
-  }
-
-  public SheetsUpdateTask(Context context, SheetsUpdateTask.UiCallback uiCallback) {
-    this(
-        uiCallback,
-        PreferenceRepositoryProvider.graph(context).provisionSettingsStore,
-        PreferenceRepositoryProvider.graph(context).syncStore,
-        createSheetsService(context, PreferenceRepositoryProvider.graph(context).provisionSettingsStore),
-        Executors.newSingleThreadExecutor(),
-        new Handler(Looper.getMainLooper())
-    );
   }
 
   public SheetsUpdateTask(

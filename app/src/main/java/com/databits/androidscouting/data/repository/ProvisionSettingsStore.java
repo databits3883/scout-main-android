@@ -7,6 +7,7 @@ import java.util.List;
 public interface ProvisionSettingsStore {
     void setConfigDefaults(int xmlResourceId);
     void setDebugDefaults(int xmlResourceId);
+    void clearAllSettingsData();
 
     int getCurrentMatch();
     void setCurrentMatch(int match);

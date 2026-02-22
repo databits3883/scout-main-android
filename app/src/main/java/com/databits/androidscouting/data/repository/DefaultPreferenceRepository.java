@@ -103,6 +103,11 @@ public class DefaultPreferenceRepository implements CameraSettingsStore, Provisi
         debugPreference.setDefaults(xmlResourceId);
     }
 
+    @Override
+    public void clearAllSettingsData() {
+        settingsRepository.clearAllSettingsData();
+    }
+
     // ==================== Config Preferences ====================
 
     @Override
