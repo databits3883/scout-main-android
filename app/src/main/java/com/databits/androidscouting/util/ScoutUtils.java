@@ -43,7 +43,9 @@ public class ScoutUtils {
         CellType cellType = recyclerAdapter.mCell.get(i).getType();
         View v = recyclerView.getChildAt(i);
 
+        if (finalString.length() > 0) {
           finalString.append(",");
+        }
         switch (cellType) {
           case YES_NO:
             SegmentedButtonGroup YesNoButtonGroup = v.findViewById(R.id.buttonGroup_yes_no);
@@ -119,16 +121,15 @@ public class ScoutUtils {
       team = teamInfo.getTeam(match);
     }
 
-    //#TODO figure out why there is a comma at the beginning of the string, substring removes it for now
     if (scheduleStore.isPitRemoveEnabled()) {
-      cellData = exportCell(v.findViewById(R.id.recycler_view)).substring(1) + "," +
+      cellData = exportCell(v.findViewById(R.id.recycler_view)) + "," +
           teamInfo.getScouterName();
     } else if (special){
-      cellData = exportCell(v.findViewById(R.id.recycler_view)).substring(1) + "," +
+      cellData = exportCell(v.findViewById(R.id.recycler_view)) + "," +
           teamInfo.getScouterName();
     } else {
       cellData = team + "," + match + "," + exportCell(v.findViewById(R.id.recycler_view))
-          .substring(1) + "," + teamInfo.getScouterName();
+          + "," + teamInfo.getScouterName();
     }
     return cellData;
   }

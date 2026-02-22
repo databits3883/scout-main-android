@@ -230,38 +230,10 @@ public abstract class BaseScoutFragment extends Fragment {
                     File file = new File(
                         Objects.requireNonNull(FileUtils.copyFileToInternal(requireContext(), uri, getLayoutFileName())));
 
-                    // Extract cell data on UI thread first
-                    String cellData = scoutUtils.exportCell(requireView().findViewById(R.id.recycler_view));
-
-                    // Save current data before loading new layout (get team data on background thread)
-                    runInBackground(() -> {
-                        int match = matchInfo.getMatch();
-                        int team = 9999;
-                        if (provisionStore.isManualTeamOverrideEnabled()) {
-                            team = provisionStore.getManualTeamOverrideValue();
-                        } else if (teamInfo.teamsLoaded() || scheduleStore.isPitRemoveEnabled()) {
-                            team = teamInfo.getTeam(match);
-                        }
-
-                        // Combine and save data
-                        String savedData;
-                        if (scheduleStore.isPitRemoveEnabled()) {
-                            savedData = cellData.substring(1) + "," + teamInfo.getScouterName();
-                        } else if (shouldSaveWithSpecialFlag()) {
-                            savedData = cellData.substring(1) + "," + teamInfo.getScouterName();
-                        } else {
-                            savedData = team + "," + match + "," + cellData.substring(1) + "," + teamInfo.getScouterName();
-                        }
-                        // TODO: Actually save this data somewhere if needed
-
-                        runOnUiIfActive(() -> {
-                            // Load new layout
-                            boolean loaded = layoutManager.loadLayout(file, mRecyclerView, getViewLifecycleOwner());
-                            if (loaded) {
-                                hideLayoutButtons();
-                            }
-                        });
-                    });
+                    boolean loaded = layoutManager.loadLayout(file, mRecyclerView, getViewLifecycleOwner());
+                    if (loaded) {
+                        hideLayoutButtons();
+                    }
                 }
             }
         }

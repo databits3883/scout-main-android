@@ -69,8 +69,8 @@ public class Special extends BaseScoutFragment {
                     team = teamInfo.getTeam(match);
                   }
 
-                  // Combine data (remove leading comma from cellData) - special doesn't include team/match
-                  String qrData = cellData.substring(1) + "," + teamInfo.getScouterName();
+                  // Combine data - special doesn't include team/match
+                  String qrData = cellData + "," + teamInfo.getScouterName();
                   android.util.Log.d("Special", "Final QR data: " + qrData);
 
                   int finalTeam = team;

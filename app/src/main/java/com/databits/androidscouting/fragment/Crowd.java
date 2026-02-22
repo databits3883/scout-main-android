@@ -61,8 +61,8 @@ public class Crowd extends BaseScoutFragment {
                                     team = teamInfo.getTeam(match);
                                 }
 
-                                // Combine data (remove leading comma from cellData)
-                                String qrData = team + "," + match + "," + cellData.substring(1) + "," + teamInfo.getScouterName();
+                                // Combine data
+                                String qrData = team + "," + match + "," + cellData + "," + teamInfo.getScouterName();
                                 android.util.Log.d("Crowd", "Final QR data: " + qrData);
 
                                 runOnUiIfActive(() -> {

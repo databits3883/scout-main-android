@@ -61,8 +61,6 @@ public class TeamInfo {
   }
 
   public void setTeam(int val) {
-    // Note: team_number is not in repository interface, keeping direct access for now
-    // TODO: Add to repository if this is a core preference
     provisionStore.setManualTeamOverrideValue(val);
   }
 
