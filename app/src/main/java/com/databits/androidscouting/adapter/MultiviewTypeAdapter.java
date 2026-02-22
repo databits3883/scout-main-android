@@ -2,12 +2,9 @@ package com.databits.androidscouting.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,8 +34,6 @@ import com.skydoves.balloon.Balloon;
 import com.skydoves.balloon.BalloonAnimation;
 import com.skydoves.balloon.BalloonSizeSpec;
 import com.travijuu.numberpicker.library.NumberPicker;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +41,6 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
     ItemTouchHelperAdapter {
 
     public List<Cell> mCell;
-    List<String> entryLabels = new ArrayList<>();
     private TeamInfo teamInfo;
     private MatchInfo matchInfo;
     private ScheduleStore scheduleStore;
@@ -437,231 +431,55 @@ public class MultiviewTypeAdapter extends RecyclerView.Adapter<RecyclerView.View
                 case YES_NO:
                     YesNoTypeViewHolder yesnoHolder = (YesNoTypeViewHolder) holder;
                     bindHelpBalloon(yesnoHolder.help, object, helpPicture);
-                    yesnoHolder.title.setText(title_text);
-                    yesnoHolder.group.setOnPositionChangedListener(position -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            yesnoHolder.group.performHapticFeedback(
-                                HapticFeedbackConstants.CONFIRM);
-                        } else {
-                            yesnoHolder.group.performHapticFeedback(
-                                HapticFeedbackConstants.LONG_PRESS);
-                        }
-                    });
-                    yesnoHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    StandardCellBinder.bindYesNo(yesnoHolder, title_text, mContext, categoryColor);
                     break;
                 case TEXT:
                     TextTypeViewHolder textHolder = (TextTypeViewHolder) holder;
                     bindHelpBalloon(textHolder.help, object, helpPicture);
-                    textHolder.title.setText(title_text);
-                    textHolder.editText.setSingleLine(true);
-                    textHolder.textInputLayout.setId(R.id.textbox_text_layout);
-
-                    if (!object.isTextHidden()) {
-                        textHolder.textInputLayout.setHint(object.getTextHint());
-                    }
-
-                    textHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    StandardCellBinder.bindText(textHolder, object, title_text, mContext,
+                        categoryColor);
                     break;
                 case COUNTER:
                     CounterTypeViewHolder counterHolder = (CounterTypeViewHolder) holder;
                     bindHelpBalloon(counterHolder.help, object, helpPicture);
-                    counterHolder.title.setText(title_text);
-                    counterHolder.currentPicker.setMax(object.getMax());
-                    counterHolder.currentPicker.setMin(object.getMin());
-                    counterHolder.currentPicker.setUnit(object.getUnit());
-                    counterHolder.currentPicker.setValue(object.getDefaultValue());
-                    counterHolder.currentPicker.setFocusable(false);
-                    counterHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    PickerCellBinder.bindCounter(counterHolder, object, title_text, mContext,
+                        categoryColor);
                     break;
                 case DOUBLE_COUNTER:
                     DoubleCounterTypeViewHolder doubleCounterHolder = (DoubleCounterTypeViewHolder) holder;
                     bindHelpBalloon(doubleCounterHolder.help, object, helpPicture);
-                    doubleCounterHolder.title.setText(title_text);
-                    doubleCounterHolder.counterOne.setMax(object.getMax());
-                    doubleCounterHolder.counterOne.setMin(object.getMin());
-                    doubleCounterHolder.counterOne.setUnit(object.getUnit());
-                    doubleCounterHolder.counterOne.setValue(object.getDefaultValue());
-                    doubleCounterHolder.counterOne.setFocusable(false);
-
-                    doubleCounterHolder.counterTwo.setMax(object.getMax());
-                    doubleCounterHolder.counterTwo.setMin(object.getMin());
-                    doubleCounterHolder.counterTwo.setUnit(object.getUnit());
-                    doubleCounterHolder.counterTwo.setValue(object.getDefaultValue());
-                    doubleCounterHolder.counterTwo.setFocusable(false);
-                    doubleCounterHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    PickerCellBinder.bindDoubleCounter(doubleCounterHolder, object, title_text,
+                        mContext, categoryColor);
                     break;
                 case DUAL_COUNTER:
                     DualCounterTypeViewHolder dualCounterHolder = (DualCounterTypeViewHolder) holder;
                     bindHelpBalloon(dualCounterHolder.help, object, helpPicture);
-                    dualCounterHolder.title.setText(title_text);
-                    dualCounterHolder.counterOne.setMax(object.getMax());
-                    dualCounterHolder.counterOne.setMin(object.getMin());
-                    dualCounterHolder.counterOne.setUnit(object.getUnit());
-                    dualCounterHolder.counterOne.setValue(object.getDefaultValue());
-                    dualCounterHolder.counterOne.setFocusable(false);
-
-                    dualCounterHolder.counterTwo.setMax(object.getMax());
-                    dualCounterHolder.counterTwo.setMin(object.getMin());
-                    dualCounterHolder.counterTwo.setUnit(object.getUnit());
-                    dualCounterHolder.counterTwo.setValue(object.getDefaultValue());
-                    dualCounterHolder.counterTwo.setFocusable(false);
-                    dualCounterHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    PickerCellBinder.bindDualCounter(dualCounterHolder, object, title_text,
+                        mContext, categoryColor);
                     break;
                 case SEGMENT:
                     SegmentTypeViewHolder segmentHolder = (SegmentTypeViewHolder) holder;
                     bindHelpBalloon(segmentHolder.help, object, helpPicture);
-                    segmentHolder.title.setText(title_text);
-
-                    int segmentCount = object.getSegments();
-
-                    SegmentedButton[] segmentedButtons = {
-                        segmentHolder.one,
-                        segmentHolder.two,
-                        segmentHolder.three,
-                        segmentHolder.four,
-                        segmentHolder.five,
-                        segmentHolder.six
-                    };
-
-                    int visibleSegmentCount = Math.min(object.getSegmentLabels().size(), segmentCount);
-
-                    for (int i = 0; i < visibleSegmentCount; i++) {
-                        segmentedButtons[i].setText(object.getSegmentLabels().get(i));
-                        segmentedButtons[i].setVisibility(View.VISIBLE);
-                    }
-
-                    for (int i = visibleSegmentCount; i < segmentedButtons.length; i++) {
-                        segmentedButtons[i].setVisibility(View.GONE);
-                    }
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        segmentHolder.group.performHapticFeedback(
-                            HapticFeedbackConstants.CONFIRM);
-                    } else {
-                        segmentHolder.group.performHapticFeedback(
-                            HapticFeedbackConstants.LONG_PRESS);
-                    }
-                    segmentHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    StandardCellBinder.bindSegment(segmentHolder, object, title_text, mContext,
+                        categoryColor);
                     break;
                 case LIST:
                     ListTypeViewHolder listHolder = (ListTypeViewHolder) holder;
                     bindHelpBalloon(listHolder.help, object, helpPicture);
-                    listHolder.title.setText(title_text);
-
-                    // Loop through add each item to entryLabels
-                    for (int i = 0; i < object.getTotalEntries(); i++) {
-                        entryLabels.add(object.getEntryLabels().get(i));
-                    }
-                    ArrayAdapter<String> listspinnerArrayAdapter = new ArrayAdapter<>(mContext,
-                        android.R.layout.simple_spinner_item, entryLabels);
-                    listspinnerArrayAdapter.setDropDownViewResource(
-                        android.R.layout.simple_spinner_dropdown_item);
-                    listHolder.spinner.setAdapter(listspinnerArrayAdapter);
-                    listHolder.spinner.setTag("Spinner");
-                    listHolder.spinner.setOnItemClickListener((parent, view, position, id) -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM);
-                        } else {
-                            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-                        }
-                    });
-                    listHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
+                    StandardCellBinder.bindList(listHolder, object, title_text, mContext,
+                        categoryColor);
                     break;
                 case TEAM_SELECT:
                     TeamSelectTypeViewHolder teamSelectHolder = (TeamSelectTypeViewHolder) holder;
                     bindHelpBalloon(teamSelectHolder.help, object, helpPicture);
-
-                    teamSelectHolder.title.setText(R.string.select_team_title);
-
-                    teamSelectHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
-
-                    // Use cached pit teams list to avoid database access on main thread
-                    if (scheduleStore != null && scheduleStore.isPitRemoveEnabled() && cachedPitTeamsRemainingList != null) {
-                        entryLabels = cachedPitTeamsRemainingList;
-                    } else {
-                        entryLabels = Arrays.asList(mContext.getResources().getStringArray(
-                            R.array.team_list));;
-                    }
-
-                    teamSelectHolder.spinner.setTag("TeamSpinner");
-
-                    ArrayAdapter<String> teamselectspinnerArrayAdapter = new ArrayAdapter<>(mContext,
-                        android.R.layout.simple_spinner_item, entryLabels);
-                    teamselectspinnerArrayAdapter.setDropDownViewResource(
-                        android.R.layout.simple_spinner_dropdown_item);
-                    teamSelectHolder.spinner.setAdapter(
-                        teamselectspinnerArrayAdapter);
+                    TeamSelectCellBinder.bind(teamSelectHolder, object, mContext, categoryColor,
+                        scheduleStore, cachedPitTeamsRemainingList);
                     break;
                 case SPECIAL:
                     SpecialTypeViewHolder specialHolder = (SpecialTypeViewHolder) holder;
                     bindHelpBalloon(specialHolder.help, object, helpPicture);
-
-                    specialHolder.categoryColor.setBackgroundColor(
-                        ContextCompat.getColor(mContext, categoryColor));
-
-                    specialHolder.algaeMiss.setValue(0);
-                    specialHolder.algaeSuccess.setValue(0);
-                    specialHolder.algaeReturned.setValue(0);
-
-                    int specialSegmentCount = object.getSegments();
-                    SegmentedButton[] specialSegmentedButtons = specialHolder.specialSegmentedButtons;
-
-
-                    int visibleSpecialSegmentCount = Math.min(object.getSegmentLabels().size(),
-                        specialSegmentCount);
-
-                    for (int i = 0; i < visibleSpecialSegmentCount; i++) {
-                        specialSegmentedButtons[i].setText(object.getSegmentLabels().get(i));
-                        specialSegmentedButtons[i].setVisibility(View.VISIBLE);
-                    }
-
-                    for (int i = visibleSpecialSegmentCount; i < specialSegmentedButtons.length; i++) {
-                        specialSegmentedButtons[i].setVisibility(View.GONE);
-                    }
-
-                    specialHolder.teamSelector.setPosition(3,false);
-                    String teamColor = object.getSpecialTeamColor();
-
-                    // Use cached team numbers to avoid database access on main thread
-                    String teamNumberOne;
-                    String teamNumberTwo;
-                    String teamNumberThree;
-                    String teamNumberFour = "No Team";
-
-                    // Get team numbers from cache based on team color
-                    if(cachedSpecialTeamNumbers != null && cachedSpecialTeamNumbers.length == 7){
-                        if(teamColor != null && teamColor.equals("Blue")){
-                            // Blue alliance: positions 1, 2, 3
-                            teamNumberOne = cachedSpecialTeamNumbers[1];
-                            teamNumberTwo = cachedSpecialTeamNumbers[2];
-                            teamNumberThree = cachedSpecialTeamNumbers[3];
-                        } else { // Red alliance: positions 4, 5, 6
-                            teamNumberOne = cachedSpecialTeamNumbers[4];
-                            teamNumberTwo = cachedSpecialTeamNumbers[5];
-                            teamNumberThree = cachedSpecialTeamNumbers[6];
-                        }
-                    } else {
-                        // Fallback if cache not loaded yet
-                        teamNumberOne = "Team 1";
-                        teamNumberTwo = "Team 2";
-                        teamNumberThree = "Team 3";
-                    }
-
-                    specialSegmentedButtons[0].setText(teamNumberOne);
-                    specialSegmentedButtons[1].setText(teamNumberTwo);
-                    specialSegmentedButtons[2].setText(teamNumberThree);
-                    specialSegmentedButtons[3].setText(teamNumberFour);
-
-                    specialHolder.title.setText(
-                        String.format("%s Team", teamColor));
+                    SpecialCellBinder.bind(specialHolder, object, mContext, categoryColor,
+                        cachedSpecialTeamNumbers);
                     break;
 
             }
