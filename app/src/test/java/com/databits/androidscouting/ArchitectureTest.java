@@ -65,7 +65,39 @@ public class ArchitectureTest {
     public void fragmentsShouldNotDependOnRepositoryImplementations() {
         ArchRule rule = noClasses()
                 .that().resideInAPackage("..fragment..")
-                .should().dependOnClassesThat().resideInAPackage("..repository.impl..");
+                .should().dependOnClassesThat().resideInAPackage("..data..impl..");
+
+        rule.check(importedClasses);
+    }
+
+    @Test
+    public void viewModelsShouldNotDependOnRepositoryGraphsOrProviders() {
+        ArchRule rule = noClasses()
+                .that().resideInAPackage("..viewmodel..")
+                .and().haveSimpleNameEndingWith("ViewModel")
+                .should().dependOnClassesThat().haveSimpleName("PreferenceRepositoryProvider")
+                .orShould().dependOnClassesThat().haveSimpleName("AppRepositories")
+                .orShould().dependOnClassesThat().resideInAPackage("..data.repository.impl..");
+
+        rule.check(importedClasses);
+    }
+
+    @Test
+    public void viewModelsShouldDependOnStoreContractsNotRepositoryContracts() {
+        ArchRule rule = noClasses()
+                .that().resideInAPackage("..viewmodel..")
+                .and().haveSimpleNameEndingWith("ViewModel")
+                .should().dependOnClassesThat().haveSimpleNameEndingWith("Repository");
+
+        rule.check(importedClasses);
+    }
+
+    @Test
+    public void adapterGatewaysShouldUseStoreNaming() {
+        ArchRule rule = classes()
+                .that().resideInAPackage("..data.repository.adapter..")
+                .and().areTopLevelClasses()
+                .should().haveSimpleNameStartingWith("Store");
 
         rule.check(importedClasses);
     }

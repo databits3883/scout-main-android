@@ -14,6 +14,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -92,5 +93,71 @@ public class RepositoryIntegrationTest {
         // Assert - Verify status updated (should no longer appear in pending list)
         items = db.uploadQueueDao().getPendingUploadsSync();
         assertEquals(0, items.size());
+    }
+
+    @Test
+    public void testUploadQueueFailureThenClearSuccessful() {
+        UploadQueueItem first = new UploadQueueItem();
+        first.dataCsv = "1,111,data";
+        first.uploadType = "CROWD";
+        first.uploadStatus = "PENDING";
+        first.createdAt = System.currentTimeMillis();
+
+        UploadQueueItem second = new UploadQueueItem();
+        second.dataCsv = "2,222,data";
+        second.uploadType = "PIT";
+        second.uploadStatus = "PENDING";
+        second.createdAt = System.currentTimeMillis();
+
+        repository.addUploadItem(first);
+        repository.addUploadItem(second);
+
+        List<UploadQueueItem> pending = db.uploadQueueDao().getPendingUploadsSync();
+        assertEquals(2, pending.size());
+
+        long firstId = pending.get(0).id;
+        long secondId = pending.get(1).id;
+
+        repository.markUploadSuccess(firstId);
+        repository.markUploadFailed(secondId, "network timeout");
+
+        List<UploadQueueItem> afterMarking = db.uploadQueueDao().getPendingUploadsSync();
+        assertEquals(1, afterMarking.size());
+        UploadQueueItem failed = afterMarking.get(0);
+        assertEquals("FAILED", failed.uploadStatus);
+        assertEquals(1, failed.retryCount);
+
+        repository.clearSuccessfulUploads();
+
+        List<UploadQueueItem> remainingPending = db.uploadQueueDao().getPendingUploadsSync();
+        assertEquals(1, remainingPending.size());
+        assertEquals(secondId, remainingPending.get(0).id);
+    }
+
+    @Test
+    public void testImportExportTeamScheduleSkipsMalformedRowsAndSortsMatches() {
+        String[][] csvData = new String[][]{
+            {"Header", "B1", "B2", "B3", "R1", "R2", "R3"},
+            {"2", "201", "202", "203", "204", "205", "206"},
+            {"bad", "x", "x", "x", "x", "x", "x"},
+            {"1", "101", "102", "103", "104", "105", "106"},
+            {"3", "too", "short"}
+        };
+
+        repository.importTeamSchedule(csvData);
+
+        assertEquals(2, repository.getTeamMatchListSize());
+        assertEquals("101", repository.getTeamNumber(1, 1));
+        assertEquals("206", repository.getTeamNumber(2, 6));
+
+        String[][] exported = repository.exportTeamSchedule();
+        assertNotNull(exported);
+        assertEquals(2, exported.length);
+        assertEquals("1", exported[0][0]);
+        assertEquals("2", exported[1][0]);
+        assertEquals(
+            Arrays.asList("1", "101", "102", "103", "104", "105", "106"),
+            Arrays.asList(exported[0])
+        );
     }
 }
